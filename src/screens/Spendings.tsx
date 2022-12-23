@@ -5,10 +5,10 @@ import Center from '../components/utils/Center';
 
 interface Props {}
 
-const Home = ({}: Props) => {
+const Spendings = ({}: Props) => {
   useEffect(() => {}, []);
 
-  return withLayout(<Center>Home</Center>);
+  return withLayout(<Center>Spendings</Center>);
 };
 
-export default Home;
+export default Spendings;

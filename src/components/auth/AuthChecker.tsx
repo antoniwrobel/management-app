@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { auth } from "../../config/firebase";
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { auth } from '../../config/firebase';
 
 interface Props {
   children: React.ReactNode;
@@ -11,9 +11,9 @@ const AuthChecker = ({ children }: Props) => {
 
   useEffect(() => {
     if (!auth.currentUser) {
-      navigate("/login");
+      navigate('/login');
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   return <>{children}</>;
 };

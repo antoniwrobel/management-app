@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import { CircularProgress } from "@mui/material";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { auth } from "./config/firebase";
-import routes from "./config/routes";
-import Center from "./components/utils/Center";
-import AuthChecker from "./components/auth/AuthChecker";
+import { useEffect, useState } from 'react';
+import { CircularProgress } from '@mui/material';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { auth } from './config/firebase';
+import routes from './config/routes';
+import Center from './components/utils/Center';
+import AuthChecker from './components/auth/AuthChecker';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -12,9 +12,9 @@ function App() {
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
       if (user) {
-        console.info("User detected.");
+        console.info('User detected.');
       } else {
-        console.info("No user detected");
+        console.info('No user detected');
       }
       setLoading(false);
     });
@@ -36,7 +36,7 @@ function App() {
               key={index}
               path={route.path}
               element={
-                route.protected ? (
+                route.isProtected ? (
                   <AuthChecker>
                     <route.component />
                   </AuthChecker>
