@@ -14,37 +14,37 @@ interface RouteType {
 const routes: RouteType[] = [
   {
     path: '/',
-    component: Home,
+    component: () => Home,
     name: 'Home',
     isProtected: true
   },
   {
     path: '/login',
-    component: Login,
+    component: () => Login,
     name: 'Login Screen',
     isProtected: false
   },
   {
     path: '/inwentarz',
-    component: Inventory,
+    component: () => Inventory,
     name: 'Inwentarz',
     isProtected: true
   },
   {
     path: '/rozliczenia',
-    component: Settlements,
+    component: () => Settlements,
     name: 'Rozliczenia',
     isProtected: true
   },
   {
     path: '/skarbonka',
-    component: Valve,
+    component: () => Valve,
     name: 'Skarbonka',
     isProtected: true
   },
   {
     path: '/wydatki',
-    component: Spendings,
+    component: () => Spendings,
     name: 'Wydatki',
     isProtected: true
   }

@@ -1,8 +1,10 @@
 import Navigation from '../navigation/Navigation';
 
-export const withLayout = (children: React.ReactElement) => (
+const withLayout = (Component: any) => (
   <>
     <Navigation />
-    {children}
+    <Component />
   </>
 );
+
+export default withLayout;
