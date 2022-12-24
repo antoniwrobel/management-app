@@ -20,7 +20,7 @@ const routes: RouteType[] = [
   },
   {
     path: '/login',
-    component: () => Login,
+    component: Login,
     name: 'Login Screen',
     isProtected: false
   },
