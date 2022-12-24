@@ -16,11 +16,13 @@ import Stack from '@mui/material/Stack';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { useMediaQuery } from '@mui/material';
 
 interface Props {}
 
 const Inventory = ({}: Props) => {
   useEffect(() => {}, []);
+  const matches = useMediaQuery('(max-width:500px)');
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -81,7 +83,6 @@ const Inventory = ({}: Props) => {
 
   const initialFormValues = initialValues;
 
-  console.log(initialFormValues);
   return (
     <Container maxWidth="xl" sx={{ p: '20px' }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -120,7 +121,10 @@ const Inventory = ({}: Props) => {
                   <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
                     {inputs.map((input, index) => {
                       return (
-                        <Box sx={{ gridColumn: input.fullWidth ? 'span 4' : 'span 2' }} key={index}>
+                        <Box
+                          sx={{ gridColumn: matches ? 'span 4' : input.fullWidth ? 'span 4' : 'span 2' }}
+                          key={index}
+                        >
                           {input.type === 'date' ? (
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                               <Stack spacing={3}>
