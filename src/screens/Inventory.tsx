@@ -1,87 +1,113 @@
 import { useEffect, useState } from 'react';
-import withLayout from '../components/layout/withLayout';
 
+import withLayout from '../components/layout/withLayout';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Center from '../components/utils/Center';
 import AddItemModal from '../components/modal/Modal';
-import { Formik } from 'formik';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
+
+import { Formik } from 'formik';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { useMediaQuery } from '@mui/material';
 
+import { db } from '../config/firebase';
+import { collection, getDocs, addDoc } from '@firebase/firestore';
+
+import dayjs from 'dayjs';
+
 interface Props {}
+
+const inputs = [
+  {
+    type: 'text',
+    name: 'productName',
+    label: 'nazwa produktu',
+    fullWidth: true
+  },
+  {
+    type: 'select',
+    options: ['utworzono', 'sprzedano'],
+    name: 'status',
+    label: 'status',
+    fullWidth: true
+  },
+  {
+    type: 'number',
+    name: 'purchaseAmount',
+    label: 'kwota zakupu'
+  },
+  {
+    type: 'number',
+    name: 'saleAmount',
+    label: 'kwota sprzedazy'
+  },
+  {
+    type: 'date',
+    name: 'createDate',
+    label: 'data stworzenia'
+  },
+  {
+    type: 'date',
+    name: 'soldDate',
+    label: 'data sprzedania'
+  },
+  {
+    type: 'text',
+    name: 'url',
+    label: 'link do aukcji',
+    fullWidth: true
+  }
+];
 
 const Inventory = ({}: Props) => {
   useEffect(() => {}, []);
   const matches = useMediaQuery('(max-width:500px)');
 
+  type ItemType = {
+    id: string;
+    productName: string;
+    purchaseAmount: number;
+    saleAmount: number;
+    status: string;
+    url: string;
+    createDate: { nanoseconds: number; seconds: number };
+    soldDate: { nanoseconds: number; seconds: number };
+  }[];
+
   const [modalOpen, setModalOpen] = useState(false);
+  const [items, setItems] = useState<ItemType>([]);
 
-  const inputs = [
-    {
-      type: 'text',
-      name: 'name',
-      label: 'nazwa produktu',
-      fullWidth: true
-    },
-    {
-      type: 'number',
-      name: 'wojtekCost',
-      label: 'cena zakupu'
-    },
-    {
-      type: 'number',
-      name: 'soldFor',
-      label: 'cena sprzedazy'
-    },
-    {
-      type: 'date',
-      name: 'addDate',
-      label: 'data dodania'
-    },
-    {
-      type: 'date',
-      name: 'soldDate',
-      label: 'data sprzedania'
-    },
-    {
-      type: 'select',
-      name: 'status',
-      label: 'status'
-    },
-    {
-      type: 'select',
-      name: 'statusRoz',
-      label: 'status rozliczenia'
-    },
-    {
-      type: 'text',
-      name: 'url',
-      label: 'link do aukcji',
-      fullWidth: true
-    }
-  ];
+  const itemsCollectionRef = collection(db, 'items');
 
-  const initialValues = {};
-  //@ts-ignore
+  const getItems = async () => {
+    const data = await getDocs(itemsCollectionRef);
+    const items = data.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as ItemType;
 
-  for (let i = 0; i < inputs.length; i++) {
-    //@ts-ignore
-    const e = inputs[i];
-    //@ts-ignore
-    initialValues[e.name] = '';
-  }
+    setItems(items);
+  };
 
-  const initialFormValues = initialValues;
+  useEffect(() => {
+    getItems();
+  }, []);
+
+  const initialValues = {
+    productName: '',
+    status: 'utworzono',
+    purchaseAmount: '',
+    saleAmount: '',
+    createDate: dayjs().format(),
+    soldDate: null,
+    url: ''
+  };
 
   return (
     <Container maxWidth="xl" sx={{ p: '20px' }}>
@@ -93,28 +119,55 @@ const Inventory = ({}: Props) => {
 
       <AddItemModal open={modalOpen}>
         <Formik
-          initialValues={initialFormValues}
+          initialValues={initialValues}
           validate={(values) => {
             const errors = {} as any;
+            const purchaseAmount = values.purchaseAmount as string | number;
+            const saleAmount = values.saleAmount as string | number;
 
-            // if (!values.email) {
-            //   errors.email = 'Required';
-            // } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
-            //   errors.email = 'Invalid email address';
-            // }
+            if (!values.productName) {
+              errors.productName = 'Nazwa produktu wymagana';
+            }
 
-            // if (!values.password) {
-            //   errors.password = 'Required';
-            // }
+            if (!purchaseAmount) {
+              errors.purchaseAmount = 'Kwota zakupu wymagana';
+            }
+
+            if (purchaseAmount <= 0) {
+              errors.purchaseAmount = 'Kwota zakupu musi być większa od 0';
+            }
+
+            if (saleAmount !== '' && saleAmount <= 0) {
+              errors.saleAmount = 'Kwota sprzedaży musi być większa od 0';
+            }
+
+            if (values.createDate === 'Invalid Date') {
+              errors.createDate = 'Błędny format daty';
+            }
+
+            if (values.soldDate === 'Invalid Date') {
+              errors.soldDate = 'Błędny format daty';
+            }
 
             return errors;
           }}
-          onSubmit={(values, { setSubmitting }) => {
-            console.log(values);
+          onSubmit={async (values, { setSubmitting }) => {
+            await addDoc(itemsCollectionRef, {
+              createDate: values.createDate,
+              productName: values.productName,
+              purchaseAmount: values.purchaseAmount,
+              saleAmount: values.saleAmount || null,
+              soldDate: values.soldDate || null,
+              status: values.status,
+              url: values.url
+            });
+
+            getItems();
             setSubmitting(false);
+            setModalOpen(false);
           }}
         >
-          {({ values, errors, handleChange, handleBlur, handleSubmit, isSubmitting }) => {
+          {({ setFieldValue, values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => {
             return (
               <form onSubmit={handleSubmit}>
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -130,11 +183,23 @@ const Inventory = ({}: Props) => {
                               <Stack spacing={3}>
                                 <DesktopDatePicker
                                   label={input.label}
-                                  inputFormat="MM/DD/YYYY"
+                                  inputFormat="DD/MM/YYYY"
                                   //@ts-ignore
                                   value={values[input.name]}
-                                  onChange={handleChange}
-                                  renderInput={(params) => <TextField {...params} />}
+                                  onChange={(d) => {
+                                    setFieldValue(input.name, dayjs(d).format());
+                                  }}
+                                  renderInput={(params) => {
+                                    return (
+                                      <TextField
+                                        {...params}
+                                        datatype="date"
+                                        type="date"
+                                        //@ts-ignore
+                                        helperText={errors[input.name]}
+                                      />
+                                    );
+                                  }}
                                 />
                               </Stack>
                             </LocalizationProvider>
@@ -147,11 +212,17 @@ const Inventory = ({}: Props) => {
                                 //@ts-ignore
                                 value={values[input.name]}
                                 label={input.label}
-                                onChange={handleChange}
+                                onChange={(d) => {
+                                  setFieldValue(input.name, d.target.value);
+                                }}
                               >
-                                <MenuItem value={10}>Ten</MenuItem>
-                                <MenuItem value={20}>Twenty</MenuItem>
-                                <MenuItem value={30}>Thirty</MenuItem>
+                                {input.options?.map((option) => {
+                                  return (
+                                    <MenuItem key={option} value={option}>
+                                      {option}
+                                    </MenuItem>
+                                  );
+                                })}
                               </Select>
                             </FormControl>
                           ) : (
@@ -161,13 +232,13 @@ const Inventory = ({}: Props) => {
                               label={input.label}
                               variant="outlined"
                               //@ts-ignore
-                              error={Boolean(errors[input.name])}
+                              error={touched[input.name] && Boolean(errors[input.name])}
                               //@ts-ignore
-                              helperText={errors[input.name]}
+                              helperText={touched[input.name] && errors[input.name]}
                               onChange={handleChange}
                               onBlur={handleBlur}
                               //@ts-ignore
-                              value={values[input.name] || ''}
+                              value={values[input.name]}
                               fullWidth
                             />
                           )}
@@ -196,7 +267,16 @@ const Inventory = ({}: Props) => {
           }}
         </Formik>
       </AddItemModal>
-      <Center>Inventory</Center>
+      <Center>
+        {items
+          //@ts-ignore
+          .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
+          .map((item) => (
+            <Box key={item.id}>
+              {item.productName} - {item.status} - zakupiono za {item.purchaseAmount} zł
+            </Box>
+          ))}
+      </Center>
     </Container>
   );
 };

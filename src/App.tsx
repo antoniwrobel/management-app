@@ -22,7 +22,7 @@ function App() {
 
   if (loading)
     return (
-      <Center>
+      <Center height="100vh">
         <CircularProgress />
       </Center>
     );
