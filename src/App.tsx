@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CircularProgress } from '@mui/material';
+import { Box, Button, CircularProgress } from '@mui/material';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { auth } from './config/firebase';
 import routes from './config/routes';
@@ -46,6 +46,21 @@ function App() {
               }
             />
           ))}
+          <Route
+            path="*"
+            element={
+              <Center height="100vh">
+                <Box>page not found</Box>
+                <Box sx={{ mt: '20px' }}>
+                  <Button variant="contained" size="small">
+                    <a href="/inventory" style={{ textDecoration: 'none', color: 'inherit' }}>
+                      Powrót
+                    </a>
+                  </Button>
+                </Box>
+              </Center>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </div>

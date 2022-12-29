@@ -33,8 +33,6 @@ import Paper from '@mui/material/Paper';
 import dayjs from 'dayjs';
 import ValveModal from '../components/modal/ValveModal';
 
-interface Props {}
-
 const inputs = [
   // {
   //   type: 'checkbox',
@@ -90,7 +88,7 @@ const inputs = [
   }
 ];
 
-const Inventory = ({}: Props) => {
+const Inventory = () => {
   useEffect(() => {}, []);
   const matches = useMediaQuery('(max-width:500px)');
 
@@ -151,6 +149,9 @@ const Inventory = ({}: Props) => {
     }
   };
 
+  let summaryWojt = 0;
+  let summaryStan = 0;
+
   return (
     <Container sx={{ p: '20px', maxWidth: 'calc(100% - 20px)!important' }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -190,7 +191,6 @@ const Inventory = ({}: Props) => {
             return errors;
           }}
           onSubmit={async (values, { setSubmitting }) => {
-            console.log({ values });
             await addDoc(itemsCollectionRef, {
               createDate: values.createDate,
               productName: values.productName,
@@ -277,7 +277,6 @@ const Inventory = ({}: Props) => {
                                 <Checkbox
                                   name={input.name}
                                   onChange={(v) => {
-                                    console.log(v.target.value);
                                     const value = v.target.value === 'on' ? true : false;
                                     setFieldValue(input.name, value);
                                   }}
@@ -396,7 +395,6 @@ const Inventory = ({}: Props) => {
           }}
         >
           {({ setFieldValue, values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => {
-            console.log('selected => ', values);
             return (
               <form onSubmit={handleSubmit}>
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -532,21 +530,34 @@ const Inventory = ({}: Props) => {
 
       <Center>
         <TableContainer component={Paper} sx={{ mt: '20px' }}>
-          <Table sx={{ minWidth: 650 }}>
+          <Table sx={{ minWidth: 1550 }}>
             <TableHead>
               <TableRow>
+                {/* 1 */}
                 <TableCell>Nazwa produktu</TableCell>
+                {/* 2 */}
                 <TableCell align="right">komis</TableCell>
+                {/* 3 */}
                 <TableCell align="right">ilość</TableCell>
+                {/* 4 */}
                 <TableCell align="right">stan</TableCell>
+                {/* 5 */}
                 <TableCell align="right">status</TableCell>
+                {/* 6 */}
                 <TableCell align="right">kwota zakupu</TableCell>
+                {/* 7 */}
                 <TableCell align="right">kwota sprzedazy</TableCell>
+                {/* 8 */}
                 <TableCell align="right">saldo stan</TableCell>
+                {/* 9 */}
                 <TableCell align="right">saldo wojtek</TableCell>
+                {/* 10 */}
                 <TableCell align="right">data stworzenia</TableCell>
+                {/* 11 */}
                 <TableCell align="right">data sprzedazy</TableCell>
+                {/* 12 */}
                 <TableCell align="right">uwagi</TableCell>
+                {/* 13 */}
                 <TableCell align="right">akcja</TableCell>
               </TableRow>
             </TableHead>
@@ -561,46 +572,90 @@ const Inventory = ({}: Props) => {
                 items
                   // @ts-ignore
                   .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
-                  .map((item) => (
-                    <TableRow key={item.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                      <TableCell component="th" scope="row">
-                        {item.productName}
-                      </TableCell>
-                      <TableCell align="right">{item.takenIntoCommission ? 'tak' : 'nie'}</TableCell>
-                      <TableCell align="right">{item.quantity}</TableCell>
-                      <TableCell align="right">{item.condition}</TableCell>
-                      <TableCell align="right">{item.status}</TableCell>
-                      <TableCell align="right">{item.purchaseAmount}zł</TableCell>
-                      <TableCell align="right">{item.saleAmount ? `${item.saleAmount}zł` : '-'} </TableCell>
-                      <TableCell align="right">{item.saleAmount ? `${item.saleAmount}zł` : '-'} </TableCell>
-                      <TableCell align="right">
-                        {item.saleAmount ? `${(item.saleAmount - item.purchaseAmount) / 2}zł` : '-'}
-                      </TableCell>
-                      <TableCell align="right">{dayjs(item.createDate).format('DD/MM/YYYY')}</TableCell>
-                      <TableCell align="right">
-                        {item.soldDate ? dayjs(item.soldDate).format('DD/MM/YYYY') : '-'}
-                      </TableCell>
-                      <TableCell
-                        align="right"
-                        style={{
-                          width: '50px',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis'
-                        }}
-                      >
-                        {item.details}
-                      </TableCell>
-                      <TableCell align="right">
-                        <Button size="small" variant="contained" type="submit" onClick={() => addToValve(item.id)}>
-                          Edytuj
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                  .map((item) => {
+                    const profit = item.saleAmount ? (item.saleAmount - item.purchaseAmount) / 2 : false;
+                    summaryWojt +=
+                      item.status === 'sprzedano' ? (profit ? item.purchaseAmount + profit : item.purchaseAmount) : 0;
+                    summaryStan += profit || 0;
+
+                    return (
+                      <TableRow key={item.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                        {/* 1 */}
+                        <TableCell component="th" scope="row">
+                          {item.productName}
+                        </TableCell>
+                        {/* 2 */}
+                        <TableCell align="right">{item.takenIntoCommission ? 'tak' : 'nie'}</TableCell>
+                        {/* 3 */}
+                        <TableCell align="right">{item.quantity}</TableCell>
+                        {/* 4 */}
+                        <TableCell align="right">{item.condition}</TableCell>
+                        {/* 5 */}
+                        <TableCell align="right">{item.status}</TableCell>
+                        {/* 6 */}
+                        <TableCell align="right">{item.purchaseAmount}zł</TableCell>
+                        {/* 7 */}
+                        <TableCell align="right">{item.saleAmount ? `${item.saleAmount}zł` : '-'} </TableCell>
+                        {/* 8 */}
+                        <TableCell align="right">{profit ? `${profit}zł` : '-'}</TableCell>
+                        {/* 9 */}
+                        <TableCell align="right">
+                          {/* @ts-ignore */}
+                          {item.saleAmount ? `${profit ? item.purchaseAmount + profit : item.purchaseAmount}zł` : '-'}
+                        </TableCell>
+                        {/* 10 */}
+                        <TableCell align="right">{dayjs(item.createDate).format('DD/MM/YYYY')}</TableCell>
+                        {/* 11 */}
+                        <TableCell align="right">
+                          {item.soldDate ? dayjs(item.soldDate).format('DD/MM/YYYY') : '-'}
+                        </TableCell>
+                        {/* 12 */}
+                        <TableCell
+                          align="right"
+                          style={{
+                            width: '50px',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
+                          }}
+                        >
+                          {item.details}
+                        </TableCell>
+                        {/* 13 */}
+                        <TableCell align="right">
+                          <Button size="small" variant="contained" type="submit" onClick={() => addToValve(item.id)}>
+                            Edytuj
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
               )}
             </TableBody>
           </Table>
+          <Box
+            sx={{
+              minWidth: 1550,
+              padding: '16px',
+              borderTop: '16px solid #dedede',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            <Box sx={{ fontWeight: 'bold' }}>Podsumowanie</Box>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              Wojtek suma:{' '}
+              <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
+                {summaryWojt.toFixed(2)}zł
+              </Box>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              Stan suma:{' '}
+              <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
+                {summaryStan.toFixed(2)}zł
+              </Box>
+            </Box>
+          </Box>
         </TableContainer>
       </Center>
     </Container>

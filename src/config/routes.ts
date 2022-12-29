@@ -1,4 +1,3 @@
-import Home from '../screens/Home';
 import Inventory from '../screens/Inventory';
 import Login from '../screens/Login';
 import Settlements from '../screens/Settlements';
@@ -13,19 +12,13 @@ interface RouteType {
 
 const routes: RouteType[] = [
   {
-    path: '/',
-    component: () => Home,
-    name: 'Home',
-    isProtected: true
-  },
-  {
     path: '/login',
     component: Login,
     name: 'Login Screen',
     isProtected: false
   },
   {
-    path: '/inwentarz',
+    path: '/inventory',
     component: () => Inventory,
     name: 'Inwentarz',
     isProtected: true
