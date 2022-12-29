@@ -53,7 +53,10 @@ function App() {
                 <Box>page not found</Box>
                 <Box sx={{ mt: '20px' }}>
                   <Button variant="contained" size="small">
-                    <a href="/inventory" style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <a
+                      href="https://antoniwrobel.github.io/management-app/inventory"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
                       Powrót
                     </a>
                   </Button>

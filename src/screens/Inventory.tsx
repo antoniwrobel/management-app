@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, MouseEvent } from 'react';
 
 import withLayout from '../components/layout/withLayout';
 import Button from '@mui/material/Button';
@@ -26,12 +26,432 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
+import { alpha } from '@mui/material/styles';
+import TableHead from '@mui/material/TableHead';
+import TablePagination from '@mui/material/TablePagination';
+import TableSortLabel from '@mui/material/TableSortLabel';
+import Toolbar from '@mui/material/Toolbar';
+import TableRow from '@mui/material/TableRow';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import Switch from '@mui/material/Switch';
+import DeleteIcon from '@mui/icons-material/Delete';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import { visuallyHidden } from '@mui/utils';
+
 import dayjs from 'dayjs';
+
 import ValveModal from '../components/modal/ValveModal';
+
+function randomInteger(max: number) {
+  return Math.floor(Math.random() * (max + 1));
+}
+function randomRgbColor() {
+  let r = randomInteger(255);
+  let g = randomInteger(255);
+  let b = randomInteger(255);
+  return [r, g, b];
+}
+function randomHexColor() {
+  let [r, g, b] = randomRgbColor();
+  let hr = r.toString(16).padStart(2, '0');
+  let hg = g.toString(16).padStart(2, '0');
+  let hb = b.toString(16).padStart(2, '0');
+  return '#' + hr + hg + hb;
+}
+function getColor() {
+  return randomHexColor();
+}
+
+interface Data {
+  productName: string;
+  quantity: number;
+  condition: string;
+  status: string;
+  purchaseAmount: number;
+  saleAmount: number;
+  createDate: Date;
+  details: string;
+  profit: number;
+  profit1: number;
+}
+
+//@ts-ignore
+const rows = [];
+
+function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
+  if (b[orderBy] < a[orderBy]) {
+    return -1;
+  }
+  if (b[orderBy] > a[orderBy]) {
+    return 1;
+  }
+  return 0;
+}
+
+type Order = 'asc' | 'desc';
+
+function getComparator<Key extends keyof any>(
+  order: Order,
+  orderBy: Key
+): (a: { [key in Key]: number | string }, b: { [key in Key]: number | string }) => number {
+  return order === 'desc'
+    ? (a, b) => descendingComparator(a, b, orderBy)
+    : (a, b) => -descendingComparator(a, b, orderBy);
+}
+
+// Since 2020 all major browsers ensure sort stability with Array.prototype.sort().
+// stableSort() brings sort stability to non-modern browsers (notably IE11). If you
+// only support modern browsers you can replace stableSort(exampleArray, exampleComparator)
+// with exampleArray.slice().sort(exampleComparator)
+function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) {
+  const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) {
+      return order;
+    }
+    return a[1] - b[1];
+  });
+  return stabilizedThis.map((el) => el[0]);
+}
+
+interface HeadCell {
+  id: keyof Data;
+  type: 'text' | 'select' | 'number' | 'date';
+  label: string;
+  numeric?: boolean;
+  fullWidth?: boolean;
+  options?: string[];
+  editOnly?: boolean;
+  addOnly?: boolean;
+}
+
+const headCells: readonly HeadCell[] = [
+  {
+    type: 'text',
+    id: 'productName',
+    label: 'nazwa produktu',
+    fullWidth: true
+  },
+  {
+    type: 'select',
+    options: ['nowe', 'używane'],
+    id: 'condition',
+    label: 'stan'
+  },
+  {
+    type: 'select',
+    options: ['utworzono', 'oczekuję na płatność', 'sprzedano'],
+    id: 'status',
+    label: 'status',
+    fullWidth: true,
+    editOnly: true
+  },
+  {
+    type: 'number',
+    id: 'purchaseAmount',
+    label: 'kwota zakupu'
+  },
+  {
+    type: 'number',
+    id: 'saleAmount',
+    label: 'kwota sprzedazy'
+  },
+  {
+    type: 'number',
+    id: 'profit',
+    label: 'zysk stan'
+  },
+  {
+    type: 'number',
+    id: 'profit1',
+    label: 'zysk wojtek'
+  },
+  {
+    type: 'date',
+    id: 'createDate',
+    label: 'data stworzenia',
+    fullWidth: true
+  },
+  {
+    type: 'text',
+    id: 'details',
+    label: 'uwagi',
+    fullWidth: true
+  }
+];
+
+interface EnhancedTableProps {
+  numSelected: number;
+  onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void;
+  onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  order: Order;
+  orderBy: string;
+  rowCount: number;
+}
+
+function EnhancedTableHead(props: EnhancedTableProps) {
+  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+  const createSortHandler = (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
+    onRequestSort(event, property);
+  };
+
+  return (
+    <TableHead>
+      <TableRow>
+        <TableCell padding="checkbox">
+          <Checkbox
+            color="primary"
+            indeterminate={numSelected > 0 && numSelected < rowCount}
+            checked={rowCount > 0 && numSelected === rowCount}
+            onChange={onSelectAllClick}
+            inputProps={{
+              'aria-label': 'select all desserts'
+            }}
+          />
+        </TableCell>
+        {headCells.map((headCell) => (
+          <TableCell
+            key={headCell.id}
+            align={headCell.numeric ? 'right' : 'left'}
+            padding={'normal'}
+            sortDirection={orderBy === headCell.id ? order : false}
+          >
+            <TableSortLabel
+              active={orderBy === headCell.id}
+              direction={orderBy === headCell.id ? order : 'asc'}
+              onClick={createSortHandler(headCell.id)}
+            >
+              {headCell.label}
+              {orderBy === headCell.id ? (
+                <Box component="span" sx={visuallyHidden}>
+                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                </Box>
+              ) : null}
+            </TableSortLabel>
+          </TableCell>
+        ))}
+      </TableRow>
+    </TableHead>
+  );
+}
+
+interface EnhancedTableToolbarProps {
+  numSelected: number;
+}
+
+function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
+  const { numSelected } = props;
+
+  return (
+    <Toolbar
+      sx={{
+        pl: { sm: 2 },
+        pr: { xs: 1, sm: 1 },
+        ...(numSelected > 0 && {
+          bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity)
+        })
+      }}
+    >
+      {numSelected > 0 ? (
+        <Typography sx={{ flex: '1 1 100%' }} color="inherit" variant="subtitle1" component="div">
+          {numSelected} selected
+        </Typography>
+      ) : (
+        <Typography sx={{ flex: '1 1 100%' }} variant="h6" id="tableTitle" component="div">
+          Nutrition
+        </Typography>
+      )}
+      {numSelected > 0 ? (
+        <Tooltip title="Delete">
+          <IconButton>
+            <DeleteIcon />
+          </IconButton>
+        </Tooltip>
+      ) : (
+        <Tooltip title="Filter list">
+          <IconButton>
+            <FilterListIcon />
+          </IconButton>
+        </Tooltip>
+      )}
+    </Toolbar>
+  );
+}
+
+export function EnhancedTable() {
+  const [order, setOrder] = useState<Order>('asc');
+  const [orderBy, setOrderBy] = useState<keyof Data>('productName');
+  const [selected, setSelected] = useState<readonly string[]>([]);
+  const [page, setPage] = useState(0);
+  const [dense, setDense] = useState(false);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const [items, setItems] = useState<any>([]);
+
+  const itemsCollectionRef = collection(db, 'items');
+
+  const getItems = async () => {
+    // const data = await getDocs(itemsCollectionRef);
+    // const items = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+
+    setItems([]);
+  };
+
+  useEffect(() => {
+    getItems();
+  });
+
+  const handleRequestSort = (event: MouseEvent<unknown>, property: keyof Data) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
+  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      //@ts-ignore
+      const newSelected = rows.map((n) => n.productName);
+      setSelected(newSelected);
+      return;
+    }
+    setSelected([]);
+  };
+
+  const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
+    const selectedIndex = selected.indexOf(name);
+    let newSelected: readonly string[] = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, name);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
+    }
+
+    setSelected(newSelected);
+  };
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDense(event.target.checked);
+  };
+
+  let summaryWojt = 0;
+  let summaryStan = 0;
+
+  const isSelected = (name: string) => selected.indexOf(name) !== -1;
+
+  // Avoid a layout jump when reaching the last page with empty rows.
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+
+  return (
+    <Box sx={{ width: '100%' }}>
+      <Paper sx={{ width: '100%', mb: 2 }}>
+        <EnhancedTableToolbar numSelected={selected.length} />
+        <TableContainer>
+          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size={dense ? 'small' : 'medium'}>
+            <EnhancedTableHead
+              numSelected={selected.length}
+              order={order}
+              orderBy={orderBy}
+              onSelectAllClick={handleSelectAllClick}
+              onRequestSort={handleRequestSort}
+              rowCount={rows.length}
+            />
+            <TableBody>
+              {/* //@ts-ignore */}
+              {items.map((row: any, index: number) => {
+                const profit = row.saleAmount ? (row.saleAmount - row.purchaseAmount) / 2 : false;
+
+                summaryWojt +=
+                  row.status === 'sprzedano' ? (profit ? row.purchaseAmount + profit : row.purchaseAmount) : 0;
+                summaryStan += row.status === 'sprzedano' ? profit || 0 : 0;
+
+                const isItemSelected = isSelected(row.productName);
+                const labelId = `enhanced-table-checkbox-${index}`;
+
+                return (
+                  <TableRow
+                    hover
+                    onClick={(event) => handleClick(event, row.productName)}
+                    role="checkbox"
+                    aria-checked={isItemSelected}
+                    tabIndex={-1}
+                    key={row.id}
+                    selected={isItemSelected}
+                  >
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        color="primary"
+                        checked={isItemSelected}
+                        inputProps={{
+                          'aria-labelledby': labelId
+                        }}
+                      />
+                    </TableCell>
+
+                    <TableCell align="right">{row.productName}</TableCell>
+                    <TableCell align="right">{row.condition}</TableCell>
+                    <TableCell align="right">{row.status}</TableCell>
+                    <TableCell align="right">{row.purchaseAmount}zł</TableCell>
+                    <TableCell align="right">{row.saleAmount ? `${row.saleAmount}zł` : '-'} </TableCell>
+                    <TableCell align="right">{profit ? `${profit}zł` : '-'}</TableCell>
+                    <TableCell align="right">
+                      {' '}
+                      {row.saleAmount ? `${profit ? row.purchaseAmount + profit : row.purchaseAmount}zł` : '-'}
+                    </TableCell>
+                    <TableCell align="right">{dayjs(row.createDate).format('DD/MM/YYYY')}</TableCell>
+                    <TableCell align="right">{row.soldDate ? dayjs(row.soldDate).format('DD/MM/YYYY') : '-'}</TableCell>
+                    <TableCell align="right">{row.details}</TableCell>
+                    <TableCell align="right">
+                      <Button size="small" variant="contained" type="submit">
+                        Edytuj
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+              {emptyRows > 0 && (
+                <TableRow
+                  style={{
+                    height: (dense ? 33 : 53) * emptyRows
+                  }}
+                >
+                  <TableCell colSpan={6} />
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={rows.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Paper>
+    </Box>
+  );
+}
 
 const inputs = [
   // {
@@ -49,7 +469,8 @@ const inputs = [
   {
     type: 'number',
     name: 'quantity',
-    label: 'ilość'
+    label: 'ilość',
+    addOnly: true
   },
   {
     type: 'select',
@@ -59,10 +480,11 @@ const inputs = [
   },
   {
     type: 'select',
-    options: ['utworzono', 'sprzedano'],
+    options: ['utworzono', 'oczekuję na płatność', 'sprzedano'],
     name: 'status',
     label: 'status',
-    fullWidth: true
+    fullWidth: true,
+    editOnly: true
   },
   {
     type: 'number',
@@ -95,15 +517,16 @@ const Inventory = () => {
   type ItemType = {
     id: string;
     productName: string;
-    quantity: number;
     purchaseAmount: number;
     saleAmount: number;
+    index: string;
     takenIntoCommission: boolean;
     status: string;
     condition: string;
     details: string;
     createDate: Date;
     soldDate: Date;
+    color: string;
   };
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -135,6 +558,7 @@ const Inventory = () => {
     condition: '',
     purchaseAmount: '',
     takenIntoCommission: false,
+    color: '',
     saleAmount: '',
     createDate: dayjs().format(),
     details: ''
@@ -188,20 +612,32 @@ const Inventory = () => {
               errors.createDate = 'Błędny format daty';
             }
 
+            if (values.status === 'sprzedano') {
+              if (!values.saleAmount) {
+                errors.saleAmount = 'Kwota zakupu musi być większa od 0';
+              }
+            }
+
             return errors;
           }}
           onSubmit={async (values, { setSubmitting }) => {
-            await addDoc(itemsCollectionRef, {
-              createDate: values.createDate,
-              productName: values.productName,
-              purchaseAmount: values.purchaseAmount,
-              saleAmount: values.saleAmount || null,
-              status: values.status,
-              quantity: values.quantity,
-              condition: values.condition,
-              takenIntoCommission: values.takenIntoCommission || false,
-              details: values.details
-            });
+            const color = getColor();
+            //@ts-ignore
+            const addDocumentPromises = [...Array(parseInt(values.quantity) || 1).keys()].map(() =>
+              addDoc(itemsCollectionRef, {
+                createDate: values.createDate,
+                productName: values.productName,
+                purchaseAmount: values.purchaseAmount,
+                saleAmount: values.saleAmount || null,
+                status: 'utworzono',
+                condition: values.condition,
+                takenIntoCommission: values.takenIntoCommission || false,
+                details: values.details,
+                color
+              })
+            );
+
+            await Promise.all(addDocumentPromises);
 
             getItems();
             setSubmitting(false);
@@ -214,9 +650,14 @@ const Inventory = () => {
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
                     {inputs.map((input, index) => {
+                      if (input.editOnly) {
+                        return;
+                      }
                       return (
                         <Box
-                          sx={{ gridColumn: matches ? 'span 4' : input.fullWidth ? 'span 4' : 'span 2' }}
+                          sx={{
+                            gridColumn: matches ? 'span 4' : input.fullWidth ? 'span 4' : 'span 2'
+                          }}
                           key={index}
                         >
                           {input.type === 'date' ? (
@@ -335,7 +776,6 @@ const Inventory = () => {
             takenIntoCommission: currentSelected?.takenIntoCommission || false,
             saleAmount: currentSelected?.saleAmount || '',
             soldDate: currentSelected?.soldDate || '',
-            quantity: currentSelected?.quantity || '',
             status: currentSelected?.status || '',
             condition: currentSelected?.condition || '',
             details: currentSelected?.details || ''
@@ -361,6 +801,12 @@ const Inventory = () => {
               errors.saleAmount = 'Kwota sprzedaży musi być większa od 0';
             }
 
+            if (values.status === 'sprzedano') {
+              if (!values.saleAmount) {
+                errors.saleAmount = 'Kwota zakupu musi być większa od 0';
+              }
+            }
+
             // if (values.createDate === 'Invalid Date') {
             //   errors.createDate = 'Błędny format daty';
             // }
@@ -384,7 +830,6 @@ const Inventory = () => {
               saleAmount: values.saleAmount || null,
               takenIntoCommission: values.takenIntoCommission || false,
               soldDate: values.soldDate || null,
-              quantity: values.quantity || null,
               status: values.status,
               details: values.details
             });
@@ -400,11 +845,14 @@ const Inventory = () => {
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
                     {inputs.map((input, index) => {
+                      const fullWidth = index >= 1 && inputs[index - 1].addOnly ? true : input.fullWidth;
+
+                      if (input.addOnly) {
+                        return;
+                      }
+
                       return (
-                        <Box
-                          sx={{ gridColumn: matches ? 'span 4' : input.fullWidth ? 'span 4' : 'span 2' }}
-                          key={index}
-                        >
+                        <Box sx={{ gridColumn: matches ? 'span 4' : fullWidth ? 'span 4' : 'span 2' }} key={index}>
                           {input.type === 'date' ? (
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                               <Stack spacing={3}>
@@ -529,35 +977,31 @@ const Inventory = () => {
       </ValveModal>
 
       <Center>
+        {/* <EnhancedTable /> */}
         <TableContainer component={Paper} sx={{ mt: '20px' }}>
           <Table sx={{ minWidth: 1550 }}>
             <TableHead>
               <TableRow>
-                {/* 1 */}
                 <TableCell>Nazwa produktu</TableCell>
-                {/* 2 */}
-                <TableCell align="right">komis</TableCell>
-                {/* 3 */}
-                <TableCell align="right">ilość</TableCell>
-                {/* 4 */}
+
                 <TableCell align="right">stan</TableCell>
-                {/* 5 */}
+
                 <TableCell align="right">status</TableCell>
-                {/* 6 */}
+
                 <TableCell align="right">kwota zakupu</TableCell>
-                {/* 7 */}
+
                 <TableCell align="right">kwota sprzedazy</TableCell>
-                {/* 8 */}
+
                 <TableCell align="right">saldo stan</TableCell>
-                {/* 9 */}
+
                 <TableCell align="right">saldo wojtek</TableCell>
-                {/* 10 */}
+
                 <TableCell align="right">data stworzenia</TableCell>
-                {/* 11 */}
+
                 <TableCell align="right">data sprzedazy</TableCell>
-                {/* 12 */}
+
                 <TableCell align="right">uwagi</TableCell>
-                {/* 13 */}
+
                 <TableCell align="right">akcja</TableCell>
               </TableRow>
             </TableHead>
@@ -576,40 +1020,37 @@ const Inventory = () => {
                     const profit = item.saleAmount ? (item.saleAmount - item.purchaseAmount) / 2 : false;
                     summaryWojt +=
                       item.status === 'sprzedano' ? (profit ? item.purchaseAmount + profit : item.purchaseAmount) : 0;
-                    summaryStan += profit || 0;
+                    summaryStan += item.status === 'sprzedano' ? profit || 0 : 0;
 
                     return (
-                      <TableRow key={item.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                        {/* 1 */}
+                      <TableRow
+                        key={item.id}
+                        sx={{ backgroundColor: `${item.color}26`, '&:last-child td, &:last-child th': { border: 0 } }}
+                      >
                         <TableCell component="th" scope="row">
                           {item.productName}
                         </TableCell>
-                        {/* 2 */}
-                        <TableCell align="right">{item.takenIntoCommission ? 'tak' : 'nie'}</TableCell>
-                        {/* 3 */}
-                        <TableCell align="right">{item.quantity}</TableCell>
-                        {/* 4 */}
+
                         <TableCell align="right">{item.condition}</TableCell>
-                        {/* 5 */}
+
                         <TableCell align="right">{item.status}</TableCell>
-                        {/* 6 */}
+
                         <TableCell align="right">{item.purchaseAmount}zł</TableCell>
-                        {/* 7 */}
+
                         <TableCell align="right">{item.saleAmount ? `${item.saleAmount}zł` : '-'} </TableCell>
-                        {/* 8 */}
+
                         <TableCell align="right">{profit ? `${profit}zł` : '-'}</TableCell>
-                        {/* 9 */}
+
                         <TableCell align="right">
-                          {/* @ts-ignore */}
                           {item.saleAmount ? `${profit ? item.purchaseAmount + profit : item.purchaseAmount}zł` : '-'}
                         </TableCell>
-                        {/* 10 */}
+
                         <TableCell align="right">{dayjs(item.createDate).format('DD/MM/YYYY')}</TableCell>
-                        {/* 11 */}
+
                         <TableCell align="right">
                           {item.soldDate ? dayjs(item.soldDate).format('DD/MM/YYYY') : '-'}
                         </TableCell>
-                        {/* 12 */}
+
                         <TableCell
                           align="right"
                           style={{
@@ -621,7 +1062,7 @@ const Inventory = () => {
                         >
                           {item.details}
                         </TableCell>
-                        {/* 13 */}
+
                         <TableCell align="right">
                           <Button size="small" variant="contained" type="submit" onClick={() => addToValve(item.id)}>
                             Edytuj
@@ -657,9 +1098,131 @@ const Inventory = () => {
             </Box>
           </Box>
         </TableContainer>
+        ;
       </Center>
     </Container>
   );
 };
 
 export default withLayout(Inventory);
+
+{
+  /* <TableContainer component={Paper} sx={{ mt: '20px' }}>
+  <Table sx={{ minWidth: 1550 }}>
+    <TableHead>
+      <TableRow>
+        <TableCell>Nazwa produktu</TableCell>
+
+        <TableCell align="right">stan</TableCell>
+
+        <TableCell align="right">status</TableCell>
+
+        <TableCell align="right">kwota zakupu</TableCell>
+
+        <TableCell align="right">kwota sprzedazy</TableCell>
+
+        <TableCell align="right">saldo stan</TableCell>
+
+        <TableCell align="right">saldo wojtek</TableCell>
+
+        <TableCell align="right">data stworzenia</TableCell>
+
+        <TableCell align="right">data sprzedazy</TableCell>
+
+        <TableCell align="right">uwagi</TableCell>
+
+        <TableCell align="right">akcja</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      {!items.length ? (
+        <TableRow>
+          <TableCell component="th" scope="row" align="left">
+            brak danych
+          </TableCell>
+        </TableRow>
+      ) : (
+        items
+          // @ts-ignore
+          .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
+          .map((item) => {
+            const profit = item.saleAmount ? (item.saleAmount - item.purchaseAmount) / 2 : false;
+            summaryWojt +=
+              item.status === 'sprzedano' ? (profit ? item.purchaseAmount + profit : item.purchaseAmount) : 0;
+            summaryStan += item.status === 'sprzedano' ? profit || 0 : 0;
+
+            return (
+              <TableRow
+                key={item.id}
+                sx={{ backgroundColor: `${item.color}26`, '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {item.productName}
+                </TableCell>
+
+                <TableCell align="right">{item.condition}</TableCell>
+
+                <TableCell align="right">{item.status}</TableCell>
+
+                <TableCell align="right">{item.purchaseAmount}zł</TableCell>
+
+                <TableCell align="right">{item.saleAmount ? `${item.saleAmount}zł` : '-'} </TableCell>
+
+                <TableCell align="right">{profit ? `${profit}zł` : '-'}</TableCell>
+
+                <TableCell align="right">
+                  {item.saleAmount ? `${profit ? item.purchaseAmount + profit : item.purchaseAmount}zł` : '-'}
+                </TableCell>
+
+                <TableCell align="right">{dayjs(item.createDate).format('DD/MM/YYYY')}</TableCell>
+
+                <TableCell align="right">{item.soldDate ? dayjs(item.soldDate).format('DD/MM/YYYY') : '-'}</TableCell>
+
+                <TableCell
+                  align="right"
+                  style={{
+                    width: '50px',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}
+                >
+                  {item.details}
+                </TableCell>
+
+                <TableCell align="right">
+                  <Button size="small" variant="contained" type="submit" onClick={() => addToValve(item.id)}>
+                    Edytuj
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })
+      )}
+    </TableBody>
+  </Table>
+  <Box
+    sx={{
+      minWidth: 1550,
+      padding: '16px',
+      borderTop: '16px solid #dedede',
+      display: 'flex',
+      flexDirection: 'column'
+    }}
+  >
+    <Box sx={{ fontWeight: 'bold' }}>Podsumowanie</Box>
+    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+      Wojtek suma:{' '}
+      <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
+        {summaryWojt.toFixed(2)}zł
+      </Box>
+    </Box>
+    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+      Stan suma:{' '}
+      <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
+        {summaryStan.toFixed(2)}zł
+      </Box>
+    </Box>
+  </Box>
+</TableContainer>; */
+}
