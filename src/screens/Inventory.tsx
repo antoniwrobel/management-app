@@ -17,10 +17,10 @@ import { Formik } from 'formik';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
-import { useMediaQuery } from '@mui/material';
+import { Checkbox, FormControlLabel, useMediaQuery } from '@mui/material';
 
 import { db } from '../config/firebase';
-import { collection, getDocs, addDoc, updateDoc, doc } from '@firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc } from '@firebase/firestore';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -36,11 +36,28 @@ import ValveModal from '../components/modal/ValveModal';
 interface Props {}
 
 const inputs = [
+  // {
+  //   type: 'checkbox',
+  //   name: 'takenIntoCommission',
+  //   label: 'komis',
+  //   fullWidth: true
+  // },
   {
     type: 'text',
     name: 'productName',
     label: 'nazwa produktu',
     fullWidth: true
+  },
+  {
+    type: 'number',
+    name: 'quantity',
+    label: 'ilość'
+  },
+  {
+    type: 'select',
+    options: ['nowe', 'używane'],
+    name: 'condition',
+    label: 'stan'
   },
   {
     type: 'select',
@@ -62,17 +79,13 @@ const inputs = [
   {
     type: 'date',
     name: 'createDate',
-    label: 'data stworzenia'
-  },
-  {
-    type: 'date',
-    name: 'soldDate',
-    label: 'data sprzedania'
+    label: 'data stworzenia',
+    fullWidth: true
   },
   {
     type: 'text',
-    name: 'url',
-    label: 'link do aukcji',
+    name: 'details',
+    label: 'uwagi',
     fullWidth: true
   }
 ];
@@ -84,10 +97,13 @@ const Inventory = ({}: Props) => {
   type ItemType = {
     id: string;
     productName: string;
+    quantity: number;
     purchaseAmount: number;
     saleAmount: number;
+    takenIntoCommission: boolean;
     status: string;
-    url: string;
+    condition: string;
+    details: string;
     createDate: Date;
     soldDate: Date;
   };
@@ -106,18 +122,24 @@ const Inventory = ({}: Props) => {
     setItems(items);
   };
 
+  const handleDeleteItem = async (itemId: string) => {
+    deleteDoc(doc(db, 'items', itemId));
+  };
+
   useEffect(() => {
     getItems();
   }, []);
 
   const initialValues = {
     productName: '',
-    status: 'utworzono',
+    status: '',
+    quantity: '',
+    condition: '',
     purchaseAmount: '',
+    takenIntoCommission: false,
     saleAmount: '',
     createDate: dayjs().format(),
-    soldDate: null,
-    url: ''
+    details: ''
   };
 
   const addToValve = (itemId: string) => {
@@ -130,7 +152,7 @@ const Inventory = ({}: Props) => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ p: '20px' }}>
+    <Container sx={{ p: '20px', maxWidth: 'calc(100% - 20px)!important' }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Button variant="contained" onClick={() => setModalOpen(true)}>
           Dodaj
@@ -165,21 +187,20 @@ const Inventory = ({}: Props) => {
               errors.createDate = 'Błędny format daty';
             }
 
-            if (values.soldDate === 'Invalid Date') {
-              errors.soldDate = 'Błędny format daty';
-            }
-
             return errors;
           }}
           onSubmit={async (values, { setSubmitting }) => {
+            console.log({ values });
             await addDoc(itemsCollectionRef, {
               createDate: values.createDate,
               productName: values.productName,
               purchaseAmount: values.purchaseAmount,
               saleAmount: values.saleAmount || null,
-              soldDate: values.soldDate || null,
               status: values.status,
-              url: values.url
+              quantity: values.quantity,
+              condition: values.condition,
+              takenIntoCommission: values.takenIntoCommission || false,
+              details: values.details
             });
 
             getItems();
@@ -245,6 +266,25 @@ const Inventory = ({}: Props) => {
                                 })}
                               </Select>
                             </FormControl>
+                          ) : input.type === 'checkbox' ? (
+                            <FormControlLabel
+                              sx={{
+                                '& .MuiFormControlLabel-label': {
+                                  userSelect: 'none'
+                                }
+                              }}
+                              control={
+                                <Checkbox
+                                  name={input.name}
+                                  onChange={(v) => {
+                                    console.log(v.target.value);
+                                    const value = v.target.value === 'on' ? true : false;
+                                    setFieldValue(input.name, value);
+                                  }}
+                                />
+                              }
+                              label={input.label}
+                            />
                           ) : (
                             <TextField
                               type={input.type}
@@ -270,7 +310,7 @@ const Inventory = ({}: Props) => {
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px' }}>
                     <Button
                       variant="outlined"
-                      sx={{ mr: '20px' }}
+                      sx={{ mr: '10px' }}
                       color="error"
                       onClick={() => setModalOpen(false)}
                       size="small"
@@ -287,17 +327,19 @@ const Inventory = ({}: Props) => {
           }}
         </Formik>
       </AddItemModal>
-      {console.log(currentSelected)}
       <ValveModal open={valveModalOpen}>
         <Formik
           initialValues={{
             createDate: currentSelected?.createDate || '',
             productName: currentSelected?.productName || '',
             purchaseAmount: currentSelected?.purchaseAmount || '',
+            takenIntoCommission: currentSelected?.takenIntoCommission || false,
             saleAmount: currentSelected?.saleAmount || '',
             soldDate: currentSelected?.soldDate || '',
+            quantity: currentSelected?.quantity || '',
             status: currentSelected?.status || '',
-            url: currentSelected?.url || ''
+            condition: currentSelected?.condition || '',
+            details: currentSelected?.details || ''
           }}
           validate={(values) => {
             const errors = {} as any;
@@ -341,9 +383,11 @@ const Inventory = ({}: Props) => {
               productName: values.productName,
               purchaseAmount: values.purchaseAmount,
               saleAmount: values.saleAmount || null,
+              takenIntoCommission: values.takenIntoCommission || false,
               soldDate: values.soldDate || null,
+              quantity: values.quantity || null,
               status: values.status,
-              url: values.url
+              details: values.details
             });
 
             getItems();
@@ -352,6 +396,7 @@ const Inventory = ({}: Props) => {
           }}
         >
           {({ setFieldValue, values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => {
+            console.log('selected => ', values);
             return (
               <form onSubmit={handleSubmit}>
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -409,6 +454,25 @@ const Inventory = ({}: Props) => {
                                 })}
                               </Select>
                             </FormControl>
+                          ) : input.type === 'checkbox' ? (
+                            <FormControlLabel
+                              sx={{
+                                '& .MuiFormControlLabel-label': {
+                                  userSelect: 'none'
+                                }
+                              }}
+                              control={
+                                <Checkbox
+                                  name={input.name}
+                                  //@ts-ignore
+                                  defaultChecked={values[input.name]}
+                                  onChange={(v) => {
+                                    setFieldValue(input.name, v.target.checked);
+                                  }}
+                                />
+                              }
+                              label={input.label}
+                            />
                           ) : (
                             <TextField
                               type={input.type}
@@ -434,7 +498,21 @@ const Inventory = ({}: Props) => {
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px' }}>
                     <Button
                       variant="outlined"
-                      sx={{ mr: '20px' }}
+                      size="small"
+                      color="error"
+                      disabled={isSubmitting}
+                      sx={{ mr: 'auto' }}
+                      onClick={async () => {
+                        await handleDeleteItem(currentSelected!.id);
+                        setValveModalOpen(false);
+                        getItems();
+                      }}
+                    >
+                      Usuń
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      sx={{ mr: '10px' }}
                       color="error"
                       onClick={() => setValveModalOpen(false)}
                       size="small"
@@ -458,53 +536,69 @@ const Inventory = ({}: Props) => {
             <TableHead>
               <TableRow>
                 <TableCell>Nazwa produktu</TableCell>
+                <TableCell align="right">komis</TableCell>
+                <TableCell align="right">ilość</TableCell>
+                <TableCell align="right">stan</TableCell>
                 <TableCell align="right">status</TableCell>
                 <TableCell align="right">kwota zakupu</TableCell>
                 <TableCell align="right">kwota sprzedazy</TableCell>
-                <TableCell align="right">zysk na osobę</TableCell>
+                <TableCell align="right">saldo stan</TableCell>
+                <TableCell align="right">saldo wojtek</TableCell>
                 <TableCell align="right">data stworzenia</TableCell>
                 <TableCell align="right">data sprzedazy</TableCell>
-                <TableCell align="right">link do aukcji</TableCell>
+                <TableCell align="right">uwagi</TableCell>
                 <TableCell align="right">akcja</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {items
-                // @ts-ignore
-                .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
-                .map((item) => (
-                  <TableRow key={item.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                    <TableCell component="th" scope="row">
-                      {item.productName}
-                    </TableCell>
-                    <TableCell align="right">{item.status}</TableCell>
-                    <TableCell align="right">{item.purchaseAmount}zł</TableCell>
-                    <TableCell align="right">{item.saleAmount ? `${item.saleAmount}zł` : '-'} </TableCell>
-                    <TableCell align="right">
-                      {item.saleAmount ? `${(item.saleAmount - item.purchaseAmount) / 2}zł` : '-'}
-                    </TableCell>
-                    <TableCell align="right">{dayjs(item.createDate).format('DD/MM/YYYY')}</TableCell>
-                    <TableCell align="right">
-                      {item.soldDate ? dayjs(item.soldDate).format('DD/MM/YYYY') : '-'}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      style={{
-                        width: '50px',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}
-                    >
-                      <a href={item.url}>{item.url}</a>
-                    </TableCell>
-                    <TableCell align="right">
-                      <Button size="small" variant="contained" type="submit" onClick={() => addToValve(item.id)}>
-                        Do skarbonki
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+              {!items.length ? (
+                <TableRow>
+                  <TableCell component="th" scope="row" align="left">
+                    brak danych
+                  </TableCell>
+                </TableRow>
+              ) : (
+                items
+                  // @ts-ignore
+                  .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
+                  .map((item) => (
+                    <TableRow key={item.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                      <TableCell component="th" scope="row">
+                        {item.productName}
+                      </TableCell>
+                      <TableCell align="right">{item.takenIntoCommission ? 'tak' : 'nie'}</TableCell>
+                      <TableCell align="right">{item.quantity}</TableCell>
+                      <TableCell align="right">{item.condition}</TableCell>
+                      <TableCell align="right">{item.status}</TableCell>
+                      <TableCell align="right">{item.purchaseAmount}zł</TableCell>
+                      <TableCell align="right">{item.saleAmount ? `${item.saleAmount}zł` : '-'} </TableCell>
+                      <TableCell align="right">{item.saleAmount ? `${item.saleAmount}zł` : '-'} </TableCell>
+                      <TableCell align="right">
+                        {item.saleAmount ? `${(item.saleAmount - item.purchaseAmount) / 2}zł` : '-'}
+                      </TableCell>
+                      <TableCell align="right">{dayjs(item.createDate).format('DD/MM/YYYY')}</TableCell>
+                      <TableCell align="right">
+                        {item.soldDate ? dayjs(item.soldDate).format('DD/MM/YYYY') : '-'}
+                      </TableCell>
+                      <TableCell
+                        align="right"
+                        style={{
+                          width: '50px',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}
+                      >
+                        {item.details}
+                      </TableCell>
+                      <TableCell align="right">
+                        <Button size="small" variant="contained" type="submit" onClick={() => addToValve(item.id)}>
+                          Edytuj
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>
