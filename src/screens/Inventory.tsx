@@ -20,7 +20,7 @@ import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { Checkbox, FormControlLabel, useMediaQuery } from '@mui/material';
 
 import { auth, db } from '../config/firebase';
-import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc } from '@firebase/firestore';
+import { collection, getDocs, getDoc, addDoc, updateDoc, doc, deleteDoc } from '@firebase/firestore';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -34,27 +34,7 @@ import dayjs from 'dayjs';
 
 import EditModal from '../components/modal/EditModal';
 import ValveModal from '../components/modal/ValveModal';
-
-function randomInteger(max: number) {
-  return Math.floor(Math.random() * (max + 1));
-}
-
-function randomRgbColor() {
-  let r = randomInteger(255);
-  let g = randomInteger(255);
-  let b = randomInteger(255);
-  return [r, g, b];
-}
-function randomHexColor() {
-  let [r, g, b] = randomRgbColor();
-  let hr = r.toString(16).padStart(2, '0');
-  let hg = g.toString(16).padStart(2, '0');
-  let hb = b.toString(16).padStart(2, '0');
-  return '#' + hr + hg + hb;
-}
-function getColor() {
-  return randomHexColor();
-}
+import { ValveType } from './Valve';
 
 const inputs = [
   {
@@ -77,7 +57,7 @@ const inputs = [
   },
   {
     type: 'select',
-    options: ['utworzono', 'oczekuję na płatność', 'sprzedano'],
+    options: ['utworzono', 'oczekuję na płatność', 'sprzedano', 'zwrot'],
     name: 'status',
     label: 'status',
     fullWidth: true,
@@ -127,9 +107,31 @@ export type ItemType = {
   provision: number;
   valueTransferedToValve: number;
   color: string;
+  previousSaleAmount: number | null;
 };
 
 const Inventory = () => {
+  function randomInteger(max: number) {
+    return Math.floor(Math.random() * (max + 1));
+  }
+
+  function randomRgbColor() {
+    let r = randomInteger(255);
+    let g = randomInteger(255);
+    let b = randomInteger(255);
+    return [r, g, b];
+  }
+  function randomHexColor() {
+    let [r, g, b] = randomRgbColor();
+    let hr = r.toString(16).padStart(2, '0');
+    let hg = g.toString(16).padStart(2, '0');
+    let hb = b.toString(16).padStart(2, '0');
+    return '#' + hr + hg + hb;
+  }
+  function getColor() {
+    return randomHexColor();
+  }
+
   useEffect(() => {}, []);
   const matches = useMediaQuery('(max-width:500px)');
 
@@ -141,7 +143,9 @@ const Inventory = () => {
   const [items, setItems] = useState<ItemType[]>([]);
 
   const itemsCollectionRef = collection(db, 'items');
+  const spendingsCollectionRef = collection(db, 'spendings');
   const valveCollectionRef = collection(db, 'valve');
+
   const [user] = useState(auth.currentUser);
 
   const getItems = async () => {
@@ -190,6 +194,48 @@ const Inventory = () => {
     }
   };
 
+  const handleReturn = async (item: ItemType) => {
+    const { id, productName, provision, saleAmount } = item;
+
+    const itemDoc = doc(db, 'items', id);
+
+    const d = await getDocs(valveCollectionRef);
+    const items = d.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as ValveType[];
+    const elements = items.filter((item) => item.elementId === id);
+
+    if (elements.length) {
+      const promises = elements.map((e) => {
+        const finded = doc(db, 'valve', e.id);
+        updateDoc(finded, {
+          removed: true
+        });
+      });
+
+      await Promise.all(promises);
+    }
+
+    await updateDoc(itemDoc, {
+      status: 'zwrot',
+      color: '#fff',
+      saleAmount: 0,
+      provision: 0,
+      previousSaleAmount: saleAmount,
+      valueTransferedToValve: 0
+    });
+
+    if (provision > 0) {
+      await addDoc(spendingsCollectionRef, {
+        elementId: id,
+        elementName: productName,
+        amount: provision,
+        addedBy: 'automat',
+        createdAt: dayjs(new Date()).format('DD/MM/YYYY')
+      });
+    }
+
+    getItems();
+  };
+
   let summaryWojt = 0;
   let summaryStan = 0;
 
@@ -221,7 +267,7 @@ const Inventory = () => {
               errors.purchaseAmount = 'Kwota zakupu musi być większa od 0';
             }
 
-            if (saleAmount !== '' && saleAmount <= 0) {
+            if (values.status === 'sprzedano' && saleAmount <= 0) {
               errors.saleAmount = 'Kwota sprzedaży musi być większa od 0';
             }
 
@@ -512,7 +558,7 @@ const Inventory = () => {
                               >
                                 {input.options?.map((option) => {
                                   return (
-                                    <MenuItem key={option} value={option}>
+                                    <MenuItem key={option} value={option} disabled={option === 'zwrot'}>
                                       {option}
                                     </MenuItem>
                                   );
@@ -575,7 +621,7 @@ const Inventory = () => {
 
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px' }}>
                     <Button
-                      variant="outlined"
+                      variant="contained"
                       size="small"
                       color="error"
                       disabled={isSubmitting}
@@ -607,7 +653,6 @@ const Inventory = () => {
           }}
         </Formik>
       </EditModal>
-
       <ValveModal open={valveModalOpen}>
         <Formik
           initialValues={{
@@ -620,12 +665,17 @@ const Inventory = () => {
           }}
           onSubmit={async (values, { setSubmitting }) => {
             if (!currentSelected) return;
+
             const { amount } = values;
 
             const updatedSaleAmount = currentSelected.saleAmount - parseInt(amount);
             const itemDoc = doc(db, 'items', currentSelected.id);
 
-            await updateDoc(itemDoc, { saleAmount: updatedSaleAmount, valueTransferedToValve: parseInt(amount) });
+            await updateDoc(itemDoc, {
+              saleAmount: updatedSaleAmount,
+              //@ts-ignore
+              valueTransferedToValve: parseInt(currentSelected.valueTransferedToValve || 0) + parseInt(amount)
+            });
             await addDoc(valveCollectionRef, {
               amount,
               elementId: currentSelected.id,
@@ -685,27 +735,16 @@ const Inventory = () => {
             <TableHead>
               <TableRow>
                 <TableCell>Nazwa produktu</TableCell>
-
                 <TableCell align="right">stan</TableCell>
-
                 <TableCell align="right">status</TableCell>
-
                 <TableCell align="right">kwota zakupu</TableCell>
-
                 <TableCell align="right">kwota sprzedazy</TableCell>
-
                 <TableCell align="right">prowizja</TableCell>
-
                 <TableCell align="right">saldo stan</TableCell>
-
                 <TableCell align="right">saldo wojtek</TableCell>
-
                 <TableCell align="right">data stworzenia</TableCell>
-
                 <TableCell align="right">data sprzedazy</TableCell>
-
                 <TableCell align="right">uwagi</TableCell>
-
                 <TableCell align="right">akcja</TableCell>
               </TableRow>
             </TableHead>
@@ -732,58 +771,147 @@ const Inventory = () => {
                     return (
                       <TableRow
                         key={item.id}
-                        sx={{ backgroundColor: `${item.color}26`, '&:last-child td, &:last-child th': { border: 0 } }}
+                        sx={{
+                          backgroundColor: `${item.color}26`,
+                          '&:last-child td, &:last-child th': { border: 0 }
+                        }}
                       >
-                        <TableCell component="th" scope="row">
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
+                          }}
+                        >
                           {item.productName}
                         </TableCell>
 
-                        <TableCell align="right">{item.condition}</TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
+                          }}
+                        >
+                          {item.condition}
+                        </TableCell>
 
-                        <TableCell align="right">{item.status}</TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : item.status === 'sprzedano' ? 'green' : 'inherit',
+                            fontWeight: 'bold'
+                          }}
+                        >
+                          {item.status}
+                        </TableCell>
 
-                        <TableCell align="right">{item.purchaseAmount}zł</TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
+                          }}
+                        >
+                          {item.purchaseAmount}zł
+                        </TableCell>
 
-                        <TableCell align="right">{item.saleAmount ? `${item.saleAmount}zł` : '-'} </TableCell>
-                        <TableCell align="right">{item.provision ? `${item.provision}zł` : '-'} </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
+                          }}
+                        >
+                          {item.saleAmount ? `${item.saleAmount}zł` : '-'}{' '}
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
+                          }}
+                        >
+                          {item.provision ? `${item.provision}zł` : '-'}{' '}
+                        </TableCell>
 
-                        <TableCell align="right">{profit ? `${profit}zł` : '-'}</TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
+                          }}
+                        >
+                          {profit ? `${profit}zł` : '-'}
+                        </TableCell>
 
-                        <TableCell align="right">
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
+                          }}
+                        >
                           {item.saleAmount ? `${profit ? item.purchaseAmount + profit : item.purchaseAmount}zł` : '-'}
                         </TableCell>
 
-                        <TableCell align="right">{dayjs(item.createDate).format('DD/MM/YYYY')}</TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
+                          }}
+                        >
+                          {dayjs(item.createDate).format('DD/MM/YYYY')}
+                        </TableCell>
 
-                        <TableCell align="right">
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
+                          }}
+                        >
                           {item.soldDate ? dayjs(item.soldDate).format('DD/MM/YYYY') : '-'}
                         </TableCell>
 
                         <TableCell
                           align="right"
-                          style={{
-                            width: '50px',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis'
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
                           }}
                         >
                           {item.details}
                         </TableCell>
 
                         <TableCell align="right">
-                          <Button size="small" variant="contained" type="submit" onClick={() => editRow(item.id)}>
-                            Edytuj
-                          </Button>
-
+                          {item.status === 'sprzedano' ? (
+                            <>
+                              <Button
+                                size="small"
+                                variant="contained"
+                                type="submit"
+                                onClick={() => handleValve(item.id)}
+                                sx={{ mr: '5px' }}
+                              >
+                                $$$
+                              </Button>
+                              <Button size="small" variant="contained" color="error" onClick={() => handleReturn(item)}>
+                                Zwrot
+                              </Button>
+                            </>
+                          ) : null}
                           <Button
                             size="small"
-                            variant="outlined"
+                            variant="contained"
                             type="submit"
-                            onClick={() => handleValve(item.id)}
-                            sx={{ ml: '10px' }}
+                            color={item.status === 'zwrot' ? 'error' : 'primary'}
+                            onClick={() => editRow(item.id)}
+                            sx={{ ml: '25px' }}
                           >
-                            Skarbonka
+                            Edytuj
                           </Button>
                         </TableCell>
                       </TableRow>

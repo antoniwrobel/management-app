@@ -15,23 +15,24 @@ import TableRow from '@mui/material/TableRow';
 import Container from '@mui/material/Container';
 import dayjs from 'dayjs';
 import { ItemType } from './Inventory';
+import { Box } from '@mui/material';
 
 interface Props {}
 
-type ValveType = {
+export type ValveType = {
   id: string;
   amount: number;
   elementId: string;
   elementName: string;
   createdAt: Date;
   userName: string;
+  removed: boolean;
 };
 
 const Valve = ({}: Props) => {
   const [data, setData] = useState<ValveType[]>([]);
   const [details, setDetails] = useState<ItemType>();
 
-  const itemsCollectionRef = collection(db, 'items');
   const valveCollectionRef = collection(db, 'valve');
 
   const getData = async () => {
@@ -49,6 +50,8 @@ const Valve = ({}: Props) => {
     if (!details) return;
     console.log({ details });
   }, [details]);
+
+  let total = 0;
 
   return (
     <Container sx={{ p: '20px', maxWidth: 'calc(100% - 20px)!important' }}>
@@ -68,6 +71,10 @@ const Valve = ({}: Props) => {
             <TableBody>
               {data.length ? (
                 data.map((d) => {
+                  if (!d.removed) {
+                    total += d.amount;
+                  }
+
                   return (
                     <TableRow
                       key={d.id}
@@ -82,7 +89,11 @@ const Valve = ({}: Props) => {
                         {d.elementName}
                       </TableCell>
                       <TableCell component="th" scope="row" align="right">
-                        {d.amount}zł
+                        {d.removed ? (
+                          <Box sx={{ textDecoration: 'line-through' }}>{d.amount}zł</Box>
+                        ) : (
+                          <Box>{d.amount}zł</Box>
+                        )}
                       </TableCell>
                       <TableCell component="th" scope="row" align="right">
                         {d.createdAt}
@@ -102,6 +113,23 @@ const Valve = ({}: Props) => {
               )}
             </TableBody>
           </Table>
+
+          <Box
+            sx={{
+              minWidth: 1550,
+              padding: '16px',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            <Box sx={{ fontWeight: 'bold' }}>Podsumowanie</Box>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              Suma skarbonki:{' '}
+              <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
+                {total.toFixed(2)}zł
+              </Box>
+            </Box>
+          </Box>
         </TableContainer>
       </Center>
     </Container>
