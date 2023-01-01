@@ -1,5 +1,5 @@
-import Inventory from '../screens/Inventory';
 import Login from '../screens/Login';
+import Magazyn from '../screens/Magazyn';
 import Settlements from '../screens/Settlements';
 import Spendings from '../screens/Spendings';
 import Valve from '../screens/Valve';
@@ -18,9 +18,9 @@ const routes: RouteType[] = [
     isProtected: false
   },
   {
-    path: '/inventory',
-    component: () => Inventory,
-    name: 'Inwentarz',
+    path: '/magazyn',
+    component: () => Magazyn,
+    name: 'Magazyn',
     isProtected: true
   },
   {

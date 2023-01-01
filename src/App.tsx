@@ -54,7 +54,7 @@ function App() {
                 <Box sx={{ mt: '20px' }}>
                   <Button variant="contained" size="small">
                     <a
-                      href="https://antoniwrobel.github.io/management-app/inventory"
+                      href="https://antoniwrobel.github.io/management-app/magazyn"
                       style={{ textDecoration: 'none', color: 'inherit' }}
                     >
                       Powrót

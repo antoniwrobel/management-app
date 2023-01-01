@@ -14,7 +14,6 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Container from '@mui/material/Container';
 import dayjs from 'dayjs';
-import { ItemType } from './Inventory';
 import { Box } from '@mui/material';
 import { ValveType } from './Valve';
 
@@ -56,8 +55,10 @@ const Spendings = ({}: Props) => {
 
   let total = 0;
 
+  //dodac funkcje dodawania // edycji wydatków
+
   return (
-    <Container sx={{ p: '20px', maxWidth: 'calc(100% - 20px)!important' }}>
+    <Container sx={{ p: '0px !important', m: '24px', maxWidth: '100% !important', width: 'auto' }}>
       <Center>
         <TableContainer component={Paper} sx={{ mt: '20px' }}>
           <Table sx={{ minWidth: 1550 }}>

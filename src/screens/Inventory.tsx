@@ -87,6 +87,12 @@ const inputs = [
   },
   {
     type: 'text',
+    name: 'url',
+    label: 'link do aukcji',
+    fullWidth: true
+  },
+  {
+    type: 'text',
     name: 'details',
     label: 'uwagi',
     fullWidth: true
@@ -108,6 +114,8 @@ export type ItemType = {
   valueTransferedToValve: number;
   color: string;
   previousSaleAmount: number | null;
+  removed: boolean;
+  url: string;
 };
 
 const Inventory = () => {
@@ -156,7 +164,29 @@ const Inventory = () => {
   };
 
   const handleDeleteItem = async (itemId: string) => {
-    deleteDoc(doc(db, 'items', itemId));
+    //dodac confirmation box przed usunieciem
+    const item = doc(db, 'items', itemId);
+
+    const d = await getDocs(valveCollectionRef);
+    const items = d.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as ValveType[];
+    const elements = items.filter((item) => item.elementId === itemId);
+
+    if (elements.length) {
+      const promises = elements.map((e) => {
+        const finded = doc(db, 'valve', e.id);
+        updateDoc(finded, {
+          removed: true
+        });
+      });
+
+      await Promise.all(promises);
+    }
+
+    updateDoc(item, {
+      removed: true
+    });
+
+    getItems();
   };
 
   useEffect(() => {
@@ -173,7 +203,8 @@ const Inventory = () => {
     provision: '',
     saleAmount: '',
     createDate: dayjs().format(),
-    details: ''
+    details: '',
+    url: ''
   };
 
   const editRow = (itemId: string) => {
@@ -202,6 +233,8 @@ const Inventory = () => {
     const d = await getDocs(valveCollectionRef);
     const items = d.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as ValveType[];
     const elements = items.filter((item) => item.elementId === id);
+
+    //dodadc confirmation box przed zwrotem
 
     if (elements.length) {
       const promises = elements.map((e) => {
@@ -240,8 +273,8 @@ const Inventory = () => {
   let summaryStan = 0;
 
   return (
-    <Container sx={{ p: '20px', maxWidth: 'calc(100% - 20px)!important' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+    <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '10px' }}>
         <Button variant="contained" onClick={() => setModalOpen(true)}>
           Dodaj
         </Button>
@@ -296,7 +329,8 @@ const Inventory = () => {
                 status: 'utworzono',
                 condition: values.condition,
                 details: values.details,
-                color
+                color,
+                url: values.url
               })
             );
 
@@ -443,7 +477,8 @@ const Inventory = () => {
             condition: currentSelected?.condition || '',
             provision: currentSelected?.provision || '',
             details: currentSelected?.details || '',
-            valueTransferedToValve: currentSelected?.valueTransferedToValve || ''
+            valueTransferedToValve: currentSelected?.valueTransferedToValve || '',
+            url: currentSelected?.url || ''
           }}
           validate={(values) => {
             const errors = {} as any;
@@ -496,7 +531,8 @@ const Inventory = () => {
               soldDate: values.soldDate || null,
               provision: values.provision || null,
               status: values.status,
-              details: values.details
+              details: values.details,
+              url: values.url
             });
 
             getItems();
@@ -739,13 +775,20 @@ const Inventory = () => {
                 <TableCell align="right">status</TableCell>
                 <TableCell align="right">kwota zakupu</TableCell>
                 <TableCell align="right">kwota sprzedazy</TableCell>
-                <TableCell align="right">prowizja</TableCell>
+                <TableCell align="right">koszt sprzedaży</TableCell>
                 <TableCell align="right">saldo stan</TableCell>
                 <TableCell align="right">saldo wojtek</TableCell>
                 <TableCell align="right">data stworzenia</TableCell>
-                <TableCell align="right">data sprzedazy</TableCell>
+                <TableCell align="right">link do aukcji</TableCell>
                 <TableCell align="right">uwagi</TableCell>
-                <TableCell align="right">akcja</TableCell>
+                <TableCell
+                  align="right"
+                  sx={{
+                    minWidth: '300px'
+                  }}
+                >
+                  akcja
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -760,6 +803,10 @@ const Inventory = () => {
                   // @ts-ignore
                   .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
                   .map((item) => {
+                    if (item.removed) {
+                      return;
+                    }
+
                     const profit = item.saleAmount
                       ? (item.saleAmount - item.purchaseAmount - item.provision) / 2
                       : false;
@@ -781,7 +828,11 @@ const Inventory = () => {
                           scope="row"
                           sx={{
                             color: item.status === 'zwrot' ? 'red' : 'inherit',
-                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
+                            maxWidth: '200px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
                           }}
                         >
                           {item.productName}
@@ -866,7 +917,7 @@ const Inventory = () => {
                           {dayjs(item.createDate).format('DD/MM/YYYY')}
                         </TableCell>
 
-                        <TableCell
+                        {/* <TableCell
                           align="right"
                           sx={{
                             color: item.status === 'zwrot' ? 'red' : 'inherit',
@@ -874,13 +925,33 @@ const Inventory = () => {
                           }}
                         >
                           {item.soldDate ? dayjs(item.soldDate).format('DD/MM/YYYY') : '-'}
-                        </TableCell>
+                        </TableCell> */}
 
                         <TableCell
                           align="right"
                           sx={{
                             color: item.status === 'zwrot' ? 'red' : 'inherit',
                             fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
+                          }}
+                        >
+                          {item.url ? (
+                            <a href={item.url} target="_blank">
+                              link do aukcji
+                            </a>
+                          ) : (
+                            '-'
+                          )}
+                        </TableCell>
+
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
+                            maxWidth: '200px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
                           }}
                         >
                           {item.details}
@@ -889,17 +960,17 @@ const Inventory = () => {
                         <TableCell align="right">
                           {item.status === 'sprzedano' ? (
                             <>
+                              <Button size="small" variant="contained" color="error" onClick={() => handleReturn(item)}>
+                                Zwrot
+                              </Button>
                               <Button
                                 size="small"
                                 variant="contained"
                                 type="submit"
                                 onClick={() => handleValve(item.id)}
-                                sx={{ mr: '5px' }}
+                                sx={{ ml: '20px' }}
                               >
                                 $$$
-                              </Button>
-                              <Button size="small" variant="contained" color="error" onClick={() => handleReturn(item)}>
-                                Zwrot
                               </Button>
                             </>
                           ) : null}
@@ -909,7 +980,7 @@ const Inventory = () => {
                             type="submit"
                             color={item.status === 'zwrot' ? 'error' : 'primary'}
                             onClick={() => editRow(item.id)}
-                            sx={{ ml: '25px' }}
+                            sx={{ ml: '20px' }}
                           >
                             Edytuj
                           </Button>
@@ -949,4 +1020,4 @@ const Inventory = () => {
   );
 };
 
-export default withLayout(Inventory);
+export default Inventory;

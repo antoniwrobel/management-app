@@ -19,7 +19,7 @@ const AuthContainer = (props: Props) => {
       .then(() => {
         setDisabled(false);
         console.info('TODO: navigate to authenticated screen');
-        navigate('/inventory');
+        navigate('/magazyn');
       })
       .catch((error) => {
         setErrorMessage(error.code + ': ' + error.message);
