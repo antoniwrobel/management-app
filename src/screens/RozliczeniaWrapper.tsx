@@ -1,10 +1,9 @@
 import withLayout from '../components/layout/withLayout';
 import { Box, Tab, Tabs } from '@mui/material';
-import AuthContainer from '../components/auth/AuthContainer';
 import { useState } from 'react';
-import Inventory from './Inventory';
+import RozliczeniaKomis from './RozliczeniaKomis';
 
-const Magazyn = () => {
+const RozliczeniaWrapper = () => {
   const [value, setValue] = useState(0);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -20,7 +19,7 @@ const Magazyn = () => {
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
-        <Inventory />
+        <RozliczeniaKomis />
       </TabPanel>
       <TabPanel value={value} index={1}>
         <div>PRIV </div>
@@ -47,4 +46,4 @@ const TabPanel = ({ children, value, index }: TabPanelProps) => {
   );
 };
 
-export default withLayout(Magazyn);
+export default withLayout(RozliczeniaWrapper);

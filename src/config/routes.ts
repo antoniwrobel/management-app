@@ -1,8 +1,8 @@
 import Login from '../screens/Login';
-import Magazyn from '../screens/Magazyn';
-import Settlements from '../screens/Settlements';
+import MagazynWrapper from '../screens/MagazynWrapper';
+import RozliczeniaWrapper from '../screens/RozliczeniaWrapper';
 import Spendings from '../screens/Spendings';
-import Valve from '../screens/Valve';
+import Skarbonka from '../screens/Skarbonka';
 interface RouteType {
   path: string;
   component: any;
@@ -18,20 +18,20 @@ const routes: RouteType[] = [
     isProtected: false
   },
   {
-    path: '/magazyn',
-    component: () => Magazyn,
+    path: '/',
+    component: () => MagazynWrapper,
     name: 'Magazyn',
     isProtected: true
   },
   {
     path: '/rozliczenia',
-    component: () => Settlements,
+    component: () => RozliczeniaWrapper,
     name: 'Rozliczenia',
     isProtected: true
   },
   {
     path: '/skarbonka',
-    component: () => Valve,
+    component: () => Skarbonka,
     name: 'Skarbonka',
     isProtected: true
   },

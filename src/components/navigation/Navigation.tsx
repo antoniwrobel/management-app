@@ -105,9 +105,21 @@ const Navigation = () => {
               if (!isProtected) {
                 return;
               }
+              const currentPath = window.location.pathname === '/' ? '/magazyn' : window.location.pathname;
+              const currentlySelected = currentPath.includes(name.toLowerCase());
 
               return (
-                <Button key={name} onClick={() => navigate(path)} sx={{ my: 2, color: 'white', display: 'block' }}>
+                <Button
+                  key={name}
+                  onClick={() => navigate(path)}
+                  sx={{
+                    my: 2,
+                    color: 'white',
+                    display: 'block',
+                    textDecoration: currentlySelected ? 'underline' : 'initial',
+                    fontWeight: currentlySelected ? '900' : 'initial'
+                  }}
+                >
                   {name}
                 </Button>
               );

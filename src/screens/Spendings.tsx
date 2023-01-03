@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import Button from '@mui/material/Button';
 import Center from '../components/utils/Center';
 import withLayout from '../components/layout/withLayout';
 import { db } from '../config/firebase';
-import { collection, getDocs, doc, getDoc } from '@firebase/firestore';
+import { collection, getDocs } from '@firebase/firestore';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -13,20 +12,10 @@ import Paper from '@mui/material/Paper';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Container from '@mui/material/Container';
-import dayjs from 'dayjs';
 import { Box } from '@mui/material';
-import { ValveType } from './Valve';
+import { SpendingType, ValveType } from './types';
 
 interface Props {}
-
-type SpendingType = {
-  id: string;
-  elementId: string;
-  elementName: string;
-  amount: number;
-  addedBy: string;
-  createdAt: string;
-};
 
 const Spendings = ({}: Props) => {
   const [data, setData] = useState<SpendingType[]>([]);

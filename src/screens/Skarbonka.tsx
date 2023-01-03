@@ -13,22 +13,13 @@ import Paper from '@mui/material/Paper';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Container from '@mui/material/Container';
-import { ItemType } from './Inventory';
+
 import { Box } from '@mui/material';
+import { ItemType, ValveType } from './types';
 
 interface Props {}
 
-export type ValveType = {
-  id: string;
-  amount: number;
-  elementId: string;
-  elementName: string;
-  createdAt: Date;
-  userName: string;
-  removed: boolean;
-};
-
-const Valve = ({}: Props) => {
+const Skarbonka = ({}: Props) => {
   const [data, setData] = useState<ValveType[]>([]);
   const [details, setDetails] = useState<ItemType>();
 
@@ -47,7 +38,7 @@ const Valve = ({}: Props) => {
 
   useEffect(() => {
     if (!details) return;
-    console.log({ details });
+    console.info('deatils ->', { details });
   }, [details]);
 
   let total = 0;
@@ -135,4 +126,4 @@ const Valve = ({}: Props) => {
   );
 };
 
-export default withLayout(Valve);
+export default withLayout(Skarbonka);
