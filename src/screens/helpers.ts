@@ -19,65 +19,96 @@ export function getColor() {
   return randomHexColor();
 }
 
-export const magazynInputs = [
-  {
-    type: 'text',
-    name: 'productName',
-    label: 'nazwa produktu',
-    fullWidth: true
-  },
-  {
-    type: 'number',
-    name: 'quantity',
-    label: 'ilość',
-    addOnly: true
-  },
-  {
-    type: 'select',
-    options: ['nowe', 'używane'],
-    name: 'condition',
-    label: 'stan'
-  },
-  {
-    type: 'select',
-    options: ['utworzono', 'oczekuję na płatność', 'sprzedano', 'zwrot'],
-    name: 'status',
-    label: 'status',
-    fullWidth: true,
-    editOnly: true
-  },
-  {
-    type: 'number',
-    name: 'provision',
-    label: 'prowizja',
-    fullWidth: true
-  },
-  {
-    type: 'number',
-    name: 'purchaseAmount',
-    label: 'kwota zakupu'
-  },
-  {
-    type: 'number',
-    name: 'saleAmount',
-    label: 'kwota sprzedazy'
-  },
-  {
-    type: 'date',
-    name: 'createDate',
-    label: 'data stworzenia',
-    fullWidth: true
-  },
-  {
-    type: 'text',
-    name: 'url',
-    label: 'link do aukcji',
-    fullWidth: true
-  },
-  {
-    type: 'text',
-    name: 'details',
-    label: 'uwagi',
-    fullWidth: true
-  }
-];
+export const handleInputs = (addForm = false) => {
+  return [
+    {
+      type: 'text',
+      name: 'productName',
+      label: 'nazwa produktu',
+      fullWidth: true
+    },
+    {
+      type: 'number',
+      name: 'quantity',
+      label: 'ilość',
+      addOnly: true
+    },
+    {
+      type: 'select',
+      options: ['nowe', 'używane'],
+      name: 'condition',
+      label: 'stan'
+    },
+    {
+      type: 'select',
+      options: ['utworzono', 'oczekuję na płatność', 'sprzedano', 'zwrot'],
+      name: 'status',
+      label: 'status',
+      fullWidth: true,
+      editOnly: true
+    },
+    {
+      type: 'number',
+      name: 'purchaseAmount',
+      label: 'kwota zakupu'
+    },
+    {
+      type: 'number',
+      name: 'saleAmount',
+      label: 'kwota sprzedazy'
+    },
+    {
+      type: 'number',
+      name: 'sendCost',
+      label: 'koszt wysyłki',
+    },
+    {
+      type: 'number',
+      name: 'provision',
+      label: 'prowizja',
+      editOnly: true
+    },
+    {
+      type: 'date',
+      name: 'createDate',
+      label: 'data stworzenia',
+      fullWidth: !addForm
+    },
+    {
+      type: 'text',
+      name: 'url',
+      label: 'link do aukcji',
+      fullWidth: true
+    },
+    {
+      type: 'text',
+      name: 'details',
+      label: 'uwagi',
+      fullWidth: true
+    }
+  ];
+
+}
+
+export const handleSpendingInputs = (addForm = false) => {
+  return [
+    {
+      type: "text",
+      name: "elementName",
+      label: "nazwa wydatku",
+      fullWidth: true
+    },
+    {
+      type: "text",
+      name: "amount",
+      label: "kwota wydatku",
+    },
+    {
+      type: "text",
+      name: "addedBy",
+      label: "kto dodał",
+    }
+  ];
+
+}
+

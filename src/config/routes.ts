@@ -1,7 +1,7 @@
 import Login from '../screens/Login';
 import MagazynWrapper from '../screens/MagazynWrapper';
 import RozliczeniaWrapper from '../screens/RozliczeniaWrapper';
-import Spendings from '../screens/Spendings';
+import Spendings from '../screens/Wydatki';
 import Skarbonka from '../screens/Skarbonka';
 interface RouteType {
   path: string;

@@ -22,7 +22,7 @@ const Magazyn = () => {
         <MagazynKomis />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        <div>PRIV </div>
+        <Box sx={{ p: "20px" }}>PRIV </Box>
       </TabPanel>
     </Box>
   );

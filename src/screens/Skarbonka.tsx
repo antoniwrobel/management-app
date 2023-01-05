@@ -17,9 +17,9 @@ import Container from '@mui/material/Container';
 import { Box } from '@mui/material';
 import { ItemType, ValveType } from './types';
 
-interface Props {}
+interface Props { }
 
-const Skarbonka = ({}: Props) => {
+const Skarbonka = ({ }: Props) => {
   const [data, setData] = useState<ValveType[]>([]);
   const [details, setDetails] = useState<ItemType>();
 
@@ -46,24 +46,29 @@ const Skarbonka = ({}: Props) => {
   return (
     <Container sx={{ p: '0px !important', m: '24px', maxWidth: '100% !important', width: 'auto' }}>
       <Center>
-        <TableContainer component={Paper} sx={{ mt: '20px' }}>
-          <Table sx={{ minWidth: 1550 }}>
-            <TableHead>
-              <TableRow>
-                <TableCell>Nazwa potrącenia</TableCell>
+        {data.length ?
+          <TableContainer component={Paper} sx={{ mt: '20px' }}>
+            <Table sx={{ minWidth: 1550 }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Nazwa potrącenia</TableCell>
 
-                <TableCell align="right">kwota</TableCell>
+                  <TableCell align="right">kwota</TableCell>
 
-                <TableCell align="right">data dodania</TableCell>
-                <TableCell align="right">kto dodał</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data.length ? (
-                data.map((d) => {
+                  <TableCell align="right">data dodania</TableCell>
+                  <TableCell align="right">kto dodał</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {data.map((d) => {
                   if (!d.removed) {
                     total += d.amount;
                   }
+
+                  const removedCellStyles = d.removed ? {
+                    textDecoration: 'line-through'
+                  } : {}
+
 
                   return (
                     <TableRow
@@ -75,14 +80,22 @@ const Skarbonka = ({}: Props) => {
                         setDetails(data);
                       }}
                     >
-                      <TableCell component="th" scope="row">
+                      <TableCell component="th" scope="row" sx={{
+                        color: d.removed ? 'red' : 'inherit',
+                        fontWeight: 'bold',
+                        ...removedCellStyles
+
+                      }}>
                         {d.elementName}
                       </TableCell>
                       <TableCell component="th" scope="row" align="right">
                         {d.removed ? (
-                          <Box sx={{ textDecoration: 'line-through' }}>{d.amount}zł</Box>
+                          <Box sx={{
+                            textDecoration: 'line-through', color: d.removed ? 'red' : 'inherit',
+                            fontWeight: 'bold',
+                          }}>{d.amount}zł</Box>
                         ) : (
-                          <Box>{d.amount}zł</Box>
+                          <Box>{d.amount.toFixed(2)}zł</Box>
                         )}
                       </TableCell>
                       <TableCell component="th" scope="row" align="right">
@@ -93,34 +106,31 @@ const Skarbonka = ({}: Props) => {
                       </TableCell>
                     </TableRow>
                   );
-                })
-              ) : (
-                <TableRow>
-                  <TableCell component="th" scope="row" align="left">
-                    brak danych
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                })}
+              </TableBody>
+            </Table>
 
-          <Box
-            sx={{
-              minWidth: 1550,
-              padding: '16px',
-              display: 'flex',
-              flexDirection: 'column'
-            }}
-          >
-            <Box sx={{ fontWeight: 'bold' }}>Podsumowanie</Box>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              Suma skarbonki:{' '}
-              <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
-                {total.toFixed(2)}zł
+            <Box
+              sx={{
+                minWidth: 1550,
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+            >
+              <Box sx={{ fontWeight: 'bold' }}>Podsumowanie</Box>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                Suma skarbonki:{' '}
+                <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
+                  {total.toFixed(2)}zł
+                </Box>
               </Box>
             </Box>
-          </Box>
-        </TableContainer>
+          </TableContainer>
+          :
+          <Box sx={{ my: "40px" }}>Brak danych</Box>
+        }
+
       </Center>
     </Container>
   );

@@ -42,156 +42,163 @@ const RozliczeniaKomis = () => {
     setModalOpen(true);
   };
 
-  let summaryWojtek = 0;
-  console.log(dayjs(new Date()).format('DD/MM/YYYY'));
-  console.log(new Date());
+  let summaryWojtek = 0
+  const showSummary = items.filter(e => !e.removed).length
+
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
       <Center>
-        <TableContainer component={Paper} sx={{ mt: '20px' }}>
-          <Table sx={{ minWidth: 1550 }}>
-            <TableHead>
-              <TableRow>
-                <TableCell>Nazwa produktu</TableCell>
-                <TableCell align="right">status</TableCell>
-                <TableCell align="right">kwota do rozliczenia</TableCell>
-                <TableCell align="right">data stworzenia</TableCell>
-                <TableCell align="right">uwagi</TableCell>
-                <TableCell
-                  align="right"
-                  sx={{
-                    minWidth: '300px'
-                  }}
-                >
-                  akcja
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {!items.length ? (
+        {items.length ?
+          <TableContainer component={Paper} sx={{ mt: '20px' }}>
+            <Table sx={{ minWidth: 1550 }}>
+              <TableHead>
                 <TableRow>
-                  <TableCell component="th" scope="row" align="left">
-                    brak danych
+                  <TableCell>Nazwa produktu</TableCell>
+                  <TableCell align="right">status</TableCell>
+                  <TableCell align="right">kwota do rozliczenia</TableCell>
+                  <TableCell align="right">data stworzenia</TableCell>
+                  <TableCell align="right">uwagi</TableCell>
+                  <TableCell
+                    align="right"
+
+                  >
+                    akcja
                   </TableCell>
                 </TableRow>
-              ) : (
-                items
-                  // @ts-ignore
-                  .map((item) => {
-                    if (!item.removed) {
-                      summaryWojtek += item.amount;
-                    } else {
-                      console.log('usunięte - ', item);
-                    }
+              </TableHead>
+              <TableBody>
+                {
+                  items
+                    .map((item) => {
 
-                    return (
-                      <TableRow
-                        key={item.id}
-                        sx={{
-                          '&:last-child td, &:last-child th': { border: 0 }
-                        }}
-                      >
-                        <TableCell
-                          component="th"
-                          scope="row"
+                      if (!item.removed) {
+                        summaryWojtek += item.clearingValueWojtek
+                      }
+
+                      const removedCellStyles = item.status === "zwrot" ? {
+                        textDecoration: 'line-through'
+                      } : {}
+
+                      return (
+                        <TableRow
+                          key={item.id}
                           sx={{
-                            color: item.status === 'zwrot' ? 'red' : 'inherit',
-                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
-                            maxWidth: '200px',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
+                            '&:last-child td, &:last-child th': { border: 0 }
                           }}
                         >
-                          {item.productName}
-                        </TableCell>
-
-                        <TableCell
-                          align="right"
-                          sx={{
-                            color: item.status === 'zwrot' ? 'red' : item.status === 'sprzedano' ? 'green' : 'inherit',
-                            fontWeight: 'bold'
-                          }}
-                        >
-                          {item.status}
-                        </TableCell>
-
-                        <TableCell
-                          align="right"
-                          sx={{
-                            color: item.status === 'zwrot' ? 'red' : 'inherit',
-                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
-                          }}
-                        >
-                          {item.removed ? (
-                            <Box sx={{ textDecoration: 'line-through' }}>{item.amount}zł</Box>
-                          ) : (
-                            <Box>{item.amount}zł</Box>
-                          )}
-                        </TableCell>
-
-                        <TableCell
-                          align="right"
-                          sx={{
-                            color: item.status === 'zwrot' ? 'red' : 'inherit',
-                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
-                          }}
-                        >
-                          {dayjs(item.createDate).format('DD/MM/YYYY')}
-                        </TableCell>
-
-                        <TableCell
-                          align="right"
-                          sx={{
-                            color: item.status === 'zwrot' ? 'red' : 'inherit',
-                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
-                            maxWidth: '200px',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
-                          }}
-                        >
-                          {item.details}
-                        </TableCell>
-                        {!item.removed && (
-                          <TableCell align="right">
-                            <Button
-                              size="small"
-                              variant="contained"
-                              type="submit"
-                              color={'primary'}
-                              onClick={() => handleSettlement(item)}
-                              sx={{ ml: '20px' }}
-                            >
-                              Rozlicz
-                            </Button>
+                          <TableCell
+                            component="th"
+                            scope="row"
+                            sx={{
+                              color: item.status === 'zwrot' ? 'red' : 'inherit',
+                              fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
+                              maxWidth: '200px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              ...removedCellStyles
+                            }}
+                          >
+                            {item.productName}
                           </TableCell>
-                        )}
-                      </TableRow>
-                    );
-                  })
-              )}
-            </TableBody>
-          </Table>
 
-          <Box
-            sx={{
-              minWidth: 1550,
-              padding: '16px',
-              display: 'flex',
-              flexDirection: 'column'
-            }}
-          >
-            <Box sx={{ fontWeight: 'bold' }}>Podsumowanie</Box>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              Wojtek suma:{' '}
-              <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
-                {summaryWojtek.toFixed(2)}zł
-              </Box>
+                          <TableCell
+                            align="right"
+                            sx={{
+                              color: item.status === 'zwrot' ? 'red' : item.status === 'sprzedano' ? 'green' : 'inherit',
+                              fontWeight: 'bold'
+                            }}
+                          >
+                            {item.status}
+                          </TableCell>
+
+                          <TableCell
+                            align="right"
+                            sx={{
+                              color: item.status === 'zwrot' ? 'red' : 'inherit',
+                              fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
+                            }}
+                          >
+
+                            <Box sx={removedCellStyles}>{item.clearingValueWojtek.toFixed(2)}zł</Box>
+
+                          </TableCell>
+
+                          <TableCell
+                            align="right"
+                            sx={{
+                              color: item.status === 'zwrot' ? 'red' : 'inherit',
+                              fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
+                            }}
+                          >
+                            {dayjs(item.createDate).format('DD/MM/YYYY')}
+                          </TableCell>
+
+                          <TableCell
+                            align="right"
+                            sx={{
+                              color: item.status === 'zwrot' ? 'red' : 'inherit',
+                              fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
+                              maxWidth: '200px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            {item.details}
+                          </TableCell>
+                          {!item.removed ?
+                            <TableCell align="right">
+                              <Button
+                                size="small"
+                                variant="contained"
+                                type="submit"
+                                color={'primary'}
+                                onClick={() => handleSettlement(item)}
+                                sx={{ ml: '20px' }}
+                              >
+                                Rozlicz
+                              </Button>
+                            </TableCell>
+                            :
+                            <TableCell align="right">
+
+                            </TableCell>
+                          }
+                        </TableRow>
+                      );
+                    })
+                }
+              </TableBody>
+            </Table>
+          </TableContainer>
+          :
+          <Box sx={{ my: "40px" }}>Brak danych</Box>
+        }
+
+
+      </Center>
+      {showSummary ?
+
+        <Box
+          sx={{
+            minWidth: 1550,
+            padding: '16px',
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+        >
+          <Box sx={{ fontWeight: 'bold' }}>Podsumowanie</Box>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            Wojtek suma:{' '}
+            <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
+              {summaryWojtek.toFixed(2)}zł
             </Box>
           </Box>
-        </TableContainer>
-      </Center>
+        </Box>
+        : null
+      }
+
     </Container>
   );
 };

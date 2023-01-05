@@ -9,12 +9,15 @@ export type ItemType = {
   details: string;
   createDate: Date;
   soldDate: Date;
-  provision: number;
+  sendCost: number;
   valueTransferedToValve: number;
   color: string;
   previousSaleAmount: number | null;
   removed: boolean;
   url: string;
+  clearingValueWojtek: number
+  clearingValueStan: number
+  provision: number | null
 };
 
 export type ValveType = {
@@ -40,7 +43,8 @@ export type SettlementItemType = {
   id: string;
   createDate: string;
   productName: string;
-  amount: number;
+  clearingValueWojtek: number;
+  clearingValueStan: number
   status: string;
   details: string;
   elementId: string;

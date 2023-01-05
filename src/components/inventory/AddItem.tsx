@@ -3,7 +3,7 @@ import AddItemModal from '../modal/Modal';
 
 import { Formik } from 'formik';
 import { collection, addDoc } from '@firebase/firestore';
-import { getColor, magazynInputs } from '../../screens/helpers';
+import { getColor, handleInputs } from '../../screens/helpers';
 import { db } from '../../config/firebase';
 import {
   Box,
@@ -34,11 +34,12 @@ const initialValues = {
   condition: '',
   purchaseAmount: '',
   color: '',
-  provision: '',
+  sendCost: '',
   saleAmount: '',
   createDate: dayjs().format(),
   details: '',
-  url: ''
+  url: '',
+  provision: ""
 };
 
 export const AddItem = (props: AddItemProps) => {
@@ -47,6 +48,7 @@ export const AddItem = (props: AddItemProps) => {
   const itemsCollectionRef = collection(db, 'items');
 
   const matches = useMediaQuery('(max-width:500px)');
+  const magazynInputs = handleInputs(true)
 
   return (
     <AddItemModal open={modalOpen}>
@@ -94,12 +96,13 @@ export const AddItem = (props: AddItemProps) => {
               productName: values.productName,
               purchaseAmount: values.purchaseAmount,
               saleAmount: values.saleAmount || null,
-              provision: values.provision || null,
+              sendCost: values.sendCost || null,
               status: 'utworzono',
               condition: values.condition,
               details: values.details,
               color,
-              url: values.url
+              url: values.url,
+              provision: values.provision
             })
           );
 
