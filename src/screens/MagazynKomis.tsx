@@ -383,6 +383,7 @@ const MagazynKomis = () => {
             </TableBody>
           </Table>
 
+
         </TableContainer> : <Box sx={{ mb: "40px" }}>Brak danych</Box>
 
         }
