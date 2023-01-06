@@ -2,7 +2,7 @@ import EditModal from '../modal/EditModal';
 
 import { Formik } from 'formik';
 import { collection, getDocs, updateDoc, doc } from '@firebase/firestore';
-import { Box, Button, Stack, TextField, useMediaQuery } from '@mui/material';
+import { Box, Button, FormControl, InputLabel, MenuItem, Select, Stack, TextField, useMediaQuery } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { SpendingType, ValveType } from '../../screens/types';
@@ -96,31 +96,28 @@ export const EditItem = (props: EditItemProps) => {
 
                       return (
                         <Box sx={{ gridColumn: matches ? 'span 4' : fullWidth ? 'span 4' : 'span 2' }} key={index}>
-                          {input.type === 'date' ? (
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                              <Stack spacing={3}>
-                                <DesktopDatePicker
-                                  label={input.label}
-                                  inputFormat="DD/MM/YYYY"
-                                  //@ts-ignore
-                                  value={values[input.name]}
-                                  onChange={(d) => {
-                                    setFieldValue(input.name, dayjs(d).format());
-                                  }}
-                                  renderInput={(params) => {
-                                    return (
-                                      <TextField
-                                        {...params}
-                                        datatype="date"
-                                        type="date"
-                                        //@ts-ignore
-                                        helperText={errors[input.name]}
-                                      />
-                                    );
-                                  }}
-                                />
-                              </Stack>
-                            </LocalizationProvider>
+                          {input.type === 'select' ? (
+                            <FormControl fullWidth>
+                              <InputLabel id="demo-simple-select-label">{input.label}</InputLabel>
+                              <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                //@ts-ignore
+                                value={values[input.name]}
+                                label={input.label}
+                                onChange={(d) => {
+                                  setFieldValue(input.name, d.target.value);
+                                }}
+                              >
+                                {input.options?.map((option) => {
+                                  return (
+                                    <MenuItem key={option} value={option}>
+                                      {option}
+                                    </MenuItem>
+                                  );
+                                })}
+                              </Select>
+                            </FormControl>
                           ) : (
                             <TextField
                               type={input.type}

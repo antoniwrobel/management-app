@@ -121,7 +121,7 @@ const MagazynKomis = () => {
         elementId: id,
         elementName: productName,
         amount: provision,
-        addedBy: 'automat',
+        addedBy: 'Stan',
         createdAt: dayjs().format()
       });
     }

@@ -5,7 +5,7 @@ import { Formik } from 'formik';
 import { collection, addDoc } from '@firebase/firestore';
 import { handleSpendingInputs } from '../../screens/helpers';
 import { db } from '../../config/firebase';
-import { Box, Button, TextField, useMediaQuery } from '@mui/material';
+import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField, useMediaQuery } from '@mui/material';
 
 type AddItemProps = {
   modalOpen: boolean;
@@ -48,7 +48,7 @@ export const AddItem = (props: AddItemProps) => {
           setModalOpen(false);
         }}
       >
-        {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => {
+        {({ values, setFieldValue, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => {
           return (
             <form onSubmit={handleSubmit}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -61,21 +61,45 @@ export const AddItem = (props: AddItemProps) => {
                         }}
                         key={index}
                       >
-                        <TextField
-                          type={input.type}
-                          name={input.name}
-                          label={input.label}
-                          variant="outlined"
-                          //@ts-ignore
-                          error={touched[input.name] && Boolean(errors[input.name])}
-                          //@ts-ignore
-                          helperText={touched[input.name] && errors[input.name]}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          //@ts-ignore
-                          value={values[input.name]}
-                          fullWidth
-                        />
+                        {input.type === 'select' ? (
+                          <FormControl fullWidth>
+                            <InputLabel id="demo-simple-select-label">{input.label}</InputLabel>
+                            <Select
+                              labelId="demo-simple-select-label"
+                              id="demo-simple-select"
+                              //@ts-ignore
+                              value={values[input.name]}
+                              label={input.label}
+                              onChange={(d) => {
+                                setFieldValue(input.name, d.target.value);
+                              }}
+                            >
+                              {input.options?.map((option) => {
+                                return (
+                                  <MenuItem key={option} value={option}>
+                                    {option}
+                                  </MenuItem>
+                                );
+                              })}
+                            </Select>
+                          </FormControl>
+                        ) : (
+                          <TextField
+                            type={input.type}
+                            name={input.name}
+                            label={input.label}
+                            variant="outlined"
+                            //@ts-ignore
+                            error={touched[input.name] && Boolean(errors[input.name])}
+                            //@ts-ignore
+                            helperText={touched[input.name] && errors[input.name]}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            //@ts-ignore
+                            value={values[input.name]}
+                            fullWidth
+                          />
+                        )}
                       </Box>
                     );
                   })}

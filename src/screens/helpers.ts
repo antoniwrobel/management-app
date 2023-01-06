@@ -107,9 +107,10 @@ export const handleSpendingInputs = () => {
       label: 'kwota wydatku'
     },
     {
-      type: 'text',
+      type: 'select',
+      options: ['Stan', 'Wojtek'],
       name: 'addedBy',
-      label: 'kto dodał'
+      label: 'kto wydał'
     }
   ];
 };

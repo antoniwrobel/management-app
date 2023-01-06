@@ -104,7 +104,7 @@ const Spendings = ({}: Props) => {
                     return (
                       <TableRow key={d.id}>
                         <TableCell component="th" scope="row" sx={removedCellStyles}>
-                          {d.addedBy === 'automat' ? `zwrot - ${d.elementName}` : d.elementName}
+                          {d.elementName}
                         </TableCell>
                         <TableCell component="th" scope="row" align="right" sx={removedCellStyles}>
                           {d.amount.toFixed(2)}zł
