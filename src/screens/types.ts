@@ -18,6 +18,7 @@ export type ItemType = {
   clearingValueWojtek: number;
   clearingValueStan: number;
   provision: number | null;
+  provisionPayed: boolean;
 };
 
 export type ValveType = {
@@ -38,6 +39,7 @@ export type SpendingType = {
   addedBy: string;
   createdAt: string;
   removed: boolean;
+  payProvison: boolean;
 };
 
 export type SettlementItemType = {

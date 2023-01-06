@@ -11,6 +11,7 @@ import TableContainer from '@mui/material/TableContainer';
 import Paper from '@mui/material/Paper';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import CheckCircleSharpIcon from '@mui/icons-material/CheckCircleSharp';
 
 import { auth, db } from '../config/firebase';
 import { ItemType, SettlementItemType, ValveType } from './types';
@@ -344,7 +345,12 @@ const MagazynKomis = () => {
                             fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
                           }}
                         >
-                          {item.provision ? item.provision.toFixed(2) + 'zł' : '-'}
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            {item.provision ? item.provision.toFixed(2) + 'zł' : '-'}
+                            {item.provisionPayed ? (
+                              <CheckCircleSharpIcon fontSize="small" sx={{ color: 'green ' }} />
+                            ) : null}
+                          </Box>
                         </TableCell>
 
                         <TableCell

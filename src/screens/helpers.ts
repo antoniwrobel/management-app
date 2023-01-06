@@ -93,8 +93,15 @@ export const handleInputs = (addForm = false) => {
   ];
 };
 
-export const handleSpendingInputs = () => {
+export const handleSpendingInputs = (addOnly = false) => {
   return [
+    {
+      type: 'checkbox',
+      name: 'payProvision',
+      label: 'opłata prowizji',
+      fullWidth: true,
+      addOnly
+    },
     {
       type: 'text',
       name: 'elementName',

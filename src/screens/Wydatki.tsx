@@ -102,7 +102,7 @@ const Spendings = ({}: Props) => {
                     if (!d.removed) {
                       if (d.addedBy === 'Wojtek') {
                         totalWojtek += d.amount;
-                      } else {
+                      } else if (d.addedBy === 'Stan') {
                         totalStan += d.amount;
                       }
                     }

@@ -44,7 +44,7 @@ export const EditItem = (props: EditItemProps) => {
   };
 
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
-  const magazynInputs = handleSpendingInputs();
+  const magazynInputs = handleSpendingInputs(true);
 
   if (!currentSelected) {
     return <></>;
@@ -92,6 +92,10 @@ export const EditItem = (props: EditItemProps) => {
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
                     {magazynInputs.map((input, index) => {
+                      if (input.addOnly) {
+                        return;
+                      }
+
                       const fullWidth = input.fullWidth;
 
                       return (
