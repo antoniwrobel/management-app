@@ -57,62 +57,64 @@ const Skarbonka = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data.map((d) => {
-                  if (!d.removed) {
-                    total += d.amount;
-                  }
+                {data // @ts-ignore
+                  .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
+                  .map((d) => {
+                    if (!d.removed) {
+                      total += d.amount;
+                    }
 
-                  const removedCellStyles = d.removed
-                    ? {
-                        textDecoration: 'line-through'
-                      }
-                    : {};
+                    const removedCellStyles = d.removed
+                      ? {
+                          textDecoration: 'line-through'
+                        }
+                      : {};
 
-                  return (
-                    <TableRow
-                      key={d.id}
-                      onClick={async () => {
-                        const docRef = doc(db, 'items', d.elementId);
-                        const docSnap = await getDoc(docRef);
-                        const data = docSnap.data() as ItemType;
-                        setDetails(data);
-                      }}
-                    >
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        sx={{
-                          color: d.removed ? 'red' : 'inherit',
-                          fontWeight: 'bold',
-                          ...removedCellStyles
+                    return (
+                      <TableRow
+                        key={d.id}
+                        onClick={async () => {
+                          const docRef = doc(db, 'items', d.elementId);
+                          const docSnap = await getDoc(docRef);
+                          const data = docSnap.data() as ItemType;
+                          setDetails(data);
                         }}
                       >
-                        {d.elementName}
-                      </TableCell>
-                      <TableCell component="th" scope="row" align="right">
-                        {d.removed ? (
-                          <Box
-                            sx={{
-                              textDecoration: 'line-through',
-                              color: d.removed ? 'red' : 'inherit',
-                              fontWeight: 'bold'
-                            }}
-                          >
-                            {d.amount.toFixed(2)}zł
-                          </Box>
-                        ) : (
-                          <Box>{d.amount.toFixed(2)}zł</Box>
-                        )}
-                      </TableCell>
-                      <TableCell component="th" scope="row" align="right">
-                        {dayjs(d.createdAt).format('DD/MM/YYYY')}
-                      </TableCell>
-                      <TableCell component="th" scope="row" align="right">
-                        {d.userName}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          sx={{
+                            color: d.removed ? 'red' : 'inherit',
+                            fontWeight: 'bold',
+                            ...removedCellStyles
+                          }}
+                        >
+                          {d.elementName}
+                        </TableCell>
+                        <TableCell component="th" scope="row" align="right">
+                          {d.removed ? (
+                            <Box
+                              sx={{
+                                textDecoration: 'line-through',
+                                color: d.removed ? 'red' : 'inherit',
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              {d.amount.toFixed(2)}zł
+                            </Box>
+                          ) : (
+                            <Box>{d.amount.toFixed(2)}zł</Box>
+                          )}
+                        </TableCell>
+                        <TableCell component="th" scope="row" align="right">
+                          {dayjs(d.createdAt).format('DD/MM/YYYY')}
+                        </TableCell>
+                        <TableCell component="th" scope="row" align="right">
+                          {d.userName}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
               </TableBody>
             </Table>
           </TableContainer>

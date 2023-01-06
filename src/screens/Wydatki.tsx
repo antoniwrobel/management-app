@@ -86,43 +86,45 @@ const Spendings = ({}: Props) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data.map((d) => {
-                  const removedCellStyles = d.removed
-                    ? {
-                        textDecoration: 'line-through',
-                        fontWeight: 'bold',
-                        color: 'red'
-                      }
-                    : {};
+                {data // @ts-ignore
+                  .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
+                  .map((d) => {
+                    const removedCellStyles = d.removed
+                      ? {
+                          textDecoration: 'line-through',
+                          fontWeight: 'bold',
+                          color: 'red'
+                        }
+                      : {};
 
-                  if (!d.removed) {
-                    total += d.amount;
-                  }
+                    if (!d.removed) {
+                      total += d.amount;
+                    }
 
-                  return (
-                    <TableRow key={d.id}>
-                      <TableCell component="th" scope="row" sx={removedCellStyles}>
-                        {d.addedBy === 'automat' ? `zwrot - ${d.elementName}` : d.elementName}
-                      </TableCell>
-                      <TableCell component="th" scope="row" align="right" sx={removedCellStyles}>
-                        {d.amount.toFixed(2)}zł
-                      </TableCell>
-                      <TableCell component="th" scope="row" align="right">
-                        {dayjs(d.createdAt).format('DD/MM/YYYY')}
-                      </TableCell>
-                      <TableCell component="th" scope="row" align="right">
-                        {d.addedBy}
-                      </TableCell>
-                      <TableCell component="th" scope="row" align="right">
-                        {!editBlocked && (
-                          <Button size="small" variant="contained" type="submit" onClick={() => editRow(d.id)}>
-                            Edytuj
-                          </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                    return (
+                      <TableRow key={d.id}>
+                        <TableCell component="th" scope="row" sx={removedCellStyles}>
+                          {d.addedBy === 'automat' ? `zwrot - ${d.elementName}` : d.elementName}
+                        </TableCell>
+                        <TableCell component="th" scope="row" align="right" sx={removedCellStyles}>
+                          {d.amount.toFixed(2)}zł
+                        </TableCell>
+                        <TableCell component="th" scope="row" align="right">
+                          {dayjs(d.createdAt).format('DD/MM/YYYY')}
+                        </TableCell>
+                        <TableCell component="th" scope="row" align="right">
+                          {d.addedBy}
+                        </TableCell>
+                        <TableCell component="th" scope="row" align="right">
+                          {!editBlocked && (
+                            <Button size="small" variant="contained" type="submit" onClick={() => editRow(d.id)}>
+                              Edytuj
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
               </TableBody>
             </Table>
           </TableContainer>
