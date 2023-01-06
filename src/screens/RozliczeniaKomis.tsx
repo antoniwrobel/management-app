@@ -15,8 +15,9 @@ import TableRow from '@mui/material/TableRow';
 import { auth, db } from '../config/firebase';
 import { SettlementItemType } from './types';
 import { collection, getDocs } from '@firebase/firestore';
-import dayjs from 'dayjs';
 import { isAdminUser } from './helpers';
+
+import dayjs from 'dayjs';
 
 const RozliczeniaKomis = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -24,7 +25,7 @@ const RozliczeniaKomis = () => {
 
   const [currentSelected, setCurrentSelected] = useState<SettlementItemType>();
   const [items, setItems] = useState<SettlementItemType[]>([]);
-
+  const [showDeleted, setShowDeleted] = useState(false);
   const settlementsCollectionRef = collection(db, 'settlements');
 
   const editBlocked = !isAdminUser(user);
@@ -49,6 +50,14 @@ const RozliczeniaKomis = () => {
 
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
+      {items.length ? (
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
+          <Button variant="contained" onClick={() => setShowDeleted((prev) => !prev)}>
+            {!showDeleted ? 'Pokaż usunięte' : 'Schowaj usunięte'}
+          </Button>
+        </Box>
+      ) : null}
+
       <Center>
         {items.length ? (
           <TableContainer component={Paper} sx={{ mt: '20px' }}>
@@ -68,6 +77,10 @@ const RozliczeniaKomis = () => {
                   // @ts-ignore
                   .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
                   .map((item) => {
+                    if (!showDeleted && item.removed) {
+                      return;
+                    }
+
                     if (!item.removed) {
                       summaryWojtek += item.clearingValueWojtek;
                     }

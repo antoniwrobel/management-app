@@ -1,17 +1,13 @@
 import EditModal from '../modal/EditModal';
 
 import { Formik } from 'formik';
-import { collection, getDocs, updateDoc, doc } from '@firebase/firestore';
+import { updateDoc, doc } from '@firebase/firestore';
 import { Box, Button, FormControl, InputLabel, MenuItem, Select, Stack, TextField, useMediaQuery } from '@mui/material';
-import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { SpendingType, ValveType } from '../../screens/types';
 import { db } from '../../config/firebase';
 import { handleSpendingInputs } from '../../screens/helpers';
 import { useState } from 'react';
 import { ConfirmationModal } from '../modal/ConfirmationModal';
-
-import dayjs from 'dayjs';
 
 type EditItemProps = {
   editModalOpen: boolean;
@@ -92,7 +88,7 @@ export const EditItem = (props: EditItemProps) => {
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
                     {magazynInputs.map((input, index) => {
-                      if (input.addOnly) {
+                      if (input.addOnly || currentSelected.removed) {
                         return;
                       }
 

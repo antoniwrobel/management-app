@@ -12,14 +12,14 @@ import Container from '@mui/material/Container';
 import { db } from '../config/firebase';
 import { useEffect, useState } from 'react';
 import { collection, getDocs, doc, getDoc } from '@firebase/firestore';
-import { Box } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { ItemType, ValveType } from './types';
 import dayjs from 'dayjs';
 
 const Skarbonka = () => {
   const [data, setData] = useState<ValveType[]>([]);
   const [details, setDetails] = useState<ItemType>();
-
+  const [showDeleted, setShowDeleted] = useState(false);
   const valveCollectionRef = collection(db, 'valve');
 
   const getData = async () => {
@@ -42,6 +42,14 @@ const Skarbonka = () => {
 
   return (
     <Container sx={{ p: '0px !important', m: '24px', maxWidth: '100% !important', width: 'auto' }}>
+      {data.length ? (
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
+          <Button variant="contained" onClick={() => setShowDeleted((prev) => !prev)}>
+            {!showDeleted ? 'Pokaż usunięte' : 'Schowaj usunięte'}
+          </Button>
+        </Box>
+      ) : null}
+
       <Center>
         {data.length ? (
           <TableContainer component={Paper} sx={{ mt: '20px' }}>
@@ -59,6 +67,10 @@ const Skarbonka = () => {
                 {data // @ts-ignore
                   .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                   .map((d) => {
+                    if (!showDeleted && d.removed) {
+                      return;
+                    }
+
                     if (!d.removed) {
                       total += d.amount;
                     }

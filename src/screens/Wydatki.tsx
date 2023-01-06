@@ -30,6 +30,8 @@ const Spendings = ({}: Props) => {
   const editBlocked = !isAdminUser(user);
   const isStan = isAdminUser(user);
 
+  const [showDeleted, setShowDeleted] = useState(false);
+
   const spendingsCollectionRef = collection(db, 'spendings');
 
   const getData = async () => {
@@ -64,6 +66,13 @@ const Spendings = ({}: Props) => {
           </Button>
         </Box>
       )}
+      {data.length ? (
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
+          <Button variant="contained" onClick={() => setShowDeleted((prev) => !prev)}>
+            {!showDeleted ? 'Pokaż usunięte' : 'Schowaj usunięte'}
+          </Button>
+        </Box>
+      ) : null}
 
       <AddItem modalOpen={modalOpen} setModalOpen={setModalOpen} getItems={getData} />
 
@@ -91,6 +100,10 @@ const Spendings = ({}: Props) => {
                 {data // @ts-ignore
                   .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                   .map((d) => {
+                    if (!showDeleted && d.removed) {
+                      return;
+                    }
+
                     const removedCellStyles = d.removed
                       ? {
                           textDecoration: 'line-through',

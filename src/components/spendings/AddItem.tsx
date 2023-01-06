@@ -29,7 +29,9 @@ type AddItemProps = {
 
 export const AddItem = (props: AddItemProps) => {
   const { modalOpen, getItems, setModalOpen } = props;
+
   const spendingsCollectionRef = collection(db, 'spendings');
+
   const matches = useMediaQuery('(max-width:500px)');
   const magazynInputs = handleSpendingInputs(true);
 
@@ -99,18 +101,20 @@ export const AddItem = (props: AddItemProps) => {
           return errors;
         }}
         onSubmit={async (values, { setSubmitting }) => {
+          const selectedItem = items.find((e) => e.id === values.payProvisionId);
+          if (!selectedItem) {
+            return;
+          }
+
           if (values.payProvision) {
-            const selectedItem = items.find((e) => e.id === values.payProvisionId);
-            if (!selectedItem) {
-              return;
-            }
             const itemDoc = doc(db, 'items', selectedItem.id);
 
             await addDoc(spendingsCollectionRef, {
               elementName: 'opłata prowizji za - ' + selectedItem.productName,
               amount: selectedItem.provision,
               addedBy: 'automat',
-              createdAt: dayjs().format()
+              createdAt: dayjs().format(),
+              elementId: selectedItem.id
             });
 
             await updateDoc(itemDoc, {
@@ -121,7 +125,8 @@ export const AddItem = (props: AddItemProps) => {
               elementName: values.elementName,
               amount: parseFloat(values.amount),
               addedBy: values.addedBy,
-              createdAt: values.createdAt
+              createdAt: values.createdAt,
+              elementId: selectedItem.id
             });
           }
 

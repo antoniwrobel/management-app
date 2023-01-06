@@ -14,7 +14,7 @@ import TableRow from '@mui/material/TableRow';
 import CheckCircleSharpIcon from '@mui/icons-material/CheckCircleSharp';
 
 import { auth, db } from '../config/firebase';
-import { ItemType, SettlementItemType, ValveType } from './types';
+import { ItemType, SettlementItemType, SpendingType, ValveType } from './types';
 import { collection, getDocs, addDoc, updateDoc, doc } from '@firebase/firestore';
 import { AddItem } from '../components/inventory/AddItem';
 import { EditItem } from '../components/inventory/EditItem';
@@ -40,6 +40,7 @@ const MagazynKomis = () => {
   const spendingsCollectionRef = collection(db, 'spendings');
   const valveCollectionRef = collection(db, 'valve');
   const settlementsCollectionRef = collection(db, 'settlements');
+  const [showDeleted, setShowDeleted] = useState(false);
 
   const editBlocked = !isAdminUser(user);
 
@@ -96,6 +97,10 @@ const MagazynKomis = () => {
     const settlements = s.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as SettlementItemType[];
     const settlement = settlements.find((item) => item.elementId === id);
 
+    const spend = await getDocs(spendingsCollectionRef);
+    const spendings = spend.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as SpendingType[];
+    const spending = spendings.find((item) => item.elementId === id);
+
     if (settlement) {
       const settlementsDoc = doc(db, 'settlements', settlement.id);
 
@@ -118,13 +123,22 @@ const MagazynKomis = () => {
     });
 
     if (provision && provision > 0) {
-      await addDoc(spendingsCollectionRef, {
-        elementId: id,
-        elementName: productName,
-        amount: provision,
-        addedBy: 'Stan',
-        createdAt: dayjs().format()
-      });
+      if (!item.provisionPayed) {
+        await addDoc(spendingsCollectionRef, {
+          elementId: id,
+          elementName: productName,
+          amount: provision,
+          addedBy: 'Stan',
+          createdAt: dayjs().format()
+        });
+      } else {
+        if (spending) {
+          const spendingDoc = doc(db, 'spendings', spending.id);
+          await updateDoc(spendingDoc, {
+            addedBy: 'Stan'
+          });
+        }
+      }
     }
 
     getItems();
@@ -157,6 +171,14 @@ const MagazynKomis = () => {
           </Button>
         </Box>
       )}
+
+      {items.length ? (
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
+          <Button variant="contained" onClick={() => setShowDeleted((prev) => !prev)}>
+            {!showDeleted ? 'Pokaż usunięte' : 'Schowaj usunięte'}
+          </Button>
+        </Box>
+      ) : null}
 
       <AddItem modalOpen={modalOpen} setModalOpen={setModalOpen} getItems={getItems} />
 
@@ -237,7 +259,7 @@ const MagazynKomis = () => {
                   // @ts-ignore
                   .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
                   .map((item) => {
-                    if (item.removed) {
+                    if (!showDeleted && item.removed) {
                       return;
                     }
 
@@ -448,7 +470,7 @@ const MagazynKomis = () => {
                             </>
                           ) : null}
 
-                          {!editBlocked && (
+                          {!editBlocked && !item.removed && (
                             <Button
                               size="small"
                               variant="contained"
