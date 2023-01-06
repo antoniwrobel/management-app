@@ -22,6 +22,7 @@ import { ConfirmationModal } from '../components/modal/ConfirmationModal';
 import { isAdminUser } from './helpers';
 
 import dayjs from 'dayjs';
+import { styled, Tooltip, tooltipClasses, TooltipProps } from '@mui/material';
 
 const MagazynKomis = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -127,6 +128,20 @@ const MagazynKomis = () => {
   };
 
   const haveItems = items.filter((e) => !e.removed).length;
+
+  const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
+    <Tooltip {...props} arrow classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.arrow}`]: {
+      color: theme.palette.common.black
+    },
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: theme.palette.common.black,
+      fontSize: 16,
+      whiteSpace: 'nowrap',
+      maxWidth: '100%'
+    }
+  }));
 
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
@@ -242,14 +257,27 @@ const MagazynKomis = () => {
                           sx={{
                             color: item.status === 'zwrot' ? 'red' : 'inherit',
                             fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
-                            maxWidth: '300px',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
+
                             ...removedCellStyles
                           }}
                         >
-                          {item.productName}
+                          <BootstrapTooltip
+                            title={item.productName}
+                            placement="bottom-start"
+                            arrow
+                            sx={{ fontSize: '18px' }}
+                          >
+                            <Box
+                              sx={{
+                                maxWidth: '200px',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                              }}
+                            >
+                              {item.productName}
+                            </Box>
+                          </BootstrapTooltip>
                         </TableCell>
 
                         <TableCell
