@@ -17,6 +17,7 @@ import { SpendingType } from './types';
 import { EditItem } from '../components/spendings/EditItem';
 import { AddItem } from '../components/spendings/AddItem';
 import { isAdminUser } from './helpers';
+import dayjs from 'dayjs';
 
 interface Props {}
 
@@ -107,7 +108,7 @@ const Spendings = ({}: Props) => {
                         {d.amount.toFixed(2)}zł
                       </TableCell>
                       <TableCell component="th" scope="row" align="right">
-                        {d.createdAt}
+                        {dayjs(d.createdAt).format('DD/MM/YYYY')}
                       </TableCell>
                       <TableCell component="th" scope="row" align="right">
                         {d.addedBy}
