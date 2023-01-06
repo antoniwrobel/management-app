@@ -1,23 +1,17 @@
 import EditModal from '../modal/EditModal';
-import { Formik } from 'formik';
 
+import { Formik } from 'formik';
 import { collection, getDocs, updateDoc, doc } from '@firebase/firestore';
-import {
-  Box,
-  Button,
-  Stack,
-  TextField,
-  useMediaQuery
-} from '@mui/material';
+import { Box, Button, Stack, TextField, useMediaQuery } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { SpendingType, ValveType } from '../../screens/types';
 import { db } from '../../config/firebase';
-import { handleInputs, handleSpendingInputs } from '../../screens/helpers';
+import { handleSpendingInputs } from '../../screens/helpers';
 import { useState } from 'react';
+import { ConfirmationModal } from '../modal/ConfirmationModal';
 
 import dayjs from 'dayjs';
-import { ConfirmationModal } from '../modal/ConfirmationModal';
 
 type EditItemProps = {
   editModalOpen: boolean;
@@ -31,13 +25,12 @@ export const EditItem = (props: EditItemProps) => {
 
   const matches = useMediaQuery('(max-width:500px)');
   const valveCollectionRef = collection(db, 'valve');
-  const settlementsCollectionRef = collection(db, 'settlements');
 
   const handleDeleteItem = async () => {
-    const itemId = currentSelected?.id
+    const itemId = currentSelected?.id;
 
     if (!itemId) {
-      return
+      return;
     }
 
     const item = doc(db, 'items', itemId);
@@ -60,13 +53,13 @@ export const EditItem = (props: EditItemProps) => {
       removed: true
     });
 
-    setDeleteConfirmationOpen(false)
+    setDeleteConfirmationOpen(false);
     setEditModalOpen(false);
     getItems();
   };
 
-  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false)
-  const magazynInputs = handleSpendingInputs()
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const magazynInputs = handleSpendingInputs();
 
   if (!currentSelected) {
     return <></>;
@@ -74,21 +67,23 @@ export const EditItem = (props: EditItemProps) => {
 
   return (
     <EditModal open={editModalOpen}>
-
       <>
         {/* HANDLE DELETE MODAL CONFIRMATION */}
-        <ConfirmationModal handleConfirm={handleDeleteItem} open={deleteConfirmationOpen} handleReject={() => setDeleteConfirmationOpen(false)} />
+        <ConfirmationModal
+          handleConfirm={handleDeleteItem}
+          open={deleteConfirmationOpen}
+          handleReject={() => setDeleteConfirmationOpen(false)}
+        />
 
         <Formik
           initialValues={{
             createDate: currentSelected.createdAt || '',
             elementName: currentSelected.elementName || '',
             amount: currentSelected.amount || '',
-            addedBy: currentSelected.addedBy || '',
+            addedBy: currentSelected.addedBy || ''
           }}
           validate={(values) => {
             const errors = {} as any;
-
 
             return errors;
           }}
@@ -100,7 +95,7 @@ export const EditItem = (props: EditItemProps) => {
               elementName: values.elementName,
               //@ts-ignore
               amount: parseFloat(values.amount),
-              addedBy: values.addedBy,
+              addedBy: values.addedBy
             });
 
             getItems();
@@ -116,7 +111,6 @@ export const EditItem = (props: EditItemProps) => {
                     {magazynInputs.map((input, index) => {
                       const fullWidth = input.fullWidth;
 
-
                       return (
                         <Box sx={{ gridColumn: matches ? 'span 4' : fullWidth ? 'span 4' : 'span 2' }} key={index}>
                           {input.type === 'date' ? (
@@ -127,7 +121,6 @@ export const EditItem = (props: EditItemProps) => {
                                   inputFormat="DD/MM/YYYY"
                                   //@ts-ignore
                                   value={values[input.name]}
-
                                   onChange={(d) => {
                                     setFieldValue(input.name, dayjs(d).format());
                                   }}
@@ -137,7 +130,6 @@ export const EditItem = (props: EditItemProps) => {
                                         {...params}
                                         datatype="date"
                                         type="date"
-
                                         //@ts-ignore
                                         helperText={errors[input.name]}
                                       />
@@ -166,7 +158,6 @@ export const EditItem = (props: EditItemProps) => {
                         </Box>
                       );
                     })}
-
                   </Box>
 
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px' }}>
@@ -176,7 +167,7 @@ export const EditItem = (props: EditItemProps) => {
                       color="error"
                       sx={{ mr: 'auto' }}
                       onClick={() => {
-                        setDeleteConfirmationOpen(true)
+                        setDeleteConfirmationOpen(true);
                       }}
                     >
                       Usuń

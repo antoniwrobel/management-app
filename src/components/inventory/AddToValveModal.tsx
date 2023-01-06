@@ -1,16 +1,16 @@
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
+import ValveModal from '../modal/ValveModal';
+
 import { Formik } from 'formik';
 import { auth, db } from '../../config/firebase';
 import { addDoc, updateDoc, doc, collection, getDocs } from '@firebase/firestore';
-
-import dayjs from 'dayjs';
-
-import ValveModal from '../modal/ValveModal';
 import { useState } from 'react';
 import { ItemType, SettlementItemType } from '../../screens/types';
 import { Typography } from '@mui/material';
+
+import dayjs from 'dayjs';
 
 type AddToValveModalProps = {
   valveModalOpen: boolean;
@@ -27,25 +27,22 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
   const settlementsCollectionRef = collection(db, 'settlements');
 
   if (!currentSelected) {
-    return <></>
+    return <></>;
   }
 
-
-  const clearProfit = currentSelected.saleAmount - currentSelected.purchaseAmount
-  //@ts-ignore
-  const fixedProfit = clearProfit - currentSelected.provision
+  const clearProfit = currentSelected.saleAmount - currentSelected.purchaseAmount;
+  const fixedProfit = clearProfit - (currentSelected.provision || 0);
 
   return (
     <ValveModal open={valveModalOpen}>
       <>
         <Box>
-          <Typography sx={{ mb: "20px", }}>
+          <Typography sx={{ mb: '20px' }}>
             Kwota do podziału:
-            <Typography sx={{ ml: "5px", fontWeight: "bold", display: "inline-block" }}>
+            <Typography sx={{ ml: '5px', fontWeight: 'bold', display: 'inline-block' }}>
               {fixedProfit.toFixed(2)}zł
             </Typography>
-
-            <Typography sx={{ display: "inline-block", ml: "5px", fontStyle: "oblique" }}>
+            <Typography sx={{ display: 'inline-block', ml: '5px', fontStyle: 'oblique' }}>
               ({clearProfit}zł - {currentSelected.provision}zł)
             </Typography>
           </Typography>
@@ -59,8 +56,7 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
             const errors = {} as any;
 
             if (!values.amount) {
-
-              errors.amount = "Podaj wartość do przekazania!"
+              errors.amount = 'Podaj wartość do przekazania!';
             }
 
             return errors;
@@ -71,13 +67,13 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
             const { amount } = values;
             const itemDoc = doc(db, 'items', currentSelected.id);
 
-            const amountToReduce = parseFloat(amount) / 2
+            const amountToReduce = parseFloat(amount) / 2;
 
             await updateDoc(itemDoc, {
               //@ts-ignore
               valueTransferedToValve: parseFloat(currentSelected.valueTransferedToValve || 0) + parseFloat(amount),
               clearingValueWojtek: currentSelected.clearingValueWojtek - amountToReduce,
-              clearingValueStan: currentSelected.clearingValueStan - amountToReduce,
+              clearingValueStan: currentSelected.clearingValueStan - amountToReduce
             });
 
             const d = await getDocs(settlementsCollectionRef);
@@ -85,20 +81,19 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
             const elements = items.filter((item) => item.elementId === currentSelected.id);
 
             if (elements.length > 0) {
-
-              const elementsPromise = elements.map(element => {
+              const elementsPromise = elements.map((element) => {
                 if (element.removed) {
-                  return
+                  return;
                 }
 
                 const settlementsDoc = doc(db, 'settlements', element.id);
                 return updateDoc(settlementsDoc, {
                   clearingValueWojtek: currentSelected.clearingValueWojtek - amountToReduce,
-                  clearingValueStan: currentSelected.clearingValueStan - amountToReduce,
+                  clearingValueStan: currentSelected.clearingValueStan - amountToReduce
                 });
-              })
+              });
 
-              await Promise.all(elementsPromise)
+              await Promise.all(elementsPromise);
             }
 
             await addDoc(valveCollectionRef, {
@@ -115,7 +110,6 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
           }}
         >
           {({ values, touched, errors, handleChange, handleBlur, handleSubmit, isSubmitting }) => {
-
             return (
               <form onSubmit={handleSubmit}>
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -129,9 +123,7 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
                         onChange={handleChange}
                         onBlur={handleBlur}
                         value={values.amount}
-                        //@ts-ignore
                         error={touched.amount && Boolean(errors.amount)}
-                        //@ts-ignore
                         helperText={touched.amount && errors.amount}
                         fullWidth
                       />

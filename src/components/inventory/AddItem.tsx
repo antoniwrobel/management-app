@@ -27,28 +27,28 @@ type AddItemProps = {
   setModalOpen: (value: boolean) => void;
 };
 
-const initialValues = {
-  productName: '',
-  status: '',
-  quantity: '',
-  condition: '',
-  purchaseAmount: '',
-  color: '',
-  sendCost: '',
-  saleAmount: '',
-  createDate: dayjs().format(),
-  details: '',
-  url: '',
-  provision: ""
-};
-
 export const AddItem = (props: AddItemProps) => {
   const { modalOpen, getItems, setModalOpen } = props;
 
   const itemsCollectionRef = collection(db, 'items');
 
   const matches = useMediaQuery('(max-width:500px)');
-  const magazynInputs = handleInputs(true)
+  const magazynInputs = handleInputs(true);
+
+  const initialValues = {
+    productName: '',
+    status: '',
+    quantity: '',
+    condition: '',
+    purchaseAmount: '',
+    color: '',
+    sendCost: '',
+    saleAmount: '',
+    createDate: dayjs().format(),
+    details: '',
+    url: '',
+    provision: ''
+  };
 
   return (
     <AddItemModal open={modalOpen}>
@@ -120,8 +120,9 @@ export const AddItem = (props: AddItemProps) => {
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
                   {magazynInputs.map((input, index) => {
                     if (input.editOnly) {
-                      return;
+                      return <></>;
                     }
+
                     return (
                       <Box
                         sx={{

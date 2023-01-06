@@ -1,11 +1,10 @@
-import { Box, Tab, Tabs } from '@mui/material';
 import React from 'react';
 import AuthContainer from '../components/auth/AuthContainer';
 import Center from '../components/utils/Center';
 
-interface Props {}
+import { Box, Tab, Tabs } from '@mui/material';
 
-const Login = ({}: Props) => {
+const Login = () => {
   return (
     <Center height={90}>
       <Box display={'flex'} alignItems={'center'} flexDirection={'column'} boxShadow={2} margin={3}>
@@ -14,7 +13,6 @@ const Login = ({}: Props) => {
             <Tab sx={{ px: { lg: 20, xs: 6 } }} label="Login" />
           </Tabs>
         </Box>
-        {/* login */}
         <TabPanel value={0} index={0}>
           <AuthContainer />
         </TabPanel>

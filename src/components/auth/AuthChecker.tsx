@@ -13,7 +13,7 @@ const AuthChecker = ({ children }: Props) => {
     if (!auth.currentUser) {
       navigate('/login');
     }
-  }, []);
+  }, [navigate]);
 
   return <>{children}</>;
 };

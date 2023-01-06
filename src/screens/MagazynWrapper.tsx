@@ -1,7 +1,8 @@
 import withLayout from '../components/layout/withLayout';
+import MagazynKomis from './MagazynKomis';
+
 import { Box, Tab, Tabs } from '@mui/material';
 import { useState } from 'react';
-import MagazynKomis from './MagazynKomis';
 
 const Magazyn = () => {
   const [value, setValue] = useState(0);
@@ -22,7 +23,7 @@ const Magazyn = () => {
         <MagazynKomis />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        <Box sx={{ p: "20px" }}>PRIV </Box>
+        <Box sx={{ p: '20px' }}>PRIV </Box>
       </TabPanel>
     </Box>
   );

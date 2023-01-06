@@ -1,6 +1,5 @@
 import EditModal from '../modal/EditModal';
 import { Formik } from 'formik';
-
 import { collection, getDocs, updateDoc, doc, addDoc } from '@firebase/firestore';
 import {
   Box,
@@ -21,9 +20,9 @@ import { ItemType, ValveType } from '../../screens/types';
 import { db } from '../../config/firebase';
 import { handleInputs } from '../../screens/helpers';
 import { useState } from 'react';
+import { ConfirmationModal } from '../modal/ConfirmationModal';
 
 import dayjs from 'dayjs';
-import { ConfirmationModal } from '../modal/ConfirmationModal';
 
 type EditItemProps = {
   editModalOpen: boolean;
@@ -40,10 +39,10 @@ export const EditItem = (props: EditItemProps) => {
   const settlementsCollectionRef = collection(db, 'settlements');
 
   const handleDeleteItem = async () => {
-    const itemId = currentSelected?.id
+    const itemId = currentSelected?.id;
 
     if (!itemId) {
-      return
+      return;
     }
 
     const item = doc(db, 'items', itemId);
@@ -66,14 +65,14 @@ export const EditItem = (props: EditItemProps) => {
       removed: true
     });
 
-    setDeleteConfirmationOpen(false)
+    setDeleteConfirmationOpen(false);
     setEditModalOpen(false);
     getItems();
   };
 
   const buttonDisabled = currentSelected?.status === 'sprzedano';
-  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false)
-  const magazynInputs = handleInputs()
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const magazynInputs = handleInputs();
 
   if (!currentSelected) {
     return <></>;
@@ -81,10 +80,13 @@ export const EditItem = (props: EditItemProps) => {
 
   return (
     <EditModal open={editModalOpen}>
-
       <>
         {/* HANDLE DELETE MODAL CONFIRMATION */}
-        <ConfirmationModal handleConfirm={handleDeleteItem} open={deleteConfirmationOpen} handleReject={() => setDeleteConfirmationOpen(false)} />
+        <ConfirmationModal
+          handleConfirm={handleDeleteItem}
+          open={deleteConfirmationOpen}
+          handleReject={() => setDeleteConfirmationOpen(false)}
+        />
 
         <Formik
           initialValues={{
@@ -99,7 +101,7 @@ export const EditItem = (props: EditItemProps) => {
             details: currentSelected.details || '',
             valueTransferedToValve: currentSelected.valueTransferedToValve || '',
             url: currentSelected.url || '',
-            provision: currentSelected.provision || ""
+            provision: currentSelected.provision || ''
           }}
           validate={(values) => {
             const errors = {} as any;
@@ -127,12 +129,10 @@ export const EditItem = (props: EditItemProps) => {
                 errors.saleAmount = 'Kwota zakupu musi być większa od 0';
               }
 
-
-              if (typeof values.sendCost === "string") {
-                if (values.sendCost.trim() === "") {
+              if (typeof values.sendCost === 'string') {
+                if (values.sendCost.trim() === '') {
                   errors.sendCost = 'Podaj koszt wysyłki!';
                 }
-
               }
             }
             return errors;
@@ -142,12 +142,12 @@ export const EditItem = (props: EditItemProps) => {
 
             const itemDoc = doc(db, 'items', currentSelected.id);
             //@ts-ignore
-            const profit = (values.saleAmount - values.purchaseAmount - values.provision) / 2
+            const profit = (values.saleAmount - values.purchaseAmount - values.provision) / 2;
             const clearingValueWojtek: number =
               //@ts-ignore
-              values.purchaseAmount + profit || 0
-            const clearingValueStan: number = profit || 0
-            const shouldAddSpendings = values.status === "sprzedano"
+              values.purchaseAmount + profit || 0;
+            const clearingValueStan: number = profit || 0;
+            const shouldAddSpendings = values.status === 'sprzedano';
 
             await updateDoc(itemDoc, {
               createDate: values.createDate,
@@ -160,11 +160,10 @@ export const EditItem = (props: EditItemProps) => {
               details: values.details,
               url: values.url,
               provision: values.provision,
-              ...shouldAddSpendings && {
+              ...(shouldAddSpendings && {
                 clearingValueWojtek,
                 clearingValueStan
-              }
-
+              })
             });
 
             if (values.status === 'sprzedano') {
@@ -191,7 +190,7 @@ export const EditItem = (props: EditItemProps) => {
                     {magazynInputs.map((input, index) => {
                       const fullWidth = index >= 1 && magazynInputs[index - 1].addOnly ? true : input.fullWidth;
 
-                      const editEnabledOptions = currentSelected.status === "zwrot" ? ['status'] : [""];
+                      const editEnabledOptions = currentSelected.status === 'zwrot' ? ['status'] : [''];
                       const statusBlock = ['sprzedano', 'zwrot'];
                       const editDisabled =
                         statusBlock.includes(currentSelected.status) && !editEnabledOptions.includes(input.name);
@@ -231,7 +230,9 @@ export const EditItem = (props: EditItemProps) => {
                             </LocalizationProvider>
                           ) : input.type === 'select' ? (
                             <FormControl fullWidth>
-                              <InputLabel id="demo-simple-select-label" disabled={editDisabled}>{input.label}</InputLabel>
+                              <InputLabel id="demo-simple-select-label" disabled={editDisabled}>
+                                {input.label}
+                              </InputLabel>
                               <Select
                                 labelId="demo-simple-select-label"
                                 id="demo-simple-select"
@@ -316,7 +317,7 @@ export const EditItem = (props: EditItemProps) => {
                       disabled={isSubmitting || buttonDisabled}
                       sx={{ mr: 'auto' }}
                       onClick={() => {
-                        setDeleteConfirmationOpen(true)
+                        setDeleteConfirmationOpen(true);
                       }}
                     >
                       Usuń

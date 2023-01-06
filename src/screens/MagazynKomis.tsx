@@ -19,9 +19,9 @@ import { AddItem } from '../components/inventory/AddItem';
 import { EditItem } from '../components/inventory/EditItem';
 import { AddToValveModal } from '../components/inventory/AddToValveModal';
 import { ConfirmationModal } from '../components/modal/ConfirmationModal';
+import { isAdminUser } from './helpers';
 
 import dayjs from 'dayjs';
-import { isAdminUser } from './helpers';
 
 const MagazynKomis = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -71,15 +71,13 @@ const MagazynKomis = () => {
   };
 
   const handleReturn = async (item: ItemType) => {
-    const { id, productName, provision, sendCost } = item;
+    const { id, productName, provision } = item;
 
     const itemDoc = doc(db, 'items', id);
 
     const valveDoc = await getDocs(valveCollectionRef);
     const valveElements = valveDoc.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as ValveType[];
     const valveItem = valveElements.filter((item) => item.elementId === id);
-
-    //dodadc confirmation box przed zwrotem
 
     if (valveItem.length) {
       const promises = valveItem.map((e) => {
@@ -130,10 +128,12 @@ const MagazynKomis = () => {
 
   const haveItems = items.filter((e) => !e.removed).length;
 
+  console.log(items);
+
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
       {!editBlocked && (
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '10px' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
           <Button variant="contained" onClick={() => setModalOpen(true)}>
             Dodaj
           </Button>
@@ -199,8 +199,7 @@ const MagazynKomis = () => {
                     stworzenia
                   </TableCell>
                   <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                    link <br />
-                    do aukcji
+                    link do aukcji
                   </TableCell>
                   <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
                     uwagi
@@ -358,7 +357,7 @@ const MagazynKomis = () => {
                           }}
                         >
                           {item.url ? (
-                            <a href={item.url} target="_blank">
+                            <a href={item.url} target="_blank" rel="noreferrer">
                               link do aukcji
                             </a>
                           ) : (

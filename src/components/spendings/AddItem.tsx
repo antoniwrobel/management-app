@@ -3,22 +3,9 @@ import AddItemModal from '../modal/Modal';
 
 import { Formik } from 'formik';
 import { collection, addDoc } from '@firebase/firestore';
-import { getColor, handleInputs, handleSpendingInputs } from '../../screens/helpers';
+import { handleSpendingInputs } from '../../screens/helpers';
 import { db } from '../../config/firebase';
-import {
-  Box,
-  Button,
-  Checkbox,
-  FormControl,
-  FormControlLabel,
-  InputLabel,
-  MenuItem,
-  Select,
-  Stack,
-  TextField,
-  useMediaQuery
-} from '@mui/material';
-
+import { Box, Button, TextField, useMediaQuery } from '@mui/material';
 
 type AddItemProps = {
   modalOpen: boolean;
@@ -27,17 +14,17 @@ type AddItemProps = {
 };
 
 const initialValues = {
-  elementName: "",
-  amount: "",
-  addedBy: "",
-  createdAt: dayjs().format("DD/MM/YYYY")
+  elementName: '',
+  amount: '',
+  addedBy: '',
+  createdAt: dayjs().format('DD/MM/YYYY')
 };
 
 export const AddItem = (props: AddItemProps) => {
   const { modalOpen, getItems, setModalOpen } = props;
   const spendingsCollectionRef = collection(db, 'spendings');
   const matches = useMediaQuery('(max-width:500px)');
-  const magazynInputs = handleSpendingInputs(true)
+  const magazynInputs = handleSpendingInputs(true);
 
   return (
     <AddItemModal open={modalOpen}>
@@ -45,7 +32,6 @@ export const AddItem = (props: AddItemProps) => {
         initialValues={initialValues}
         validate={(values) => {
           const errors = {} as any;
-
 
           return errors;
         }}
@@ -55,21 +41,19 @@ export const AddItem = (props: AddItemProps) => {
             amount: parseFloat(values.amount),
             addedBy: values.addedBy,
             createdAt: values.createdAt
-          })
-
+          });
 
           getItems();
           setSubmitting(false);
           setModalOpen(false);
         }}
       >
-        {({ setFieldValue, values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => {
+        {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => {
           return (
             <form onSubmit={handleSubmit}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
                   {magazynInputs.map((input, index) => {
-
                     return (
                       <Box
                         sx={{
@@ -77,7 +61,6 @@ export const AddItem = (props: AddItemProps) => {
                         }}
                         key={index}
                       >
-
                         <TextField
                           type={input.type}
                           name={input.name}
@@ -93,7 +76,6 @@ export const AddItem = (props: AddItemProps) => {
                           value={values[input.name]}
                           fullWidth
                         />
-
                       </Box>
                     );
                   })}

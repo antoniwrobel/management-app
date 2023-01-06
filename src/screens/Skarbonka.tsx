@@ -1,10 +1,5 @@
-import { useEffect, useState } from 'react';
-import Button from '@mui/material/Button';
 import Center from '../components/utils/Center';
 import withLayout from '../components/layout/withLayout';
-import { db } from '../config/firebase';
-import { collection, getDocs, doc, getDoc } from '@firebase/firestore';
-
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -14,12 +9,13 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Container from '@mui/material/Container';
 
+import { db } from '../config/firebase';
+import { useEffect, useState } from 'react';
+import { collection, getDocs, doc, getDoc } from '@firebase/firestore';
 import { Box } from '@mui/material';
 import { ItemType, ValveType } from './types';
 
-interface Props { }
-
-const Skarbonka = ({ }: Props) => {
+const Skarbonka = () => {
   const [data, setData] = useState<ValveType[]>([]);
   const [details, setDetails] = useState<ItemType>();
 
@@ -46,7 +42,7 @@ const Skarbonka = ({ }: Props) => {
   return (
     <Container sx={{ p: '0px !important', m: '24px', maxWidth: '100% !important', width: 'auto' }}>
       <Center>
-        {data.length ?
+        {data.length ? (
           <TableContainer component={Paper} sx={{ mt: '20px' }}>
             <Table sx={{ minWidth: 1550 }}>
               <TableHead>
@@ -65,10 +61,11 @@ const Skarbonka = ({ }: Props) => {
                     total += d.amount;
                   }
 
-                  const removedCellStyles = d.removed ? {
-                    textDecoration: 'line-through'
-                  } : {}
-
+                  const removedCellStyles = d.removed
+                    ? {
+                        textDecoration: 'line-through'
+                      }
+                    : {};
 
                   return (
                     <TableRow
@@ -80,20 +77,28 @@ const Skarbonka = ({ }: Props) => {
                         setDetails(data);
                       }}
                     >
-                      <TableCell component="th" scope="row" sx={{
-                        color: d.removed ? 'red' : 'inherit',
-                        fontWeight: 'bold',
-                        ...removedCellStyles
-
-                      }}>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        sx={{
+                          color: d.removed ? 'red' : 'inherit',
+                          fontWeight: 'bold',
+                          ...removedCellStyles
+                        }}
+                      >
                         {d.elementName}
                       </TableCell>
                       <TableCell component="th" scope="row" align="right">
                         {d.removed ? (
-                          <Box sx={{
-                            textDecoration: 'line-through', color: d.removed ? 'red' : 'inherit',
-                            fontWeight: 'bold',
-                          }}>{d.amount}zł</Box>
+                          <Box
+                            sx={{
+                              textDecoration: 'line-through',
+                              color: d.removed ? 'red' : 'inherit',
+                              fontWeight: 'bold'
+                            }}
+                          >
+                            {d.amount}zł
+                          </Box>
                         ) : (
                           <Box>{d.amount.toFixed(2)}zł</Box>
                         )}
@@ -127,10 +132,9 @@ const Skarbonka = ({ }: Props) => {
               </Box>
             </Box>
           </TableContainer>
-          :
-          <Box sx={{ my: "40px" }}>Brak danych</Box>
-        }
-
+        ) : (
+          <Box sx={{ my: '40px' }}>Brak danych</Box>
+        )}
       </Center>
     </Container>
   );

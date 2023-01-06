@@ -1,9 +1,5 @@
-import { useEffect, useState } from 'react';
 import Center from '../components/utils/Center';
 import withLayout from '../components/layout/withLayout';
-import { auth, db } from '../config/firebase';
-import { collection, getDocs } from '@firebase/firestore';
-
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -12,8 +8,12 @@ import Paper from '@mui/material/Paper';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Container from '@mui/material/Container';
+
+import { auth, db } from '../config/firebase';
+import { useEffect, useState } from 'react';
+import { collection, getDocs } from '@firebase/firestore';
 import { Box, Button } from '@mui/material';
-import { SpendingType, ValveType } from './types';
+import { SpendingType } from './types';
 import { EditItem } from '../components/spendings/EditItem';
 import { AddItem } from '../components/spendings/AddItem';
 import { isAdminUser } from './helpers';
@@ -52,12 +52,10 @@ const Spendings = ({}: Props) => {
 
   let total = 0;
 
-  //dodac funkcje dodawania // edycji wydatków
-
   return (
     <Container sx={{ p: '0px !important', m: '24px', maxWidth: '100% !important', width: 'auto' }}>
       {!editBlocked && (
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '10px' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
           <Button variant="contained" onClick={() => setModalOpen(true)}>
             Dodaj
           </Button>
