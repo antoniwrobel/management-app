@@ -41,7 +41,6 @@ const RozliczeniaKomis = () => {
   }, []);
 
   const handleSettlement = (item: SettlementItemType) => {
-    console.log(item);
     setCurrentSelected(item);
     setModalOpen(true);
   };

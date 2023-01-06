@@ -128,8 +128,6 @@ const MagazynKomis = () => {
 
   const haveItems = items.filter((e) => !e.removed).length;
 
-  console.log(items);
-
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
       {!editBlocked && (
@@ -244,7 +242,7 @@ const MagazynKomis = () => {
                           sx={{
                             color: item.status === 'zwrot' ? 'red' : 'inherit',
                             fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
-                            maxWidth: '200px',
+                            maxWidth: '300px',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
