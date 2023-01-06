@@ -53,7 +53,6 @@ const Skarbonka = () => {
                   <TableCell align="right">kwota</TableCell>
 
                   <TableCell align="right">data dodania</TableCell>
-                  <TableCell align="right">kto dodał</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -108,9 +107,6 @@ const Skarbonka = () => {
                         </TableCell>
                         <TableCell component="th" scope="row" align="right">
                           {dayjs(d.createdAt).format('DD/MM/YYYY')}
-                        </TableCell>
-                        <TableCell component="th" scope="row" align="right">
-                          {d.userName}
                         </TableCell>
                       </TableRow>
                     );
