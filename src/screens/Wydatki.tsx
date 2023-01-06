@@ -28,6 +28,7 @@ const Spendings = ({}: Props) => {
   const [currentSelected, setCurrentSelected] = useState<SpendingType>();
   const [user] = useState(auth.currentUser);
   const editBlocked = !isAdminUser(user);
+  const isStan = isAdminUser(user);
 
   const spendingsCollectionRef = collection(db, 'spendings');
 
@@ -51,7 +52,8 @@ const Spendings = ({}: Props) => {
     getData();
   }, []);
 
-  let total = 0;
+  let totalStan = 0;
+  let totalWojtek = 0;
 
   return (
     <Container sx={{ p: '0px !important', m: '24px', maxWidth: '100% !important', width: 'auto' }}>
@@ -81,7 +83,7 @@ const Spendings = ({}: Props) => {
                   <TableCell>Nazwa wydatku</TableCell>
                   <TableCell align="right">kwota</TableCell>
                   <TableCell align="right">data dodania</TableCell>
-                  <TableCell align="right">kto dodał</TableCell>
+                  <TableCell align="right">kto wydał</TableCell>
                   <TableCell align="right">akcja</TableCell>
                 </TableRow>
               </TableHead>
@@ -98,7 +100,11 @@ const Spendings = ({}: Props) => {
                       : {};
 
                     if (!d.removed) {
-                      total += d.amount;
+                      if (d.addedBy === 'Wojtek') {
+                        totalWojtek += d.amount;
+                      } else {
+                        totalStan += d.amount;
+                      }
                     }
 
                     return (
@@ -142,9 +148,28 @@ const Spendings = ({}: Props) => {
       >
         <Box sx={{ fontWeight: 'bold' }}>Podsumowanie</Box>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-          Suma wydatków:{' '}
+          Suma wydatków Stan:
           <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
-            {total.toFixed(2)}zł
+            {totalStan.toFixed(2)}zł
+          </Box>
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          Suma wydatków Wojtek:
+          <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
+            {totalWojtek.toFixed(2)}zł
+          </Box>
+        </Box>
+
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '40px' }}>
+          {isStan
+            ? totalStan - totalWojtek > 0
+              ? 'do odebrania:'
+              : 'do oddania:'
+            : totalWojtek - totalStan > 0
+            ? 'do odebrania:'
+            : 'do oddania:'}
+          <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
+            {isStan ? (totalStan - totalWojtek).toFixed(2) : (totalWojtek - totalStan).toFixed(2)}zł
           </Box>
         </Box>
       </Box>

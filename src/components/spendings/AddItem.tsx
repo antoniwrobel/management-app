@@ -5,7 +5,17 @@ import { Formik } from 'formik';
 import { collection, addDoc } from '@firebase/firestore';
 import { handleSpendingInputs } from '../../screens/helpers';
 import { db } from '../../config/firebase';
-import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField, useMediaQuery } from '@mui/material';
+import {
+  Box,
+  Button,
+  FormControl,
+  FormHelperText,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  useMediaQuery
+} from '@mui/material';
 
 type AddItemProps = {
   modalOpen: boolean;
@@ -32,6 +42,17 @@ export const AddItem = (props: AddItemProps) => {
         initialValues={initialValues}
         validate={(values) => {
           const errors = {} as any;
+          if (!values.addedBy) {
+            errors.addedBy = 'Wartość wymagana!';
+          }
+
+          if (!values.amount) {
+            errors.amount = 'Podaj kwotę wydatku!';
+          }
+
+          if (!values.elementName) {
+            errors.elementName = 'Podaj nazwę wydatku!';
+          }
 
           return errors;
         }}
@@ -63,12 +84,20 @@ export const AddItem = (props: AddItemProps) => {
                       >
                         {input.type === 'select' ? (
                           <FormControl fullWidth>
-                            <InputLabel id="demo-simple-select-label">{input.label}</InputLabel>
+                            <InputLabel
+                              id="demo-simple-select-label"
+                              //@ts-ignore
+                              error={touched[input.name] && Boolean(errors[input.name])}
+                            >
+                              {input.label}
+                            </InputLabel>
                             <Select
                               labelId="demo-simple-select-label"
                               id="demo-simple-select"
                               //@ts-ignore
                               value={values[input.name]}
+                              //@ts-ignore
+                              error={touched[input.name] && Boolean(errors[input.name])}
                               label={input.label}
                               onChange={(d) => {
                                 setFieldValue(input.name, d.target.value);
@@ -82,6 +111,8 @@ export const AddItem = (props: AddItemProps) => {
                                 );
                               })}
                             </Select>
+                            {/* @ts-ignore */}
+                            <FormHelperText sx={{ color: 'red' }}>{errors[input.name]}</FormHelperText>
                           </FormControl>
                         ) : (
                           <TextField
