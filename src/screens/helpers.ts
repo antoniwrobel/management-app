@@ -93,7 +93,7 @@ export const handleInputs = (addForm = false) => {
   ];
 };
 
-export const handleSpendingInputs = (addForm = false) => {
+export const handleSpendingInputs = () => {
   return [
     {
       type: 'text',

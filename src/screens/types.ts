@@ -15,9 +15,9 @@ export type ItemType = {
   previousSaleAmount: number | null;
   removed: boolean;
   url: string;
-  clearingValueWojtek: number
-  clearingValueStan: number
-  provision: number | null
+  clearingValueWojtek: number;
+  clearingValueStan: number;
+  provision: number | null;
 };
 
 export type ValveType = {
@@ -37,6 +37,7 @@ export type SpendingType = {
   amount: number;
   addedBy: string;
   createdAt: string;
+  removed: boolean;
 };
 
 export type SettlementItemType = {
@@ -44,7 +45,7 @@ export type SettlementItemType = {
   createDate: string;
   productName: string;
   clearingValueWojtek: number;
-  clearingValueStan: number
+  clearingValueStan: number;
   status: string;
   details: string;
   elementId: string;

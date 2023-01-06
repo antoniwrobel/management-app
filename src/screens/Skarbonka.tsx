@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import { collection, getDocs, doc, getDoc } from '@firebase/firestore';
 import { Box } from '@mui/material';
 import { ItemType, ValveType } from './types';
+import dayjs from 'dayjs';
 
 const Skarbonka = () => {
   const [data, setData] = useState<ValveType[]>([]);
@@ -97,14 +98,14 @@ const Skarbonka = () => {
                               fontWeight: 'bold'
                             }}
                           >
-                            {d.amount}zł
+                            {d.amount.toFixed(2)}zł
                           </Box>
                         ) : (
                           <Box>{d.amount.toFixed(2)}zł</Box>
                         )}
                       </TableCell>
                       <TableCell component="th" scope="row" align="right">
-                        {d.createdAt}
+                        {dayjs(d.createdAt).format('DD/MM/YYYY')}
                       </TableCell>
                       <TableCell component="th" scope="row" align="right">
                         {d.userName}
@@ -114,27 +115,26 @@ const Skarbonka = () => {
                 })}
               </TableBody>
             </Table>
-
-            <Box
-              sx={{
-                padding: '16px',
-                display: 'flex',
-                flexDirection: 'column'
-              }}
-            >
-              <Box sx={{ fontWeight: 'bold' }}>Podsumowanie</Box>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                Suma skarbonki:{' '}
-                <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
-                  {total.toFixed(2)}zł
-                </Box>
-              </Box>
-            </Box>
           </TableContainer>
         ) : (
           <Box sx={{ my: '40px' }}>Brak danych</Box>
         )}
       </Center>
+      <Box
+        sx={{
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+      >
+        <Box sx={{ fontWeight: 'bold' }}>Podsumowanie</Box>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          Suma skarbonki:{' '}
+          <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
+            {total.toFixed(2)}zł
+          </Box>
+        </Box>
+      </Box>
     </Container>
   );
 };

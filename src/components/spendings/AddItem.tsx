@@ -13,18 +13,18 @@ type AddItemProps = {
   setModalOpen: (value: boolean) => void;
 };
 
-const initialValues = {
-  elementName: '',
-  amount: '',
-  addedBy: '',
-  createdAt: dayjs().format('DD/MM/YYYY')
-};
-
 export const AddItem = (props: AddItemProps) => {
   const { modalOpen, getItems, setModalOpen } = props;
   const spendingsCollectionRef = collection(db, 'spendings');
   const matches = useMediaQuery('(max-width:500px)');
-  const magazynInputs = handleSpendingInputs(true);
+  const magazynInputs = handleSpendingInputs();
+
+  const initialValues = {
+    elementName: '',
+    amount: '',
+    addedBy: '',
+    createdAt: dayjs().format()
+  };
 
   return (
     <AddItemModal open={modalOpen}>

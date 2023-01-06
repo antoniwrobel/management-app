@@ -90,17 +90,17 @@ export const EditItem = (props: EditItemProps) => {
 
         <Formik
           initialValues={{
-            createDate: currentSelected.createDate || '',
-            productName: currentSelected.productName || '',
+            createDate: currentSelected.createDate,
+            productName: currentSelected.productName,
             purchaseAmount: currentSelected.purchaseAmount,
             saleAmount: currentSelected.saleAmount,
-            soldDate: currentSelected.soldDate || '',
-            status: currentSelected.status || '',
-            condition: currentSelected.condition || '',
+            soldDate: currentSelected.soldDate,
+            status: currentSelected.status,
+            condition: currentSelected.condition,
             sendCost: currentSelected.sendCost,
-            details: currentSelected.details || '',
+            details: currentSelected.details,
             valueTransferedToValve: currentSelected.valueTransferedToValve,
-            url: currentSelected.url || '',
+            url: currentSelected.url,
             provision: currentSelected.provision
           }}
           validate={(values) => {
@@ -147,32 +147,40 @@ export const EditItem = (props: EditItemProps) => {
             const clearingValueStan = profit;
             const shouldAddSpendings = values.status === 'sprzedano';
 
-            await updateDoc(itemDoc, {
-              createDate: values.createDate,
-              productName: values.productName,
-              purchaseAmount: values.purchaseAmount,
-              saleAmount: values.saleAmount,
-              soldDate: values.soldDate,
-              sendCost: values.sendCost,
-              status: values.status,
-              details: values.details,
-              url: values.url,
-              provision: values.provision,
-              ...(shouldAddSpendings && {
-                clearingValueWojtek,
-                clearingValueStan
-              })
-            });
+            try {
+              await updateDoc(itemDoc, {
+                createDate: values.createDate || null,
+                productName: values.productName,
+                purchaseAmount: values.purchaseAmount,
+                saleAmount: values.saleAmount,
+                soldDate: values.soldDate || null,
+                sendCost: values.sendCost,
+                status: values.status,
+                details: values.details,
+                url: values.url,
+                provision: values.provision || 0,
+                ...(shouldAddSpendings && {
+                  clearingValueWojtek,
+                  clearingValueStan
+                })
+              });
+            } catch (error) {
+              console.error(error);
+            }
 
             if (values.status === 'sprzedano') {
-              await addDoc(settlementsCollectionRef, {
-                createDate: dayjs().format(),
-                productName: values.productName,
-                clearingValueWojtek,
-                status: 'sprzedano',
-                details: values.details,
-                elementId: currentSelected.id
-              });
+              try {
+                await addDoc(settlementsCollectionRef, {
+                  createDate: dayjs().format(),
+                  productName: values.productName,
+                  clearingValueWojtek,
+                  status: 'sprzedano',
+                  details: values.details,
+                  elementId: currentSelected.id
+                });
+              } catch (error) {
+                console.error(error);
+              }
             }
 
             getItems();
@@ -198,7 +206,7 @@ export const EditItem = (props: EditItemProps) => {
                       }
 
                       return (
-                        <Box sx={{ gridColumn: matches ? 'span 4' : fullWidth ? 'span 4' : 'span 2' }} key={index}>
+                        <Box sx={{ gridColumn: matches ? 'span 4' : fullWidth ? 'span 4' : 'span 2' }} key={input.name}>
                           {input.type === 'date' ? (
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                               <Stack spacing={3}>

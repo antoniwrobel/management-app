@@ -95,8 +95,8 @@ export const AddItem = (props: AddItemProps) => {
               createDate: values.createDate,
               productName: values.productName,
               purchaseAmount: values.purchaseAmount,
-              saleAmount: values.saleAmount || null,
-              sendCost: values.sendCost || null,
+              saleAmount: values.saleAmount,
+              sendCost: values.sendCost,
               status: 'utworzono',
               condition: values.condition,
               details: values.details,
@@ -118,9 +118,9 @@ export const AddItem = (props: AddItemProps) => {
             <form onSubmit={handleSubmit}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
-                  {magazynInputs.map((input, index) => {
+                  {magazynInputs.map((input) => {
                     if (input.editOnly) {
-                      return <></>;
+                      return;
                     }
 
                     return (
@@ -128,7 +128,7 @@ export const AddItem = (props: AddItemProps) => {
                         sx={{
                           gridColumn: matches ? 'span 4' : input.fullWidth ? 'span 4' : 'span 2'
                         }}
-                        key={index}
+                        key={input.name}
                       >
                         {input.type === 'date' ? (
                           <LocalizationProvider dateAdapter={AdapterDayjs}>

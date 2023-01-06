@@ -86,13 +86,24 @@ const Spendings = ({}: Props) => {
               </TableHead>
               <TableBody>
                 {data.map((d) => {
-                  total += d.amount;
+                  const removedCellStyles = d.removed
+                    ? {
+                        textDecoration: 'line-through',
+                        fontWeight: 'bold',
+                        color: 'red'
+                      }
+                    : {};
+
+                  if (!d.removed) {
+                    total += d.amount;
+                  }
+
                   return (
                     <TableRow key={d.id}>
-                      <TableCell component="th" scope="row">
+                      <TableCell component="th" scope="row" sx={removedCellStyles}>
                         {d.addedBy === 'automat' ? `zwrot - ${d.elementName}` : d.elementName}
                       </TableCell>
-                      <TableCell component="th" scope="row" align="right">
+                      <TableCell component="th" scope="row" align="right" sx={removedCellStyles}>
                         {d.amount.toFixed(2)}zł
                       </TableCell>
                       <TableCell component="th" scope="row" align="right">
@@ -113,37 +124,27 @@ const Spendings = ({}: Props) => {
                 })}
               </TableBody>
             </Table>
-
-            <Box
-              sx={{
-                minWidth: 1550,
-                padding: '16px',
-                display: 'flex',
-                flexDirection: 'column'
-              }}
-            ></Box>
           </TableContainer>
         ) : (
           <Box sx={{ my: '40px' }}>Brak danych</Box>
         )}
       </Center>
-      {data.length > 0 ? (
-        <Box
-          sx={{
-            padding: '16px',
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-        >
-          <Box sx={{ fontWeight: 'bold' }}>Podsumowanie</Box>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            Suma wydatków:{' '}
-            <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
-              {total.toFixed(2)}zł
-            </Box>
+
+      <Box
+        sx={{
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+      >
+        <Box sx={{ fontWeight: 'bold' }}>Podsumowanie</Box>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          Suma wydatków:{' '}
+          <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
+            {total.toFixed(2)}zł
           </Box>
         </Box>
-      ) : null}
+      </Box>
     </Container>
   );
 };

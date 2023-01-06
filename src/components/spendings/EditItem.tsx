@@ -24,7 +24,6 @@ export const EditItem = (props: EditItemProps) => {
   const { currentSelected, editModalOpen, getItems, setEditModalOpen } = props;
 
   const matches = useMediaQuery('(max-width:500px)');
-  const valveCollectionRef = collection(db, 'valve');
 
   const handleDeleteItem = async () => {
     const itemId = currentSelected?.id;
@@ -33,21 +32,7 @@ export const EditItem = (props: EditItemProps) => {
       return;
     }
 
-    const item = doc(db, 'items', itemId);
-    const d = await getDocs(valveCollectionRef);
-    const items = d.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as ValveType[];
-    const elements = items.filter((item) => item.elementId === itemId);
-
-    if (elements.length) {
-      const promises = elements.map((e) => {
-        const finded = doc(db, 'valve', e.id);
-        updateDoc(finded, {
-          removed: true
-        });
-      });
-
-      await Promise.all(promises);
-    }
+    const item = doc(db, 'spendings', itemId);
 
     updateDoc(item, {
       removed: true
@@ -77,10 +62,10 @@ export const EditItem = (props: EditItemProps) => {
 
         <Formik
           initialValues={{
-            createDate: currentSelected.createdAt || '',
-            elementName: currentSelected.elementName || '',
-            amount: currentSelected.amount || '',
-            addedBy: currentSelected.addedBy || ''
+            createDate: currentSelected.createdAt,
+            elementName: currentSelected.elementName,
+            amount: currentSelected.amount,
+            addedBy: currentSelected.addedBy
           }}
           validate={(values) => {
             const errors = {} as any;

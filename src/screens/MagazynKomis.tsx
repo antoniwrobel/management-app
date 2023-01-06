@@ -117,10 +117,9 @@ const MagazynKomis = () => {
       await addDoc(spendingsCollectionRef, {
         elementId: id,
         elementName: productName,
-        //@ts-ignore
         amount: provision,
         addedBy: 'automat',
-        createdAt: dayjs(new Date()).format('DD/MM/YYYY')
+        createdAt: dayjs().format()
       });
     }
 
@@ -238,7 +237,7 @@ const MagazynKomis = () => {
                       return;
                     }
 
-                    summaryStan += item.clearingValueStan;
+                    summaryStan += item.clearingValueStan || 0;
 
                     const removedCellStyles =
                       item.status === 'zwrot'

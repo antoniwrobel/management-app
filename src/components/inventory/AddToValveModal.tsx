@@ -35,11 +35,11 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
       <>
         <Box>
           <Box>
-            <Typography sx={{ display: 'inline-block' }}>
-              Do rozliczenia dla Wojtka jest:{' '}
-              <Typography sx={{ display: 'inline-block', fontStyle: 'oblique', fontWeight: 'bold', mb: '10px' }}>
-                {currentSelected.clearingValueWojtek.toFixed(2)}zł
-              </Typography>
+            <Typography sx={{ display: 'inline-block' }}>Do rozliczenia dla Wojtka jest: </Typography>
+            <Typography
+              sx={{ display: 'inline-block', fontStyle: 'oblique', fontWeight: 'bold', mb: '10px', ml: '3px' }}
+            >
+              {(currentSelected.clearingValueWojtek || 0).toFixed(2)}zł
             </Typography>
           </Box>
         </Box>
@@ -96,7 +96,7 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
               amount: parseFloat(amount) * 2,
               elementId: currentSelected.id,
               elementName: currentSelected.productName,
-              createdAt: dayjs().format('DD/MM/YYYY'),
+              createdAt: dayjs().format(),
               userName: user?.displayName
             });
 
