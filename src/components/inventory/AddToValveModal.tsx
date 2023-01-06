@@ -30,22 +30,18 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
     return <></>;
   }
 
-  const clearProfit = currentSelected.saleAmount - currentSelected.purchaseAmount;
-  const fixedProfit = clearProfit - (currentSelected.provision || 0);
-
   return (
     <ValveModal open={valveModalOpen}>
       <>
         <Box>
-          <Typography sx={{ mb: '20px' }}>
-            Kwota do podziału:
-            <Typography sx={{ ml: '5px', fontWeight: 'bold', display: 'inline-block' }}>
-              {fixedProfit.toFixed(2)}zł
+          <Box>
+            <Typography sx={{ display: 'inline-block' }}>
+              Do rozliczenia dla Wojtka jest:{' '}
+              <Typography sx={{ display: 'inline-block', fontStyle: 'oblique', fontWeight: 'bold', mb: '10px' }}>
+                {currentSelected.clearingValueWojtek.toFixed(2)}zł
+              </Typography>
             </Typography>
-            <Typography sx={{ display: 'inline-block', ml: '5px', fontStyle: 'oblique' }}>
-              ({clearProfit}zł - {currentSelected.provision}zł)
-            </Typography>
-          </Typography>
+          </Box>
         </Box>
 
         <Formik
@@ -67,11 +63,10 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
             const { amount } = values;
             const itemDoc = doc(db, 'items', currentSelected.id);
 
-            const amountToReduce = parseFloat(amount) / 2;
+            const amountToReduce = parseFloat(amount);
 
             await updateDoc(itemDoc, {
-              //@ts-ignore
-              valueTransferedToValve: parseFloat(currentSelected.valueTransferedToValve || 0) + parseFloat(amount),
+              valueTransferedToValve: currentSelected.valueTransferedToValve + amountToReduce * 2,
               clearingValueWojtek: currentSelected.clearingValueWojtek - amountToReduce,
               clearingValueStan: currentSelected.clearingValueStan - amountToReduce
             });
@@ -87,6 +82,7 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
                 }
 
                 const settlementsDoc = doc(db, 'settlements', element.id);
+
                 return updateDoc(settlementsDoc, {
                   clearingValueWojtek: currentSelected.clearingValueWojtek - amountToReduce,
                   clearingValueStan: currentSelected.clearingValueStan - amountToReduce
@@ -97,7 +93,7 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
             }
 
             await addDoc(valveCollectionRef, {
-              amount,
+              amount: parseFloat(amount) * 2,
               elementId: currentSelected.id,
               elementName: currentSelected.productName,
               createdAt: dayjs().format('DD/MM/YYYY'),
@@ -118,7 +114,7 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
                       <TextField
                         type="number"
                         name="amount"
-                        label="ile przekazać do skarbonki"
+                        label="kwota potrącenia od każdej osoby"
                         variant="outlined"
                         onChange={handleChange}
                         onBlur={handleBlur}

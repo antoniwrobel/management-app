@@ -172,7 +172,6 @@ const RozliczeniaKomis = () => {
       {showSummary ? (
         <Box
           sx={{
-            minWidth: 1550,
             padding: '16px',
             display: 'flex',
             flexDirection: 'column'

@@ -92,16 +92,16 @@ export const EditItem = (props: EditItemProps) => {
           initialValues={{
             createDate: currentSelected.createDate || '',
             productName: currentSelected.productName || '',
-            purchaseAmount: currentSelected.purchaseAmount || '',
-            saleAmount: currentSelected.saleAmount || '',
+            purchaseAmount: currentSelected.purchaseAmount,
+            saleAmount: currentSelected.saleAmount,
             soldDate: currentSelected.soldDate || '',
             status: currentSelected.status || '',
             condition: currentSelected.condition || '',
-            sendCost: currentSelected.sendCost || '',
+            sendCost: currentSelected.sendCost,
             details: currentSelected.details || '',
-            valueTransferedToValve: currentSelected.valueTransferedToValve || '',
+            valueTransferedToValve: currentSelected.valueTransferedToValve,
             url: currentSelected.url || '',
-            provision: currentSelected.provision || ''
+            provision: currentSelected.provision
           }}
           validate={(values) => {
             const errors = {} as any;
@@ -130,6 +130,7 @@ export const EditItem = (props: EditItemProps) => {
               }
 
               if (typeof values.sendCost === 'string') {
+                //@ts-ignore
                 if (values.sendCost.trim() === '') {
                   errors.sendCost = 'Podaj koszt wysyłki!';
                 }
@@ -141,21 +142,18 @@ export const EditItem = (props: EditItemProps) => {
             if (!currentSelected) return;
 
             const itemDoc = doc(db, 'items', currentSelected.id);
-            //@ts-ignore
-            const profit = (values.saleAmount - values.purchaseAmount - values.provision) / 2;
-            const clearingValueWojtek: number =
-              //@ts-ignore
-              values.purchaseAmount + profit || 0;
-            const clearingValueStan: number = profit || 0;
+            const profit = (values.saleAmount - values.purchaseAmount - (values.provision || 0)) / 2;
+            const clearingValueWojtek = values.purchaseAmount + profit || 0;
+            const clearingValueStan = profit;
             const shouldAddSpendings = values.status === 'sprzedano';
 
             await updateDoc(itemDoc, {
               createDate: values.createDate,
               productName: values.productName,
               purchaseAmount: values.purchaseAmount,
-              saleAmount: values.saleAmount || null,
-              soldDate: values.soldDate || null,
-              sendCost: values.sendCost || null,
+              saleAmount: values.saleAmount,
+              soldDate: values.soldDate,
+              sendCost: values.sendCost,
               status: values.status,
               details: values.details,
               url: values.url,

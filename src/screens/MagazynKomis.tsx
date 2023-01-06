@@ -143,6 +143,8 @@ const MagazynKomis = () => {
     }
   }));
 
+  let summaryStan = 0;
+
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
       {!editBlocked && (
@@ -212,7 +214,7 @@ const MagazynKomis = () => {
                     stworzenia
                   </TableCell>
                   <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                    link do aukcji
+                    link
                   </TableCell>
                   <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
                     uwagi
@@ -236,6 +238,8 @@ const MagazynKomis = () => {
                       return;
                     }
 
+                    summaryStan += item.clearingValueStan;
+
                     const removedCellStyles =
                       item.status === 'zwrot'
                         ? {
@@ -257,7 +261,6 @@ const MagazynKomis = () => {
                           sx={{
                             color: item.status === 'zwrot' ? 'red' : 'inherit',
                             fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
-
                             ...removedCellStyles
                           }}
                         >
@@ -384,7 +387,7 @@ const MagazynKomis = () => {
                         >
                           {item.url ? (
                             <a href={item.url} target="_blank" rel="noreferrer">
-                              link do aukcji
+                              link
                             </a>
                           ) : (
                             '-'
@@ -460,6 +463,21 @@ const MagazynKomis = () => {
           <Box sx={{ my: '20px' }}>Brak danych</Box>
         )}
       </Center>
+
+      <Box
+        sx={{
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+      >
+        <Box sx={{ fontWeight: 'bold', display: 'flex', justifyContent: 'space-between' }}>
+          Podsumowanie
+          <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
+            {summaryStan.toFixed(2)}zł
+          </Box>
+        </Box>
+      </Box>
     </Container>
   );
 };
