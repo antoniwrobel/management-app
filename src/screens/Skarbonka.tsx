@@ -57,7 +57,7 @@ const Skarbonka = () => {
               </TableHead>
               <TableBody>
                 {data // @ts-ignore
-                  .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
+                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                   .map((d) => {
                     if (!d.removed) {
                       total += d.amount;
