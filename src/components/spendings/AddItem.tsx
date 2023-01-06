@@ -112,7 +112,12 @@ export const AddItem = (props: AddItemProps) => {
                               })}
                             </Select>
                             {/* @ts-ignore */}
-                            <FormHelperText sx={{ color: 'red' }}>{errors[input.name]}</FormHelperText>
+                            {touched[input.name] && Boolean(errors[input.name]) ? (
+                              <FormHelperText sx={{ color: 'red' }}>
+                                {/* @ts-ignore */}
+                                {errors[input.name]}
+                              </FormHelperText>
+                            ) : null}
                           </FormControl>
                         ) : (
                           <TextField

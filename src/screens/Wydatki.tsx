@@ -163,13 +163,13 @@ const Spendings = ({}: Props) => {
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '40px' }}>
           {isStan
             ? totalStan - totalWojtek > 0
-              ? 'do odebrania:'
-              : 'do oddania:'
+              ? 'do odebrania od Wojtka:'
+              : 'do oddania Wojtkowi:'
             : totalWojtek - totalStan > 0
-            ? 'do odebrania:'
-            : 'do oddania:'}
+            ? 'do odebrania od Staszka:'
+            : 'do oddania Staszkowi:'}
           <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
-            {isStan ? (totalStan - totalWojtek).toFixed(2) : (totalWojtek - totalStan).toFixed(2)}zł
+            {isStan ? Math.abs(totalStan - totalWojtek).toFixed(2) : Math.abs(totalWojtek - totalStan).toFixed(2)}zł
           </Box>
         </Box>
       </Box>
