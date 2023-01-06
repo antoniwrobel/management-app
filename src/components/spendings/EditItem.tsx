@@ -62,7 +62,6 @@ export const EditItem = (props: EditItemProps) => {
 
         <Formik
           initialValues={{
-            createDate: currentSelected.createdAt,
             elementName: currentSelected.elementName,
             amount: currentSelected.amount,
             addedBy: currentSelected.addedBy

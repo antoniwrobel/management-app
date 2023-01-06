@@ -66,7 +66,7 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
             const amountToReduce = parseFloat(amount);
 
             await updateDoc(itemDoc, {
-              valueTransferedToValve: currentSelected.valueTransferedToValve + amountToReduce * 2,
+              valueTransferedToValve: (currentSelected.valueTransferedToValve || 0) + amountToReduce * 2,
               clearingValueWojtek: currentSelected.clearingValueWojtek - amountToReduce,
               clearingValueStan: currentSelected.clearingValueStan - amountToReduce
             });
