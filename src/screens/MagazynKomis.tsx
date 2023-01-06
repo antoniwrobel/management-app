@@ -101,9 +101,12 @@ const MagazynKomis = () => {
       await updateDoc(settlementsDoc, {
         status: 'zwrot',
         removed: true,
-        details: currentSelected?.details
-          ? currentSelected.details + ` - zwrot - poniesione koszta ${item.provision!.toFixed(2)}zł`
-          : `zwrot - poniesione koszta: ${item.provision!.toFixed(2)}zł`
+        ...(item.provision &&
+          item.provision > 0 && {
+            details: currentSelected?.details
+              ? currentSelected.details + ` - zwrot - poniesione koszta ${item.provision!.toFixed(2)}zł`
+              : `zwrot - poniesione koszta: ${item.provision!.toFixed(2)}zł`
+          })
       });
     }
 
