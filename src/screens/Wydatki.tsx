@@ -97,7 +97,10 @@ const Spendings = ({}: Props) => {
                         }
                       : {};
 
-                    total += d.amount;
+                    if (!d.removed) {
+                      total += d.amount;
+                    }
+
                     return (
                       <TableRow key={d.id}>
                         <TableCell component="th" scope="row" sx={removedCellStyles}>

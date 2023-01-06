@@ -77,8 +77,7 @@ export const EditItem = (props: EditItemProps) => {
             const itemDoc = doc(db, 'spendings', currentSelected.id);
             await updateDoc(itemDoc, {
               elementName: values.elementName,
-              //@ts-ignore
-              amount: parseFloat(values.amount),
+              amount: values.amount,
               addedBy: values.addedBy
             });
 
