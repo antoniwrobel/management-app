@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Center from '../components/utils/Center';
 import withLayout from '../components/layout/withLayout';
-import { db } from '../config/firebase';
+import { auth, db } from '../config/firebase';
 import { collection, getDocs } from '@firebase/firestore';
 
 import Table from '@mui/material/Table';
@@ -16,14 +16,18 @@ import { Box, Button } from '@mui/material';
 import { SpendingType, ValveType } from './types';
 import { EditItem } from '../components/spendings/EditItem';
 import { AddItem } from '../components/spendings/AddItem';
+import { isAdminUser } from './helpers';
 
-interface Props { }
+interface Props {}
 
-const Spendings = ({ }: Props) => {
+const Spendings = ({}: Props) => {
   const [data, setData] = useState<SpendingType[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [currentSelected, setCurrentSelected] = useState<SpendingType>();
+  const [user] = useState(auth.currentUser);
+  const editBlocked = !isAdminUser(user);
+
   const spendingsCollectionRef = collection(db, 'spendings');
 
   const getData = async () => {
@@ -46,19 +50,19 @@ const Spendings = ({ }: Props) => {
     getData();
   }, []);
 
-
-
   let total = 0;
 
   //dodac funkcje dodawania // edycji wydatków
 
   return (
     <Container sx={{ p: '0px !important', m: '24px', maxWidth: '100% !important', width: 'auto' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '10px' }}>
-        <Button variant="contained" onClick={() => setModalOpen(true)}>
-          Dodaj
-        </Button>
-      </Box>
+      {!editBlocked && (
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '10px' }}>
+          <Button variant="contained" onClick={() => setModalOpen(true)}>
+            Dodaj
+          </Button>
+        </Box>
+      )}
 
       <AddItem modalOpen={modalOpen} setModalOpen={setModalOpen} getItems={getData} />
 
@@ -70,7 +74,7 @@ const Spendings = ({ }: Props) => {
       />
 
       <Center>
-        {data.length ?
+        {data.length ? (
           <TableContainer component={Paper} sx={{ mt: '20px' }}>
             <Table sx={{ minWidth: 1550 }}>
               <TableHead>
@@ -91,7 +95,7 @@ const Spendings = ({ }: Props) => {
                         {d.addedBy === 'automat' ? `zwrot - ${d.elementName}` : d.elementName}
                       </TableCell>
                       <TableCell component="th" scope="row" align="right">
-                        {d.amount}zł
+                        {d.amount.toFixed(2)}zł
                       </TableCell>
                       <TableCell component="th" scope="row" align="right">
                         {d.createdAt}
@@ -100,15 +104,11 @@ const Spendings = ({ }: Props) => {
                         {d.addedBy}
                       </TableCell>
                       <TableCell component="th" scope="row" align="right">
-                        <Button
-                          size="small"
-                          variant="contained"
-                          type="submit"
-                          onClick={() => editRow(d.id)}
-
-                        >
-                          Edytuj
-                        </Button>
+                        {!editBlocked && (
+                          <Button size="small" variant="contained" type="submit" onClick={() => editRow(d.id)}>
+                            Edytuj
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   );
@@ -123,15 +123,13 @@ const Spendings = ({ }: Props) => {
                 display: 'flex',
                 flexDirection: 'column'
               }}
-            >
-
-            </Box>
+            ></Box>
           </TableContainer>
-          : <Box sx={{ my: "40px" }}>Brak danych</Box>
-        }
-
+        ) : (
+          <Box sx={{ my: '40px' }}>Brak danych</Box>
+        )}
       </Center>
-      {data.length > 0 ?
+      {data.length > 0 ? (
         <Box
           sx={{
             minWidth: 1550,
@@ -148,10 +146,7 @@ const Spendings = ({ }: Props) => {
             </Box>
           </Box>
         </Box>
-        : null
-      }
-
-
+      ) : null}
     </Container>
   );
 };

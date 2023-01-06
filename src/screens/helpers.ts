@@ -1,3 +1,7 @@
+import { User } from 'firebase/auth';
+import { useState } from 'react';
+import { auth } from '../config/firebase';
+
 function randomInteger(max: number) {
   return Math.floor(Math.random() * (max + 1));
 }
@@ -60,7 +64,7 @@ export const handleInputs = (addForm = false) => {
     {
       type: 'number',
       name: 'sendCost',
-      label: 'koszt wysyłki',
+      label: 'koszt wysyłki'
     },
     {
       type: 'number',
@@ -87,28 +91,33 @@ export const handleInputs = (addForm = false) => {
       fullWidth: true
     }
   ];
-
-}
+};
 
 export const handleSpendingInputs = (addForm = false) => {
   return [
     {
-      type: "text",
-      name: "elementName",
-      label: "nazwa wydatku",
+      type: 'text',
+      name: 'elementName',
+      label: 'nazwa wydatku',
       fullWidth: true
     },
     {
-      type: "text",
-      name: "amount",
-      label: "kwota wydatku",
+      type: 'text',
+      name: 'amount',
+      label: 'kwota wydatku'
     },
     {
-      type: "text",
-      name: "addedBy",
-      label: "kto dodał",
+      type: 'text',
+      name: 'addedBy',
+      label: 'kto dodał'
     }
   ];
+};
 
-}
+export const isAdminUser = (user: User | null) => {
+  if (!user) return false;
+  const adminUserEmails = ['antoni.aleksander@gmail.com', 'stanwrobel90@gmail.com'];
+  const userEmail = user.email || '';
 
+  return adminUserEmails.includes(userEmail);
+};

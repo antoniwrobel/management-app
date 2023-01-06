@@ -12,7 +12,7 @@ import Paper from '@mui/material/Paper';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
-import { db } from '../config/firebase';
+import { auth, db } from '../config/firebase';
 import { ItemType, SettlementItemType, ValveType } from './types';
 import { collection, getDocs, addDoc, updateDoc, doc } from '@firebase/firestore';
 import { AddItem } from '../components/inventory/AddItem';
@@ -21,22 +21,25 @@ import { AddToValveModal } from '../components/inventory/AddToValveModal';
 import { ConfirmationModal } from '../components/modal/ConfirmationModal';
 
 import dayjs from 'dayjs';
+import { isAdminUser } from './helpers';
 
 const MagazynKomis = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [valveModalOpen, setValveModalOpen] = useState(false);
 
-  const [returnConfirmationOpen, setReturnConfirmationOpen] = useState<string | null>(null)
+  const [returnConfirmationOpen, setReturnConfirmationOpen] = useState<string | null>(null);
 
   const [currentSelected, setCurrentSelected] = useState<ItemType>();
   const [items, setItems] = useState<ItemType[]>([]);
+  const [user] = useState(auth.currentUser);
 
   const itemsCollectionRef = collection(db, 'items');
   const spendingsCollectionRef = collection(db, 'spendings');
   const valveCollectionRef = collection(db, 'valve');
   const settlementsCollectionRef = collection(db, 'settlements');
 
+  const editBlocked = !isAdminUser(user);
 
   const getItems = async () => {
     const data = await getDocs(itemsCollectionRef);
@@ -96,11 +99,12 @@ const MagazynKomis = () => {
     if (settlement) {
       const settlementsDoc = doc(db, 'settlements', settlement.id);
 
-
       await updateDoc(settlementsDoc, {
         status: 'zwrot',
         removed: true,
-        details: currentSelected?.details ? currentSelected.details + ` - zwrot - poniesione koszta ${item.provision!.toFixed(2)}zł` : `zwrot - poniesione koszta: ${item.provision!.toFixed(2)}zł`
+        details: currentSelected?.details
+          ? currentSelected.details + ` - zwrot - poniesione koszta ${item.provision!.toFixed(2)}zł`
+          : `zwrot - poniesione koszta: ${item.provision!.toFixed(2)}zł`
       });
     }
 
@@ -124,15 +128,17 @@ const MagazynKomis = () => {
     getItems();
   };
 
-  const haveItems = items.filter(e => !e.removed).length
+  const haveItems = items.filter((e) => !e.removed).length;
 
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '10px' }}>
-        <Button variant="contained" onClick={() => setModalOpen(true)}>
-          Dodaj
-        </Button>
-      </Box>
+      {!editBlocked && (
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '10px' }}>
+          <Button variant="contained" onClick={() => setModalOpen(true)}>
+            Dodaj
+          </Button>
+        </Box>
+      )}
 
       <AddItem modalOpen={modalOpen} setModalOpen={setModalOpen} getItems={getItems} />
 
@@ -151,35 +157,66 @@ const MagazynKomis = () => {
       />
 
       <Center>
-        {haveItems ? <TableContainer component={Paper} sx={{ mt: '20px' }}>
-          <Table sx={{ minWidth: 1550 }}>
-            <TableHead>
-              <TableRow >
-                <TableCell>Nazwa produktu</TableCell>
-                <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>status</TableCell>
-                <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>kwota <br />zakupu</TableCell>
-                <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>kwota <br />sprzedazy</TableCell>
-                <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>koszt <br />wysyłki</TableCell>
-                <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>zapłacono <br />łącznie</TableCell>
-                <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>prowizja <br />od sprzedaży</TableCell>
-                <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>saldo <br />stan</TableCell>
-                <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>saldo <br />wojtek</TableCell>
-                <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>data <br />stworzenia</TableCell>
-                <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>link <br />do aukcji</TableCell>
-                <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>uwagi</TableCell>
-                <TableCell
-                  align="right"
-                  sx={{
-                    minWidth: '300px'
-                  }}
-                >
-                  akcja
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {
-                items
+        {haveItems ? (
+          <TableContainer component={Paper} sx={{ mt: '20px' }}>
+            <Table sx={{ minWidth: 1550 }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Nazwa produktu</TableCell>
+                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                    status
+                  </TableCell>
+                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                    kwota <br />
+                    zakupu
+                  </TableCell>
+                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                    kwota <br />
+                    sprzedazy
+                  </TableCell>
+                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                    koszt <br />
+                    wysyłki
+                  </TableCell>
+                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                    zapłacono <br />
+                    łącznie
+                  </TableCell>
+                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                    prowizja <br />
+                    od sprzedaży
+                  </TableCell>
+                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                    saldo <br />
+                    stan
+                  </TableCell>
+                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                    saldo <br />
+                    wojtek
+                  </TableCell>
+                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                    data <br />
+                    stworzenia
+                  </TableCell>
+                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                    link <br />
+                    do aukcji
+                  </TableCell>
+                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                    uwagi
+                  </TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{
+                      minWidth: '300px'
+                    }}
+                  >
+                    akcja
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {items
                   // @ts-ignore
                   .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
                   .map((item) => {
@@ -187,9 +224,12 @@ const MagazynKomis = () => {
                       return;
                     }
 
-                    const removedCellStyles = item.status === "zwrot" ? {
-                      textDecoration: 'line-through'
-                    } : {}
+                    const removedCellStyles =
+                      item.status === 'zwrot'
+                        ? {
+                            textDecoration: 'line-through'
+                          }
+                        : {};
 
                     return (
                       <TableRow
@@ -199,7 +239,6 @@ const MagazynKomis = () => {
                           '&:last-child td, &:last-child th': { border: 0 }
                         }}
                       >
-
                         <TableCell
                           component="th"
                           scope="row"
@@ -265,18 +304,17 @@ const MagazynKomis = () => {
                             fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
                           }}
                         >
-                          {item.status === "sprzedano" ? item.sendCost + item.saleAmount + "zł" : "-"}
+                          {item.status === 'sprzedano' ? item.sendCost + item.saleAmount + 'zł' : '-'}
                         </TableCell>
 
                         <TableCell
                           align="right"
                           sx={{
                             color: item.status === 'zwrot' ? 'red' : 'inherit',
-                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
-
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
                           }}
                         >
-                          {item.provision ? item.provision + "zł" : "-"}
+                          {item.provision ? item.provision.toFixed(2) + 'zł' : '-'}
                         </TableCell>
 
                         <TableCell
@@ -345,49 +383,57 @@ const MagazynKomis = () => {
                         <TableCell align="right">
                           {item.status === 'sprzedano' ? (
                             <>
-                              {/* HANDLE RETURN MODAL CONFIRMATION */}
-                              <ConfirmationModal handleConfirm={() => handleReturn(item)} open={returnConfirmationOpen === item.id} handleReject={() => setReturnConfirmationOpen(null)} />
-                              <Button
-                                size="small"
-                                variant="contained"
-                                color="error"
-                                onClick={() => setReturnConfirmationOpen(item.id)}>
-                                Zwrot
-                              </Button>
-                              <Button
-                                size="small"
-                                variant="contained"
-                                type="submit"
-                                onClick={() => handleValve(item.id)}
-                                sx={{ ml: '20px' }}
-                              >
-                                $$$
-                              </Button>
+                              {!editBlocked && (
+                                <>
+                                  <ConfirmationModal
+                                    handleConfirm={() => handleReturn(item)}
+                                    open={returnConfirmationOpen === item.id}
+                                    handleReject={() => setReturnConfirmationOpen(null)}
+                                  />
+                                  <Button
+                                    size="small"
+                                    variant="contained"
+                                    color="error"
+                                    onClick={() => setReturnConfirmationOpen(item.id)}
+                                  >
+                                    Zwrot
+                                  </Button>
+                                  <Button
+                                    size="small"
+                                    variant="contained"
+                                    type="submit"
+                                    onClick={() => handleValve(item.id)}
+                                    sx={{ ml: '20px' }}
+                                  >
+                                    $$$
+                                  </Button>
+                                </>
+                              )}
                             </>
                           ) : null}
-                          <Button
-                            size="small"
-                            variant="contained"
-                            type="submit"
-                            color={item.status === 'zwrot' ? 'error' : 'primary'}
-                            onClick={() => editRow(item.id)}
-                            sx={{ ml: '20px' }}
-                          >
-                            Edytuj
-                          </Button>
+
+                          {!editBlocked && (
+                            <Button
+                              size="small"
+                              variant="contained"
+                              type="submit"
+                              color={item.status === 'zwrot' ? 'error' : 'primary'}
+                              onClick={() => editRow(item.id)}
+                              sx={{ ml: '20px' }}
+                            >
+                              Edytuj
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     );
-                  })
-              }
-            </TableBody>
-          </Table>
-
-
-        </TableContainer> : <Box sx={{ mb: "40px" }}>Brak danych</Box>
-
-        }
-
+                  })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        ) : (
+          <Box sx={{ my: '20px' }}>Brak danych</Box>
+        )}
       </Center>
     </Container>
   );
