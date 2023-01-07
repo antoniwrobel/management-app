@@ -385,7 +385,7 @@ const MagazynKomis = () => {
                           }}
                         >
                           <Box
-                            sx={{ display: 'flex', justifyContent: item.provisionPayed ? 'space-between' : 'center' }}
+                            sx={{ display: 'flex', justifyContent: item.provisionPayed ? 'space-between' : 'right' }}
                           >
                             {item.provision ? item.provision.toFixed(2) + 'zł' : '-'}
                             {item.provisionPayed ? (
