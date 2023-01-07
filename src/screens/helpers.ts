@@ -115,7 +115,7 @@ export const handleSpendingInputs = (addOnly = false) => {
     },
     {
       type: 'select',
-      options: ['Stan', 'Wojtek'],
+      options: ['Stan', 'Wojtek', 'automat'],
       name: 'addedBy',
       label: 'kto wydał'
     }

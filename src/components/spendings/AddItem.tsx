@@ -73,7 +73,6 @@ export const AddItem = (props: AddItemProps) => {
     .filter((item) => !item.removed)
     .map((item) => ({ name: item.elementName, value: item.id, amount: item.amount }));
 
-  console.log(items);
   return (
     <AddItemModal open={modalOpen}>
       <Formik
@@ -269,6 +268,10 @@ export const AddItem = (props: AddItemProps) => {
                               }}
                             >
                               {input.options?.map((option) => {
+                                if (option === 'automat') {
+                                  return;
+                                }
+
                                 return (
                                   <MenuItem key={option} value={option}>
                                     {option}

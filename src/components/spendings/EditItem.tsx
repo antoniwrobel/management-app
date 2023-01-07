@@ -112,7 +112,7 @@ export const EditItem = (props: EditItemProps) => {
                               >
                                 {input.options?.map((option) => {
                                   return (
-                                    <MenuItem key={option} value={option}>
+                                    <MenuItem key={option} value={option} disabled={option === 'automat'}>
                                       {option}
                                     </MenuItem>
                                   );
