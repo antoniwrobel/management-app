@@ -153,7 +153,7 @@ const Spendings = ({}: Props) => {
                         <TableCell component="th" scope="row" align="right">
                           {d.addedBy}
                         </TableCell>
-                        {!editBlocked ? (
+                        {!editBlocked && !d.removed ? (
                           <TableCell component="th" scope="row" align="right">
                             <Button size="small" variant="contained" type="submit" onClick={() => editRow(d.id)}>
                               Edytuj
