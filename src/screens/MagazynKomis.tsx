@@ -321,7 +321,7 @@ const MagazynKomis = () => {
                     stworzenia
                     {sortedBy === 'createdDate' ? (
                       <Box sx={{ position: 'absolute', top: 0, right: 0 }}>
-                        {direction.createDate === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+                        {direction.createdate === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
                       </Box>
                     ) : null}
                   </TableCell>
