@@ -24,6 +24,7 @@ import { isAdminUser } from './helpers';
 
 import dayjs from 'dayjs';
 import { styled, Tooltip, tooltipClasses, TooltipProps } from '@mui/material';
+import { textAlign } from '@mui/system';
 
 const MagazynKomis = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -435,7 +436,8 @@ const MagazynKomis = () => {
                             maxWidth: '200px',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
+                            whiteSpace: 'nowrap',
+                            textAlign: 'left'
                           }}
                         >
                           {item.details}
