@@ -219,42 +219,42 @@ const MagazynKomis = () => {
               >
                 <TableRow>
                   <TableCell>Nazwa produktu</TableCell>
-                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                    status
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                    Status
                   </TableCell>
-                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                    kwota <br />
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                    Kwota <br />
                     zakupu
                   </TableCell>
-                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                    kwota <br />
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                    Kwota <br />
                     sprzedazy
                   </TableCell>
-                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                    koszt <br />
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                    Koszt <br />
                     wysyłki
                   </TableCell>
-                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                    zapłacono <br />
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                    Zapłacono <br />
                     łącznie
                   </TableCell>
-                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                    prowizja <br /> od sprzedaży
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                    Prowizja <br /> od sprzedaży
                   </TableCell>
-                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                    saldo <br />
-                    stan
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                    Saldo <br />
+                    Stan
                   </TableCell>
-                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                    saldo <br />
-                    wojtek
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                    Saldo <br />
+                    Wojtek
                   </TableCell>
-                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                    data <br />
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                    Data <br />
                     stworzenia
                   </TableCell>
-                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                    uwagi
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                    Uwagi
                   </TableCell>
                   {!editBlocked ? (
                     <TableCell
@@ -263,7 +263,7 @@ const MagazynKomis = () => {
                         minWidth: '300px'
                       }}
                     >
-                      akcja
+                      Akcja
                     </TableCell>
                   ) : null}
                 </TableRow>

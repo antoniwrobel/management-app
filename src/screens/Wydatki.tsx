@@ -99,10 +99,10 @@ const Spendings = ({}: Props) => {
               <TableHead>
                 <TableRow>
                   <TableCell>Nazwa wydatku</TableCell>
-                  <TableCell align="right">kwota</TableCell>
-                  <TableCell align="right">data dodania</TableCell>
-                  <TableCell align="right">kto wydał</TableCell>
-                  <TableCell align="right">akcja</TableCell>
+                  <TableCell align="center">Kwota</TableCell>
+                  <TableCell align="center">Data dodania</TableCell>
+                  <TableCell align="center">Kto wydał</TableCell>
+                  <TableCell align="right">Akcja</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

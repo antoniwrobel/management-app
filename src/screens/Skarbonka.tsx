@@ -65,9 +65,9 @@ const Skarbonka = () => {
                 <TableRow>
                   <TableCell>Nazwa potrącenia</TableCell>
 
-                  <TableCell align="right">kwota</TableCell>
+                  <TableCell align="center">Kwota</TableCell>
 
-                  <TableCell align="right">data dodania</TableCell>
+                  <TableCell align="right">Data dodania</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

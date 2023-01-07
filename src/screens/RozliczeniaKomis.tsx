@@ -72,11 +72,11 @@ const RozliczeniaKomis = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Nazwa produktu</TableCell>
-                  <TableCell align="right">status</TableCell>
-                  <TableCell align="right">kwota do rozliczenia</TableCell>
-                  <TableCell align="right">data stworzenia</TableCell>
-                  <TableCell align="right">uwagi</TableCell>
-                  <TableCell align="right">akcja</TableCell>
+                  <TableCell align="center">Status</TableCell>
+                  <TableCell align="center">Kwota do rozliczenia</TableCell>
+                  <TableCell align="center">Data stworzenia</TableCell>
+                  <TableCell align="center">Uwagi</TableCell>
+                  <TableCell align="right">Akcja</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
