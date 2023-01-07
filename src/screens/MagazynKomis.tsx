@@ -196,7 +196,7 @@ const MagazynKomis = () => {
       : [...items]
           //@ts-ignore
           .sort((a, b) => new Date(b.createDate) - new Date(a.createDate));
-  console.log(direction);
+
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
