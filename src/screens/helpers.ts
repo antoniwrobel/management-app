@@ -95,13 +95,13 @@ export const handleInputs = (addForm = false) => {
 
 export const handleSpendingInputs = (addOnly = false) => {
   return [
-    // {
-    //   type: 'checkbox',
-    //   name: 'payProvision',
-    //   label: 'opłata prowizji',
-    //   fullWidth: true,
-    //   addOnly
-    // },
+    {
+      type: 'checkbox',
+      name: 'payProvision',
+      label: 'opłata prowizji',
+      fullWidth: true,
+      addOnly
+    },
     {
       type: 'text',
       name: 'elementName',
