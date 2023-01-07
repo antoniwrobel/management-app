@@ -84,9 +84,11 @@ const RozliczeniaKomis = () => {
                   <TableCell align="center" sx={{ fontWeight: 'bold' }}>
                     Uwagi
                   </TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                    Akcja
-                  </TableCell>
+                  {!editBlocked ? (
+                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                      Akcja
+                    </TableCell>
+                  ) : null}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -161,22 +163,26 @@ const RozliczeniaKomis = () => {
                         >
                           {item.details}
                         </TableCell>
-                        {!item.removed && !editBlocked ? (
-                          <TableCell align="right">
-                            <Button
-                              size="small"
-                              variant="contained"
-                              type="submit"
-                              color={'primary'}
-                              onClick={() => handleSettlement(item)}
-                              sx={{ ml: '20px' }}
-                            >
-                              Rozlicz
-                            </Button>
-                          </TableCell>
-                        ) : (
-                          <TableCell align="right"></TableCell>
-                        )}
+                        {!editBlocked ? (
+                          <>
+                            {!item.removed ? (
+                              <TableCell align="right">
+                                <Button
+                                  size="small"
+                                  variant="contained"
+                                  type="submit"
+                                  color={'primary'}
+                                  onClick={() => handleSettlement(item)}
+                                  sx={{ ml: '20px' }}
+                                >
+                                  Rozlicz
+                                </Button>
+                              </TableCell>
+                            ) : (
+                              <TableCell align="right"></TableCell>
+                            )}
+                          </>
+                        ) : null}
                       </TableRow>
                     );
                   })}

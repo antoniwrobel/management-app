@@ -108,9 +108,11 @@ const Spendings = ({}: Props) => {
                   <TableCell align="center" sx={{ fontWeight: 'bold' }}>
                     Kto wydał
                   </TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                    Akcja
-                  </TableCell>
+                  {!editBlocked ? (
+                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                      Akcja
+                    </TableCell>
+                  ) : null}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -151,13 +153,13 @@ const Spendings = ({}: Props) => {
                         <TableCell component="th" scope="row" align="right">
                           {d.addedBy}
                         </TableCell>
-                        <TableCell component="th" scope="row" align="right">
-                          {!editBlocked && (
+                        {!editBlocked ? (
+                          <TableCell component="th" scope="row" align="right">
                             <Button size="small" variant="contained" type="submit" onClick={() => editRow(d.id)}>
                               Edytuj
                             </Button>
-                          )}
-                        </TableCell>
+                          </TableCell>
+                        ) : null}
                       </TableRow>
                     );
                   })}
