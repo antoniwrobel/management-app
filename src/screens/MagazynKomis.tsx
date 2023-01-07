@@ -219,42 +219,42 @@ const MagazynKomis = () => {
                 }}
               >
                 <TableRow>
-                  <TableCell>Nazwa produktu</TableCell>
-                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Nazwa produktu</TableCell>
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
                     Status
                   </TableCell>
-                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
                     Kwota <br />
                     zakupu
                   </TableCell>
-                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
                     Kwota <br />
                     sprzedazy
                   </TableCell>
-                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
                     Koszt <br />
                     wysyłki
                   </TableCell>
-                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
                     Zapłacono <br />
                     łącznie
                   </TableCell>
-                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
                     Prowizja <br /> od sprzedaży
                   </TableCell>
-                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
                     Saldo <br />
                     Stan
                   </TableCell>
-                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
                     Saldo <br />
                     Wojtek
                   </TableCell>
-                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
                     Data <br />
                     stworzenia
                   </TableCell>
-                  <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                  <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
                     Uwagi
                   </TableCell>
                   {!editBlocked ? (

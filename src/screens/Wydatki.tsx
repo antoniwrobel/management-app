@@ -98,11 +98,19 @@ const Spendings = ({}: Props) => {
             >
               <TableHead>
                 <TableRow>
-                  <TableCell>Nazwa wydatku</TableCell>
-                  <TableCell align="center">Kwota</TableCell>
-                  <TableCell align="center">Data dodania</TableCell>
-                  <TableCell align="center">Kto wydał</TableCell>
-                  <TableCell align="right">Akcja</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Nazwa wydatku</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                    Kwota
+                  </TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                    Data dodania
+                  </TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                    Kto wydał
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                    Akcja
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

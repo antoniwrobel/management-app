@@ -71,12 +71,22 @@ const RozliczeniaKomis = () => {
             >
               <TableHead>
                 <TableRow>
-                  <TableCell>Nazwa produktu</TableCell>
-                  <TableCell align="center">Status</TableCell>
-                  <TableCell align="center">Kwota do rozliczenia</TableCell>
-                  <TableCell align="center">Data stworzenia</TableCell>
-                  <TableCell align="center">Uwagi</TableCell>
-                  <TableCell align="right">Akcja</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Nazwa produktu</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                    Status
+                  </TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                    Kwota do rozliczenia
+                  </TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                    Data stworzenia
+                  </TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                    Uwagi
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                    Akcja
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

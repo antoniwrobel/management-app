@@ -63,11 +63,15 @@ const Skarbonka = () => {
             >
               <TableHead>
                 <TableRow>
-                  <TableCell>Nazwa potrącenia</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Nazwa potrącenia</TableCell>
 
-                  <TableCell align="center">Kwota</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                    Kwota
+                  </TableCell>
 
-                  <TableCell align="right">Data dodania</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                    Data dodania
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -103,7 +107,6 @@ const Skarbonka = () => {
                           scope="row"
                           sx={{
                             color: d.removed ? 'red' : 'inherit',
-                            fontWeight: 'bold',
                             ...removedCellStyles
                           }}
                         >
