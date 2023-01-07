@@ -88,6 +88,7 @@ export const EditItem = (props: EditItemProps) => {
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
                     {magazynInputs.map((input, index) => {
+                      //@ts-ignore
                       if (input.addOnly || currentSelected.removed) {
                         return;
                       }
