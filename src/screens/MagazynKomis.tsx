@@ -239,19 +239,18 @@ const MagazynKomis = () => {
                     stworzenia
                   </TableCell>
                   <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                    link
-                  </TableCell>
-                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
                     uwagi
                   </TableCell>
-                  <TableCell
-                    align="right"
-                    sx={{
-                      minWidth: '300px'
-                    }}
-                  >
-                    akcja
-                  </TableCell>
+                  {!editBlocked ? (
+                    <TableCell
+                      align="right"
+                      sx={{
+                        minWidth: '300px'
+                      }}
+                    >
+                      akcja
+                    </TableCell>
+                  ) : null}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -297,13 +296,19 @@ const MagazynKomis = () => {
                           >
                             <Box
                               sx={{
-                                maxWidth: '200px',
+                                maxWidth: '250px',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 whiteSpace: 'nowrap'
                               }}
                             >
-                              {item.productName}
+                              {item.url ? (
+                                <a href={item.url} target="_blank" rel="noreferrer">
+                                  {item.productName}
+                                </a>
+                              ) : (
+                                item.productName
+                              )}
                             </Box>
                           </BootstrapTooltip>
                         </TableCell>
@@ -412,22 +417,6 @@ const MagazynKomis = () => {
                           align="right"
                           sx={{
                             color: item.status === 'zwrot' ? 'red' : 'inherit',
-                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
-                          }}
-                        >
-                          {item.url ? (
-                            <a href={item.url} target="_blank" rel="noreferrer">
-                              link
-                            </a>
-                          ) : (
-                            '-'
-                          )}
-                        </TableCell>
-
-                        <TableCell
-                          align="right"
-                          sx={{
-                            color: item.status === 'zwrot' ? 'red' : 'inherit',
                             fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
                             maxWidth: '200px',
                             overflow: 'hidden',
@@ -437,52 +426,53 @@ const MagazynKomis = () => {
                         >
                           {item.details}
                         </TableCell>
-
-                        <TableCell align="right">
-                          {item.status === 'sprzedano' ? (
-                            <>
-                              {!editBlocked && (
+                        {!editBlocked ? (
+                          <>
+                            <TableCell align="right">
+                              {item.status === 'sprzedano' ? (
                                 <>
-                                  <ConfirmationModal
-                                    handleConfirm={() => handleReturn(item)}
-                                    open={returnConfirmationOpen === item.id}
-                                    handleReject={() => setReturnConfirmationOpen(null)}
-                                  />
-                                  <Button
-                                    size="small"
-                                    variant="contained"
-                                    color="error"
-                                    onClick={() => setReturnConfirmationOpen(item.id)}
-                                  >
-                                    Zwrot
-                                  </Button>
-                                  <Button
-                                    size="small"
-                                    variant="contained"
-                                    type="submit"
-                                    onClick={() => handleValve(item.id)}
-                                    sx={{ ml: '20px' }}
-                                  >
-                                    $$$
-                                  </Button>
+                                  <>
+                                    <ConfirmationModal
+                                      handleConfirm={() => handleReturn(item)}
+                                      open={returnConfirmationOpen === item.id}
+                                      handleReject={() => setReturnConfirmationOpen(null)}
+                                    />
+                                    <Button
+                                      size="small"
+                                      variant="contained"
+                                      color="error"
+                                      onClick={() => setReturnConfirmationOpen(item.id)}
+                                    >
+                                      Zwrot
+                                    </Button>
+                                    <Button
+                                      size="small"
+                                      variant="contained"
+                                      type="submit"
+                                      onClick={() => handleValve(item.id)}
+                                      sx={{ ml: '20px' }}
+                                    >
+                                      $$$
+                                    </Button>
+                                  </>
                                 </>
-                              )}
-                            </>
-                          ) : null}
+                              ) : null}
 
-                          {!editBlocked && !item.removed && (
-                            <Button
-                              size="small"
-                              variant="contained"
-                              type="submit"
-                              color={item.status === 'zwrot' ? 'error' : 'primary'}
-                              onClick={() => editRow(item.id)}
-                              sx={{ ml: '20px' }}
-                            >
-                              Edytuj
-                            </Button>
-                          )}
-                        </TableCell>
+                              {!item.removed && (
+                                <Button
+                                  size="small"
+                                  variant="contained"
+                                  type="submit"
+                                  color={item.status === 'zwrot' ? 'error' : 'primary'}
+                                  onClick={() => editRow(item.id)}
+                                  sx={{ ml: '20px' }}
+                                >
+                                  Edytuj
+                                </Button>
+                              )}
+                            </TableCell>
+                          </>
+                        ) : null}
                       </TableRow>
                     );
                   })}
