@@ -145,7 +145,8 @@ const RozliczeniaKomis = () => {
                             maxWidth: '200px',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
+                            whiteSpace: 'nowrap',
+                            textAlign: 'left'
                           }}
                         >
                           {item.details}
