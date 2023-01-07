@@ -196,7 +196,7 @@ const MagazynKomis = () => {
       : [...items]
           //@ts-ignore
           .sort((a, b) => new Date(b.createDate) - new Date(a.createDate));
-  console.log(sortedItems);
+  console.log(direction);
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -321,7 +321,7 @@ const MagazynKomis = () => {
                     stworzenia
                     {sortedBy === 'createdDate' ? (
                       <Box sx={{ position: 'absolute', top: 0, right: 0 }}>
-                        {direction.createdate === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+                        {direction.createdDate === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
                       </Box>
                     ) : null}
                   </TableCell>
