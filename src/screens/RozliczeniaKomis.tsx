@@ -61,7 +61,14 @@ const RozliczeniaKomis = () => {
       <Center>
         {items.length ? (
           <TableContainer component={Paper} sx={{ mt: '20px' }}>
-            <Table sx={{ minWidth: 1550 }}>
+            <Table
+              sx={{
+                minWidth: 1550,
+                '& .MuiTableCell-root': {
+                  borderLeft: '1px solid rgba(224, 224, 224, 1)'
+                }
+              }}
+            >
               <TableHead>
                 <TableRow>
                   <TableCell>Nazwa produktu</TableCell>
@@ -93,12 +100,7 @@ const RozliczeniaKomis = () => {
                         : {};
 
                     return (
-                      <TableRow
-                        key={item.id}
-                        sx={{
-                          '&:last-child td, &:last-child th': { border: 0 }
-                        }}
-                      >
+                      <TableRow key={item.id}>
                         <TableCell
                           component="th"
                           scope="row"

@@ -53,7 +53,14 @@ const Skarbonka = () => {
       <Center>
         {data.length ? (
           <TableContainer component={Paper} sx={{ mt: '20px' }}>
-            <Table sx={{ minWidth: 1550 }}>
+            <Table
+              sx={{
+                minWidth: 1550,
+                '& .MuiTableCell-root': {
+                  borderLeft: '1px solid rgba(224, 224, 224, 1)'
+                }
+              }}
+            >
               <TableHead>
                 <TableRow>
                   <TableCell>Nazwa potrącenia</TableCell>

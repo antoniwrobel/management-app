@@ -164,21 +164,23 @@ const MagazynKomis = () => {
 
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
-      {!editBlocked && (
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
-          <Button variant="contained" onClick={() => setModalOpen(true)}>
-            Dodaj
-          </Button>
-        </Box>
-      )}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+        {!editBlocked && (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
+            <Button variant="contained" onClick={() => setModalOpen(true)}>
+              Dodaj
+            </Button>
+          </Box>
+        )}
 
-      {items.length ? (
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
-          <Button variant="contained" onClick={() => setShowDeleted((prev) => !prev)}>
-            {!showDeleted ? 'Pokaż usunięte' : 'Schowaj usunięte'}
-          </Button>
-        </Box>
-      ) : null}
+        {items.length ? (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
+            <Button variant="contained" onClick={() => setShowDeleted((prev) => !prev)}>
+              {!showDeleted ? 'Pokaż usunięte' : 'Schowaj usunięte'}
+            </Button>
+          </Box>
+        ) : null}
+      </Box>
 
       <AddItem modalOpen={modalOpen} setModalOpen={setModalOpen} getItems={getItems} />
 
@@ -198,9 +200,23 @@ const MagazynKomis = () => {
 
       <Center>
         {haveItems ? (
-          <TableContainer component={Paper} sx={{ mt: '20px' }}>
-            <Table sx={{ minWidth: 1550 }}>
-              <TableHead>
+          <TableContainer component={Paper} sx={{ mt: '20px', overflowX: 'initial' }}>
+            <Table
+              sx={{
+                minWidth: 1550,
+                '& .MuiTableCell-root': {
+                  borderLeft: '1px solid rgba(224, 224, 224, 1)'
+                }
+              }}
+              stickyHeader
+            >
+              <TableHead
+                sx={{
+                  transform: 'translateY(70px)',
+                  zIndex: '9999',
+                  position: 'relative'
+                }}
+              >
                 <TableRow>
                   <TableCell>Nazwa produktu</TableCell>
                   <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
@@ -223,8 +239,7 @@ const MagazynKomis = () => {
                     łącznie
                   </TableCell>
                   <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                    prowizja <br />
-                    od sprzedaży
+                    prowizja <br /> od sprzedaży
                   </TableCell>
                   <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
                     saldo <br />
@@ -254,6 +269,9 @@ const MagazynKomis = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
+                <TableRow sx={{ height: '70px' }}>
+                  <TableCell />
+                </TableRow>
                 {items
                   // @ts-ignore
                   .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
@@ -272,13 +290,7 @@ const MagazynKomis = () => {
                         : {};
 
                     return (
-                      <TableRow
-                        key={item.id}
-                        sx={{
-                          backgroundColor: `${item.color}26`,
-                          '&:last-child td, &:last-child th': { border: 0 }
-                        }}
-                      >
+                      <TableRow key={item.id} sx={{ backgroundColor: `${item.color}26` }}>
                         <TableCell
                           component="th"
                           scope="row"
@@ -372,7 +384,9 @@ const MagazynKomis = () => {
                             fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
                           }}
                         >
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Box
+                            sx={{ display: 'flex', justifyContent: item.provisionPayed ? 'space-between' : 'center' }}
+                          >
                             {item.provision ? item.provision.toFixed(2) + 'zł' : '-'}
                             {item.provisionPayed ? (
                               <CheckCircleSharpIcon fontSize="small" sx={{ color: 'green ' }} />

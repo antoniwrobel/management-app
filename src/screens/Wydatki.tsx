@@ -59,20 +59,22 @@ const Spendings = ({}: Props) => {
 
   return (
     <Container sx={{ p: '0px !important', m: '24px', maxWidth: '100% !important', width: 'auto' }}>
-      {!editBlocked && (
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
-          <Button variant="contained" onClick={() => setModalOpen(true)}>
-            Dodaj
-          </Button>
-        </Box>
-      )}
-      {data.length ? (
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
-          <Button variant="contained" onClick={() => setShowDeleted((prev) => !prev)}>
-            {!showDeleted ? 'Pokaż usunięte' : 'Schowaj usunięte'}
-          </Button>
-        </Box>
-      ) : null}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+        {!editBlocked && (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
+            <Button variant="contained" onClick={() => setModalOpen(true)}>
+              Dodaj
+            </Button>
+          </Box>
+        )}
+        {data.length ? (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
+            <Button variant="contained" onClick={() => setShowDeleted((prev) => !prev)}>
+              {!showDeleted ? 'Pokaż usunięte' : 'Schowaj usunięte'}
+            </Button>
+          </Box>
+        ) : null}
+      </Box>
 
       <AddItem modalOpen={modalOpen} setModalOpen={setModalOpen} getItems={getData} />
 
@@ -86,7 +88,14 @@ const Spendings = ({}: Props) => {
       <Center>
         {data.length ? (
           <TableContainer component={Paper} sx={{ mt: '20px' }}>
-            <Table sx={{ minWidth: 1550 }}>
+            <Table
+              sx={{
+                minWidth: 1550,
+                '& .MuiTableCell-root': {
+                  borderLeft: '1px solid rgba(224, 224, 224, 1)'
+                }
+              }}
+            >
               <TableHead>
                 <TableRow>
                   <TableCell>Nazwa wydatku</TableCell>
