@@ -102,11 +102,12 @@ export const AddItem = (props: AddItemProps) => {
         }}
         onSubmit={async (values, { setSubmitting }) => {
           const selectedItem = items.find((e) => e.id === values.payProvisionId);
-          if (!selectedItem) {
-            return;
-          }
 
           if (values.payProvision) {
+            if (!selectedItem) {
+              return;
+            }
+
             const itemDoc = doc(db, 'items', selectedItem.id);
 
             await addDoc(spendingsCollectionRef, {
@@ -125,8 +126,7 @@ export const AddItem = (props: AddItemProps) => {
               elementName: values.elementName,
               amount: parseFloat(values.amount),
               addedBy: values.addedBy,
-              createdAt: values.createdAt,
-              elementId: selectedItem.id
+              createdAt: values.createdAt
             });
           }
 
