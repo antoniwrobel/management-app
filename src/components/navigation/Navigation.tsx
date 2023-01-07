@@ -105,8 +105,8 @@ const Navigation = () => {
               if (!isProtected) {
                 return;
               }
-              const currentPath =
-                window.location.pathname === '/management-app/' ? '/magazyn' : window.location.pathname;
+              const homepage = ['/management-app/', '/management-app'];
+              const currentPath = homepage.includes(window.location.pathname) ? '/magazyn' : window.location.pathname;
               const currentlySelected = currentPath.includes(name.toLowerCase());
 
               return (
