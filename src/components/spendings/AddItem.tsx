@@ -73,6 +73,7 @@ export const AddItem = (props: AddItemProps) => {
     .filter((item) => !item.removed)
     .map((item) => ({ name: item.elementName, value: item.id, amount: item.amount }));
 
+  console.log(items);
   return (
     <AddItemModal open={modalOpen}>
       <Formik
@@ -131,6 +132,7 @@ export const AddItem = (props: AddItemProps) => {
           }
 
           getItems();
+          getItemsData();
           setSubmitting(false);
           setModalOpen(false);
         }}

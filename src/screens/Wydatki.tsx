@@ -57,8 +57,6 @@ const Spendings = ({}: Props) => {
   let totalStan = 0;
   let totalWojtek = 0;
 
-  console.log(data);
-
   return (
     <Container sx={{ p: '0px !important', m: '24px', maxWidth: '100% !important', width: 'auto' }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
