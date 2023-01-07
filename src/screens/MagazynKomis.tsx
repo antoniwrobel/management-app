@@ -385,9 +385,7 @@ const MagazynKomis = () => {
                             fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
                           }}
                         >
-                          <Box
-                            sx={{ display: 'flex', justifyContent: item.provisionPayed ? 'space-between' : 'right' }}
-                          >
+                          <Box sx={{ display: 'flex', justifyContent: item.provisionPayed ? 'space-around' : 'right' }}>
                             {item.provision ? item.provision.toFixed(2) + 'zł' : '-'}
                             {item.provisionPayed ? (
                               <CheckCircleSharpIcon fontSize="small" sx={{ color: 'green ' }} />
