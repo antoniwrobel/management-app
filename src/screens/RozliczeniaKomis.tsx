@@ -136,7 +136,7 @@ const RozliczeniaKomis = () => {
                       return;
                     }
 
-                    if (!item.removed) {
+                    if (!item.removed && !item.settled) {
                       summaryWojtek += item.clearingValueWojtek;
                     }
 

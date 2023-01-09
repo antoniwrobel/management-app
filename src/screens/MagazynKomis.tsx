@@ -366,6 +366,7 @@ const MagazynKomis = () => {
                         sx={{
                           color: item.status === 'zwrot' ? 'red' : 'inherit',
                           fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
+                          position: 'relative',
                           ...removedCellStyles
                         }}
                       >
@@ -390,6 +391,18 @@ const MagazynKomis = () => {
                             ) : (
                               item.productName
                             )}
+
+                            {item.settled ? (
+                              <Box
+                                sx={{
+                                  position: 'absolute',
+                                  top: '17px',
+                                  right: '6px'
+                                }}
+                              >
+                                <CheckCircleSharpIcon fontSize="small" sx={{ color: 'green ' }} />
+                              </Box>
+                            ) : null}
                           </Box>
                         </BootstrapTooltip>
                       </TableCell>
@@ -511,7 +524,7 @@ const MagazynKomis = () => {
                       {!editBlocked ? (
                         <>
                           <TableCell align="right">
-                            {item.status === 'sprzedano' ? (
+                            {item.status === 'sprzedano' || item.status === 'rozliczono' ? (
                               <>
                                 <>
                                   <ConfirmationModal
@@ -540,7 +553,7 @@ const MagazynKomis = () => {
                               </>
                             ) : null}
 
-                            {!item.removed && (
+                            {!item.removed && !item.settled && (
                               <Button
                                 size="small"
                                 variant="contained"
