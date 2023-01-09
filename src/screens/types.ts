@@ -20,6 +20,7 @@ export type ItemType = {
   provision: number | null;
   provisionPayed: boolean;
   settled: boolean;
+  settlementStatus: 'nierozliczono' | 'rozliczono';
 };
 
 export type ValveType = {

@@ -70,7 +70,7 @@ export const EditItem = (props: EditItemProps) => {
     getItems();
   };
 
-  const buttonDisabled = currentSelected?.status === 'sprzedano' || currentSelected?.status === 'rozliczono';
+  const buttonDisabled = currentSelected?.status === 'sprzedano';
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const magazynInputs = handleInputs();
 
@@ -146,6 +146,8 @@ export const EditItem = (props: EditItemProps) => {
             const clearingValueWojtek = values.purchaseAmount + profit || 0;
             const clearingValueStan = profit;
             const shouldAddSpendings = values.status === 'sprzedano';
+            const isReturn = currentSelected.status === 'zwrot' && values.status === 'utworzono';
+            const shouldClearSettled = isReturn && currentSelected.settled;
 
             try {
               await updateDoc(itemDoc, {
@@ -156,8 +158,9 @@ export const EditItem = (props: EditItemProps) => {
                 soldDate: values.soldDate || null,
                 sendCost: values.sendCost,
                 status: values.status,
-                details: values.details,
+                details: isReturn ? '' : values.details,
                 url: values.url,
+                settled: shouldClearSettled && false,
                 provision: values.provision || 0,
                 ...(shouldAddSpendings && {
                   clearingValueWojtek,
@@ -197,7 +200,7 @@ export const EditItem = (props: EditItemProps) => {
                       const fullWidth = index >= 1 && magazynInputs[index - 1].addOnly ? true : input.fullWidth;
 
                       const editEnabledOptions = currentSelected.status === 'zwrot' ? ['status'] : [''];
-                      const statusBlock = ['sprzedano', 'zwrot', 'rozliczono'];
+                      const statusBlock = ['sprzedano', 'zwrot'];
                       const editDisabled =
                         statusBlock.includes(currentSelected.status) && !editEnabledOptions.includes(input.name);
 
@@ -251,12 +254,10 @@ export const EditItem = (props: EditItemProps) => {
                                 }}
                               >
                                 {input.options?.map((option) => {
+                                  const blocked = option === 'sprzedano' && currentSelected.status === 'zwrot';
+
                                   return (
-                                    <MenuItem
-                                      key={option}
-                                      value={option}
-                                      disabled={option === 'zwrot' || option === 'rozliczono'}
-                                    >
+                                    <MenuItem key={option} value={option} disabled={option === 'zwrot' || blocked}>
                                       {option}
                                     </MenuItem>
                                   );

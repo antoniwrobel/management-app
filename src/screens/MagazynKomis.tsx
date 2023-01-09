@@ -112,7 +112,7 @@ const MagazynKomis = () => {
 
       await updateDoc(settlementsDoc, {
         status: 'zwrot',
-        removed: true,
+        removed: !item.settled && true,
         ...(item.provision &&
           item.provision > 0 && {
             details: currentSelected?.details
@@ -392,7 +392,7 @@ const MagazynKomis = () => {
                               item.productName
                             )}
 
-                            {item.settled ? (
+                            {item.settled && item.status !== 'zwrot' ? (
                               <Box
                                 sx={{
                                   position: 'absolute',
@@ -525,7 +525,7 @@ const MagazynKomis = () => {
                       {!editBlocked ? (
                         <>
                           <TableCell align="right">
-                            {item.status === 'sprzedano' || item.status === 'rozliczono' ? (
+                            {item.status === 'sprzedano' ? (
                               <>
                                 <>
                                   <ConfirmationModal
@@ -541,20 +541,22 @@ const MagazynKomis = () => {
                                   >
                                     Zwrot
                                   </Button>
-                                  <Button
-                                    size="small"
-                                    variant="contained"
-                                    type="submit"
-                                    onClick={() => handleValve(item.id)}
-                                    sx={{ ml: '20px' }}
-                                  >
-                                    $$$
-                                  </Button>
+                                  {!item.settled && (
+                                    <Button
+                                      size="small"
+                                      variant="contained"
+                                      type="submit"
+                                      onClick={() => handleValve(item.id)}
+                                      sx={{ ml: '20px' }}
+                                    >
+                                      $$$
+                                    </Button>
+                                  )}
                                 </>
                               </>
                             ) : null}
 
-                            {!item.removed && !item.settled && (
+                            {!item.removed && (
                               <Button
                                 size="small"
                                 variant="contained"

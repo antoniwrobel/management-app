@@ -108,10 +108,6 @@ const RozliczeniaKomis = () => {
                   </TableCell>
 
                   <TableCell align="center" sx={{ fontWeight: 'bold' }}>
-                    Rozliczone
-                  </TableCell>
-
-                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>
                     Kwota do rozliczenia
                   </TableCell>
                   <TableCell align="center" sx={{ fontWeight: 'bold' }}>
@@ -140,11 +136,17 @@ const RozliczeniaKomis = () => {
                       summaryWojtek += item.clearingValueWojtek;
                     }
 
+                    if (!item.removed && item.settled) {
+                      summaryWojtek -= item.clearingValueWojtek;
+                    }
+
                     const itemSelectedFound = currentSelected.find((e) => e.id === item.id);
                     const isSelected = Boolean(itemSelectedFound);
 
+                    const returned = item.status === 'zwrot';
+
                     const removedCellStyles =
-                      item.status === 'zwrot'
+                      returned && !item.settled
                         ? {
                             textDecoration: 'line-through'
                           }
@@ -161,22 +163,34 @@ const RozliczeniaKomis = () => {
                           component="th"
                           scope="row"
                           sx={{
-                            color: item.status === 'zwrot' ? 'red' : 'inherit',
-                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
+                            color: returned ? 'red' : 'inherit',
+                            fontWeight: returned ? 'bold' : 'inherit',
                             maxWidth: '200px',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
+                            position: 'relative',
                             ...removedCellStyles
                           }}
                         >
                           {item.productName}
+                          {item.settled && item.status !== 'zwrot' ? (
+                            <Box
+                              sx={{
+                                position: 'absolute',
+                                top: '17px',
+                                right: '6px'
+                              }}
+                            >
+                              <CheckCircleSharpIcon fontSize="small" sx={{ color: 'green ' }} />
+                            </Box>
+                          ) : null}
                         </TableCell>
 
                         <TableCell
                           align="right"
                           sx={{
-                            color: item.status === 'zwrot' ? 'red' : item.status === 'sprzedano' ? 'green' : 'inherit',
+                            color: returned ? 'red' : item.status === 'sprzedano' ? 'green' : 'inherit',
                             fontWeight: 'bold'
                           }}
                         >
@@ -186,18 +200,8 @@ const RozliczeniaKomis = () => {
                         <TableCell
                           align="right"
                           sx={{
-                            color: item.status === 'zwrot' ? 'red' : item.status === 'sprzedano' ? 'green' : 'inherit',
-                            fontWeight: 'bold'
-                          }}
-                        >
-                          {item.settled ? <CheckCircleSharpIcon fontSize="small" sx={{ color: 'green ' }} /> : null}
-                        </TableCell>
-
-                        <TableCell
-                          align="right"
-                          sx={{
-                            color: item.status === 'zwrot' ? 'red' : 'inherit',
-                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
+                            color: returned ? 'red' : 'inherit',
+                            fontWeight: returned ? 'bold' : 'inherit'
                           }}
                         >
                           <Box sx={removedCellStyles}>{item.clearingValueWojtek.toFixed(2)}zł</Box>

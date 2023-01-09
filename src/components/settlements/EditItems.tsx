@@ -37,7 +37,7 @@ export const EditItems = (props: EditItemProps) => {
 
   const settlementsCollectionRef = collection(db, 'settlements');
 
-  const handleDeleteItem = async () => {
+  const handleReturnSettlement = async () => {
     // const itemId = currentSelected?.id;
     // if (!itemId) {
     //   return;
@@ -76,7 +76,7 @@ export const EditItems = (props: EditItemProps) => {
         <Formik
           initialValues={{
             details: '',
-            settlementDate: new Date()
+            settlementDate: dayjs().format()
           }}
           validate={(values) => {
             const errors = {} as any;
@@ -94,7 +94,7 @@ export const EditItems = (props: EditItemProps) => {
               updateDoc(item, {
                 settled: true,
                 settlementDate: values.settlementDate,
-                status: 'rozliczono',
+                settlementStatus: 'rozliczono',
                 details: e.details ? e.details + ' - ' + values.details : values.details
               });
             });
@@ -115,7 +115,7 @@ export const EditItems = (props: EditItemProps) => {
               updateDoc(itemToUpdate, {
                 settled: true,
                 details: itemFound.details ? itemFound.details + ' - ' + values.details : values.details,
-                status: 'rozliczono'
+                settlementStatus: 'rozliczono'
               });
             });
 
