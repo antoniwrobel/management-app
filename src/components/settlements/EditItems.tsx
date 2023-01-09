@@ -4,24 +4,14 @@ import { collection, getDocs, updateDoc, doc, addDoc } from '@firebase/firestore
 import {
   Box,
   Button,
-  Checkbox,
-  FormControl,
-  FormControlLabel,
-  InputLabel,
-  MenuItem,
-  Select,
   Stack,
   TextField,
-  useMediaQuery,
   Typography
 } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { ItemType, SettlementItemType, ValveType } from '../../screens/types';
+import { ItemType, SettlementItemType } from '../../screens/types';
 import { db } from '../../config/firebase';
-import { handleSettlementInputs } from '../../screens/helpers';
-import { useState } from 'react';
-import { ConfirmationModal } from '../modal/ConfirmationModal';
 
 import dayjs from 'dayjs';
 
@@ -34,34 +24,6 @@ type EditItemProps = {
 
 export const EditItems = (props: EditItemProps) => {
   const { currentSelected, editModalOpen, getItems, setEditModalOpen } = props;
-
-  const settlementsCollectionRef = collection(db, 'settlements');
-
-  const handleReturnSettlement = async () => {
-    // const itemId = currentSelected?.id;
-    // if (!itemId) {
-    //   return;
-    // }
-    // const item = doc(db, 'items', itemId);
-    // const d = await getDocs(valveCollectionRef);
-    // const items = d.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as ValveType[];
-    // const elements = items.filter((item) => item.elementId === itemId);
-    // if (elements.length) {
-    //   const promises = elements.map((e) => {
-    //     const finded = doc(db, 'valve', e.id);
-    //     updateDoc(finded, {
-    //       removed: true
-    //     });
-    //   });
-    //   await Promise.all(promises);
-    // }
-    // updateDoc(item, {
-    //   removed: true
-    // });
-    // setDeleteConfirmationOpen(false);
-    // setEditModalOpen(false);
-    // getItems();
-  };
 
   if (!currentSelected) {
     return <></>;

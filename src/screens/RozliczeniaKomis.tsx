@@ -31,6 +31,7 @@ const RozliczeniaKomis = () => {
   const settlementsCollectionRef = collection(db, 'settlements');
 
   const editBlocked = !isAdminUser(user);
+  const [hideSettled, setHideSettled] = useState(false)
 
   const getItems = async () => {
     const data = await getDocs(settlementsCollectionRef);
@@ -43,6 +44,11 @@ const RozliczeniaKomis = () => {
   useEffect(() => {
     getItems();
   }, []);
+
+  const handleHideElements = (item: SettlementItemType) => {
+
+
+  }
 
   const handleSettlement = (item: SettlementItemType) => {
     setCurrentSelected([item]);
@@ -61,17 +67,28 @@ const RozliczeniaKomis = () => {
   };
 
   let summaryWojtek = 0;
-
+  const haveDeleted = items.filter(e => e.removed)
+  const haveSettled = items.filter(e => e.settled && e.status === "sprzedano" && e.settlementStatus === "rozliczono")
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        {items.length ? (
+        {haveDeleted.length ? (
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
             <Button variant="contained" onClick={() => setShowDeleted((prev) => !prev)}>
               {!showDeleted ? 'Pokaż usunięte' : 'Schowaj usunięte'}
             </Button>
           </Box>
         ) : null}
+
+
+        {!editBlocked && haveSettled.length ? (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
+            <Button variant="contained" onClick={() => setHideSettled(prev => !prev)}>
+              {hideSettled ? "Pokaż rozliczone" : "Schowaj rozliczone"}
+            </Button>
+          </Box>
+        ) : null}
+
 
         {!editBlocked ? (
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
@@ -128,6 +145,14 @@ const RozliczeniaKomis = () => {
                   // @ts-ignore
                   .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
                   .map((item) => {
+
+                    if (hideSettled) {
+                      if (item.settlementStatus === "rozliczono" && item.status === "sprzedano") {
+
+                        return
+                      }
+                    }
+
                     if (!showDeleted && item.removed) {
                       return;
                     }
@@ -136,7 +161,7 @@ const RozliczeniaKomis = () => {
                       summaryWojtek += item.clearingValueWojtek;
                     }
 
-                    if (!item.removed && item.settled) {
+                    if (!item.removed && item.status === "zwrot" && item.settled && item.settlementStatus === "rozliczono") {
                       summaryWojtek -= item.clearingValueWojtek;
                     }
 
@@ -148,8 +173,8 @@ const RozliczeniaKomis = () => {
                     const removedCellStyles =
                       returned && !item.settled
                         ? {
-                            textDecoration: 'line-through'
-                          }
+                          textDecoration: 'line-through'
+                        }
                         : {};
 
                     return (
@@ -204,7 +229,7 @@ const RozliczeniaKomis = () => {
                             fontWeight: returned ? 'bold' : 'inherit'
                           }}
                         >
-                          <Box sx={removedCellStyles}>{item.clearingValueWojtek.toFixed(2)}zł</Box>
+                          <Box sx={removedCellStyles}>{item.settled && item.status === "zwrot" && "-"}{item.clearingValueWojtek.toFixed(2)}zł</Box>
                         </TableCell>
 
                         <TableCell align="right">
@@ -225,7 +250,7 @@ const RozliczeniaKomis = () => {
                         </TableCell>
                         {!editBlocked ? (
                           <>
-                            {!item.removed ? (
+                            {!item.removed && item.settlementStatus !== "rozliczono" ? (
                               <TableCell align="right">
                                 <Button
                                   size="small"
@@ -239,11 +264,12 @@ const RozliczeniaKomis = () => {
                                   +
                                 </Button>
                               </TableCell>
-                            ) : (
-                              <TableCell align="right"></TableCell>
-                            )}
+                            )
+                              : <TableCell align="right"></TableCell>}
                           </>
-                        ) : null}
+                        ) : (
+                          <TableCell align="right"></TableCell>
+                        )}
                       </TableRow>
                     );
                   })}

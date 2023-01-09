@@ -102,6 +102,13 @@ export const handleSpendingInputs = (addOnly = false) => {
       fullWidth: true,
       addOnly
     },
+    // {
+    //   type: 'checkbox',
+    //   name: 'useValve',
+    //   label: 'użyj skarbonki',
+    //   fullWidth: true,
+    //   addOnly
+    // },
     {
       type: 'text',
       name: 'elementName',
@@ -115,7 +122,7 @@ export const handleSpendingInputs = (addOnly = false) => {
     },
     {
       type: 'select',
-      options: ['Stan', 'Wojtek', 'automat'],
+      options: ['Stan dla Wojtek', 'Wojtek dla Stan', "Stan / 2", "Wojtek / 2", 'automat'],
       name: 'addedBy',
       label: 'kto wydał'
     }

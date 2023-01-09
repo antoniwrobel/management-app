@@ -19,9 +19,9 @@ import { AddItem } from '../components/spendings/AddItem';
 import { isAdminUser } from './helpers';
 import dayjs from 'dayjs';
 
-interface Props {}
+interface Props { }
 
-const Spendings = ({}: Props) => {
+const Spendings = ({ }: Props) => {
   const [data, setData] = useState<SpendingType[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -123,21 +123,49 @@ const Spendings = ({}: Props) => {
                       return;
                     }
 
+
                     const removedCellStyles = d.removed
                       ? {
-                          textDecoration: 'line-through',
-                          fontWeight: 'bold',
-                          color: 'red'
-                        }
+                        textDecoration: 'line-through',
+                        fontWeight: 'bold',
+                        color: 'red'
+                      }
                       : {};
 
                     if (!d.removed) {
-                      if (d.addedBy === 'Wojtek') {
-                        totalWojtek += d.amount;
-                      } else if (d.addedBy === 'Stan') {
-                        totalStan += d.amount;
+                      if (d.addedBy === "Wojtek dla Stan") {
+                        //@ts-ignore
+                        totalWojtek += parseFloat(d.amount);
                       }
+
+                      if (d.addedBy === "Stan dla Wojtek") {
+                        //@ts-ignore
+                        totalStan += parseFloat(d.amount);
+                      }
+
+                      if (d.addedBy === 'Wojtek') {
+                        //@ts-ignore
+                        totalWojtek += parseFloat(d.amount);
+                      } else if (d.addedBy === 'Stan') {
+                        //@ts-ignore
+                        totalStan += parseFloat(d.amount);
+                      }
+
+                      if (d.addedBy === "Stan / 2") {
+                        //@ts-ignore
+                        totalStan += parseFloat(d.amount);
+                        //@ts-ignore
+                        totalWojtek += parseFloat(d.amount / 2);
+                      } else if (d.addedBy === "Wojtek / 2") {
+                        //@ts-ignore
+                        totalStan += parseFloat(d.amount / 2);
+                        //@ts-ignore
+                        totalWojtek += parseFloat(d.amount);
+
+                      }
+
                     }
+
 
                     return (
                       <TableRow key={d.id}>
@@ -145,7 +173,8 @@ const Spendings = ({}: Props) => {
                           {d.elementName}
                         </TableCell>
                         <TableCell component="th" scope="row" align="right" sx={removedCellStyles}>
-                          {d.amount.toFixed(2)}zł
+                          {/* @ts-ignore */}
+                          {parseFloat(d.amount).toFixed(2)}zł
                         </TableCell>
                         <TableCell component="th" scope="row" align="right">
                           {dayjs(d.createdAt).format('DD/MM/YYYY')}
@@ -159,7 +188,7 @@ const Spendings = ({}: Props) => {
                               Edytuj
                             </Button>
                           </TableCell>
-                        ) : null}
+                        ) : <TableCell />}
                       </TableRow>
                     );
                   })}
@@ -178,19 +207,7 @@ const Spendings = ({}: Props) => {
           flexDirection: 'column'
         }}
       >
-        <Box sx={{ fontWeight: 'bold' }}>Podsumowanie</Box>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-          Suma wydatków Stan:
-          <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
-            {totalStan.toFixed(2)}zł
-          </Box>
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-          Suma wydatków Wojtek:
-          <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
-            {totalWojtek.toFixed(2)}zł
-          </Box>
-        </Box>
+
 
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '40px' }}>
           {isStan
@@ -198,8 +215,8 @@ const Spendings = ({}: Props) => {
               ? 'do odebrania od Wojtka:'
               : 'do oddania Wojtkowi:'
             : totalWojtek - totalStan > 0
-            ? 'do odebrania od Staszka:'
-            : 'do oddania Staszkowi:'}
+              ? 'do odebrania od Staszka:'
+              : 'do oddania Staszkowi:'}
           <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
             {isStan ? Math.abs(totalStan - totalWojtek).toFixed(2) : Math.abs(totalWojtek - totalStan).toFixed(2)}zł
           </Box>

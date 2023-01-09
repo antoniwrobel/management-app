@@ -115,10 +115,10 @@ const MagazynKomis = () => {
         removed: !item.settled && true,
         ...(item.provision &&
           item.provision > 0 && {
-            details: currentSelected?.details
-              ? currentSelected.details + ` - zwrot - poniesione koszta ${item.provision!.toFixed(2)}zł`
-              : `zwrot - poniesione koszta: ${item.provision!.toFixed(2)}zł`
-          })
+          details: currentSelected?.details
+            ? currentSelected.details + ` - zwrot - poniesione koszta ${item.provision!.toFixed(2)}zł`
+            : `zwrot - poniesione koszta: ${item.provision!.toFixed(2)}zł`
+        })
       });
     }
 
@@ -171,17 +171,17 @@ const MagazynKomis = () => {
   const sortedItems =
     sortedBy === 'status'
       ? [...items]
-          //@ts-ignore
-          .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
-          .sort((a, b) => {
-            if (direction.status === 'asc') {
-              return a.status === b.status ? 0 : a.status === 'sprzedano' ? -1 : 1;
-            } else {
-              return a.status === b.status ? 0 : a.status === 'sprzedano' ? 1 : -1;
-            }
-          })
+        //@ts-ignore
+        .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
+        .sort((a, b) => {
+          if (direction.status === 'asc') {
+            return a.status === b.status ? 0 : a.status === 'sprzedano' ? -1 : 1;
+          } else {
+            return a.status === b.status ? 0 : a.status === 'sprzedano' ? 1 : -1;
+          }
+        })
       : sortedBy === 'createdDate'
-      ? [...items]
+        ? [...items]
           //@ts-ignore
           .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
           .sort((a, b) => {
@@ -193,10 +193,10 @@ const MagazynKomis = () => {
               return new Date(a.createDate) - new Date(b.createDate);
             }
           })
-      : [...items]
+        : [...items]
           //@ts-ignore
           .sort((a, b) => new Date(b.createDate) - new Date(a.createDate));
-
+  const haveRemoved = items.filter(e => e.removed)
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -208,7 +208,7 @@ const MagazynKomis = () => {
           </Box>
         )}
 
-        {items.length ? (
+        {haveRemoved.length ? (
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
             <Button variant="contained" onClick={() => setShowDeleted((prev) => !prev)}>
               {!showDeleted ? 'Pokaż usunięte' : 'Schowaj usunięte'}
@@ -354,9 +354,13 @@ const MagazynKomis = () => {
                   const removedCellStyles =
                     item.status === 'zwrot'
                       ? {
-                          textDecoration: 'line-through'
-                        }
+                        textDecoration: 'line-through'
+                      }
                       : {};
+
+                  if (item.productName === "TEST") {
+                    console.log(item)
+                  }
 
                   return (
                     <TableRow key={item.id} sx={{ backgroundColor: `${item.color}26` }}>

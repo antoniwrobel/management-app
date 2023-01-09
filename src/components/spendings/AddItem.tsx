@@ -58,6 +58,7 @@ export const AddItem = (props: AddItemProps) => {
   const initialValues = {
     elementName: '',
     payProvision: false,
+    useValve: false,
     payProvisionId: '',
     valveId: '',
     amount: '',
@@ -72,6 +73,11 @@ export const AddItem = (props: AddItemProps) => {
   const optionsValve = itemsV
     .filter((item) => !item.removed)
     .map((item) => ({ name: item.elementName, value: item.id, amount: item.amount }));
+
+  const valveSummary = itemsV
+    .filter((item) => !item.removed)
+    .reduce((acc, curr) => curr.amount + acc, 0).toFixed(2)
+
 
   return (
     <AddItemModal open={modalOpen}>
@@ -146,10 +152,24 @@ export const AddItem = (props: AddItemProps) => {
                       return;
                     }
 
+
+                    if (values.payProvision && input.name === "useValve") {
+                      return
+                    }
+
+
+                    if (values.useValve && input.name === "payProvision") {
+                      return
+                    }
+
+                    if (values.useValve && input.name === "addedBy") {
+                      return
+                    }
+
                     return (
                       <Box
                         sx={{
-                          gridColumn: matches ? 'span 4' : input.fullWidth ? 'span 4' : 'span 2'
+                          gridColumn: matches ? 'span 4' : input.fullWidth ? 'span 4' : 'span 4'
                         }}
                         key={index}
                       >
@@ -166,14 +186,16 @@ export const AddItem = (props: AddItemProps) => {
                                   name={input.name}
                                   onChange={(v) => {
                                     const value = v.target.checked;
+
                                     if (!value) {
                                       setFieldValue('payProvisionSelect', null);
+
                                     }
                                     setFieldValue(input.name, value);
                                   }}
                                 />
                               }
-                              label={input.label}
+                              label={input.name === "useValve" ? `${input.label} - posiadasz ${valveSummary}zł` : input.label}
                             />
 
                             {values.payProvision && options.length ? (
@@ -210,41 +232,6 @@ export const AddItem = (props: AddItemProps) => {
                                 ) : null}
                               </FormControl>
                             ) : null}
-                            {/* {values.payProvision && values.payProvisionId && (
-                              <FormControl fullWidth sx={{ mt: '20px' }}>
-                                <InputLabel
-                                  sx={{ width: 'auto', background: '#fff' }}
-                                  id="demo-simple-select-label"
-                                  //@ts-ignore
-                                  error={touched.valveId && Boolean(errors.valveId)}
-                                >
-                                  wybierz pozycję ze skarbonki
-                                </InputLabel>
-                                <Select
-                                  labelId="demo-simple-select-label"
-                                  id="demo-simple-select"
-                                  value={values.valveId}
-                                  //@ts-ignore
-                                  error={touched.valveId && Boolean(errors.valveId)}
-                                  label={input.label}
-                                  onChange={(d) => {
-                                    setFieldValue('valveId', d.target.value);
-                                  }}
-                                >
-                                  {optionsValve?.map((option, index) => {
-                                    return (
-                                      <MenuItem key={`${option.name}-${index}`} value={option.value}>
-                                        {option.name} - {option.amount}zł
-                                      </MenuItem>
-                                    );
-                                  })}
-                                </Select>
-
-                                {touched.valveId && Boolean(errors.valveId) ? (
-                                  <FormHelperText sx={{ color: 'red' }}>{errors.valveId}</FormHelperText>
-                                ) : null}
-                              </FormControl>
-                            )} */}
                           </>
                         ) : input.type === 'select' && !values.payProvision ? (
                           <FormControl fullWidth>

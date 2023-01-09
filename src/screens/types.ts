@@ -56,4 +56,5 @@ export type SettlementItemType = {
   removed: boolean;
   settlementDate: string;
   settled: boolean;
+  settlementStatus: string
 };
