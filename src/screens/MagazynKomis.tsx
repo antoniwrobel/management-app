@@ -358,10 +358,6 @@ const MagazynKomis = () => {
                       }
                       : {};
 
-                  if (item.productName === "TEST") {
-                    console.log(item)
-                  }
-
                   return (
                     <TableRow key={item.id} sx={{ backgroundColor: `${item.color}26` }}>
                       <TableCell
