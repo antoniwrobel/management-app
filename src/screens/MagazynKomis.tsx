@@ -443,7 +443,8 @@ const MagazynKomis = () => {
                         align="right"
                         sx={{
                           color: item.status === 'zwrot' ? 'red' : 'inherit',
-                          fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
+                          fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
+                          ...removedCellStyles
                         }}
                       >
                         {item.sendCost ? `${item.sendCost}zł` : '-'}{' '}
