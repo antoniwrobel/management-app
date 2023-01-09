@@ -21,7 +21,7 @@ import { EditItem } from '../components/inventory/EditItem';
 import { AddToValveModal } from '../components/inventory/AddToValveModal';
 import { ConfirmationModal } from '../components/modal/ConfirmationModal';
 import { isAdminUser } from './helpers';
-import { styled, Tooltip, tooltipClasses, TooltipProps } from '@mui/material';
+import { styled, TextField, Tooltip, tooltipClasses, TooltipProps } from '@mui/material';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
@@ -33,6 +33,8 @@ const MagazynKomis = () => {
   const [valveModalOpen, setValveModalOpen] = useState(false);
 
   const [returnConfirmationOpen, setReturnConfirmationOpen] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("")
+
 
   const [currentSelected, setCurrentSelected] = useState<ItemType>();
   const [items, setItems] = useState<ItemType[]>([]);
@@ -200,6 +202,19 @@ const MagazynKomis = () => {
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+        {!editBlocked &&
+
+          < TextField
+            sx={{ mt: '20px', mr: '16px' }}
+            type="text"
+            label="wyszukaj nazwy"
+            variant="outlined"
+            onChange={(e) => setSearchTerm(e.target.value)}
+            //@ts-ignore
+            value={searchTerm}
+
+          />
+        }
         {!editBlocked && (
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
             <Button variant="contained" onClick={() => setModalOpen(true)}>
