@@ -12,10 +12,12 @@ import Paper from '@mui/material/Paper';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
+import { EditItems } from '../components/settlements/EditItems';
 import { auth, db } from '../config/firebase';
 import { SettlementItemType } from './types';
 import { collection, getDocs } from '@firebase/firestore';
 import { isAdminUser } from './helpers';
+import CheckCircleSharpIcon from '@mui/icons-material/CheckCircleSharp';
 
 import dayjs from 'dayjs';
 
@@ -23,7 +25,7 @@ const RozliczeniaKomis = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [user] = useState(auth.currentUser);
 
-  const [currentSelected, setCurrentSelected] = useState<SettlementItemType>();
+  const [currentSelected, setCurrentSelected] = useState<SettlementItemType[]>([]);
   const [items, setItems] = useState<SettlementItemType[]>([]);
   const [showDeleted, setShowDeleted] = useState(false);
   const settlementsCollectionRef = collection(db, 'settlements');
@@ -35,6 +37,7 @@ const RozliczeniaKomis = () => {
     const items = data.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as SettlementItemType[];
 
     setItems(items);
+    setCurrentSelected([]);
   };
 
   useEffect(() => {
@@ -42,21 +45,49 @@ const RozliczeniaKomis = () => {
   }, []);
 
   const handleSettlement = (item: SettlementItemType) => {
-    setCurrentSelected(item);
+    setCurrentSelected([item]);
     setModalOpen(true);
+  };
+
+  const handleMulitSettlement = (item: SettlementItemType) => {
+    const itemAdded = currentSelected.find((currentSelected) => currentSelected.id === item.id);
+
+    if (itemAdded) {
+      const updatedCurrentSelected = currentSelected.filter((e) => e.id !== item.id);
+      setCurrentSelected(updatedCurrentSelected);
+    } else {
+      setCurrentSelected((prev) => [...prev, item]);
+    }
   };
 
   let summaryWojtek = 0;
 
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
-      {items.length ? (
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
-          <Button variant="contained" onClick={() => setShowDeleted((prev) => !prev)}>
-            {!showDeleted ? 'Pokaż usunięte' : 'Schowaj usunięte'}
-          </Button>
-        </Box>
-      ) : null}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+        {items.length ? (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
+            <Button variant="contained" onClick={() => setShowDeleted((prev) => !prev)}>
+              {!showDeleted ? 'Pokaż usunięte' : 'Schowaj usunięte'}
+            </Button>
+          </Box>
+        ) : null}
+
+        {!editBlocked ? (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
+            <Button variant="contained" onClick={() => setModalOpen(true)} disabled={!currentSelected.length}>
+              Rozlicz
+            </Button>
+          </Box>
+        ) : null}
+      </Box>
+
+      <EditItems
+        currentSelected={currentSelected}
+        editModalOpen={modalOpen}
+        getItems={getItems}
+        setEditModalOpen={setModalOpen}
+      />
 
       <Center>
         {items.length ? (
@@ -75,11 +106,16 @@ const RozliczeniaKomis = () => {
                   <TableCell align="center" sx={{ fontWeight: 'bold' }}>
                     Status
                   </TableCell>
+
+                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                    Rozliczone
+                  </TableCell>
+
                   <TableCell align="center" sx={{ fontWeight: 'bold' }}>
                     Kwota do rozliczenia
                   </TableCell>
                   <TableCell align="center" sx={{ fontWeight: 'bold' }}>
-                    Data stworzenia
+                    Data rozliczenia
                   </TableCell>
                   <TableCell align="center" sx={{ fontWeight: 'bold' }}>
                     Uwagi
@@ -104,6 +140,9 @@ const RozliczeniaKomis = () => {
                       summaryWojtek += item.clearingValueWojtek;
                     }
 
+                    const itemSelectedFound = currentSelected.find((e) => e.id === item.id);
+                    const isSelected = Boolean(itemSelectedFound);
+
                     const removedCellStyles =
                       item.status === 'zwrot'
                         ? {
@@ -112,7 +151,12 @@ const RozliczeniaKomis = () => {
                         : {};
 
                     return (
-                      <TableRow key={item.id}>
+                      <TableRow
+                        key={item.id}
+                        sx={{
+                          background: isSelected ? '#0000ff2e' : '#fff'
+                        }}
+                      >
                         <TableCell
                           component="th"
                           scope="row"
@@ -142,6 +186,16 @@ const RozliczeniaKomis = () => {
                         <TableCell
                           align="right"
                           sx={{
+                            color: item.status === 'zwrot' ? 'red' : item.status === 'sprzedano' ? 'green' : 'inherit',
+                            fontWeight: 'bold'
+                          }}
+                        >
+                          {item.settled ? <CheckCircleSharpIcon fontSize="small" sx={{ color: 'green ' }} /> : null}
+                        </TableCell>
+
+                        <TableCell
+                          align="right"
+                          sx={{
                             color: item.status === 'zwrot' ? 'red' : 'inherit',
                             fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
                           }}
@@ -149,7 +203,9 @@ const RozliczeniaKomis = () => {
                           <Box sx={removedCellStyles}>{item.clearingValueWojtek.toFixed(2)}zł</Box>
                         </TableCell>
 
-                        <TableCell align="right">{dayjs(item.createDate).format('DD/MM/YYYY')}</TableCell>
+                        <TableCell align="right">
+                          {item.settlementDate ? dayjs(item.settlementDate).format('DD/MM/YYYY') : '-'}{' '}
+                        </TableCell>
 
                         <TableCell
                           align="right"
@@ -171,11 +227,12 @@ const RozliczeniaKomis = () => {
                                   size="small"
                                   variant="contained"
                                   type="submit"
+                                  disabled={item.settled}
                                   color={'primary'}
-                                  onClick={() => handleSettlement(item)}
+                                  onClick={() => handleMulitSettlement(item)}
                                   sx={{ ml: '20px' }}
                                 >
-                                  Rozlicz
+                                  +
                                 </Button>
                               </TableCell>
                             ) : (

@@ -19,6 +19,7 @@ export type ItemType = {
   clearingValueStan: number;
   provision: number | null;
   provisionPayed: boolean;
+  settled: boolean;
 };
 
 export type ValveType = {
@@ -52,4 +53,6 @@ export type SettlementItemType = {
   details: string;
   elementId: string;
   removed: boolean;
+  settlementDate: string;
+  settled: boolean;
 };

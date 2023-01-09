@@ -129,3 +129,7 @@ export const isAdminUser = (user: User | null) => {
 
   return adminUserEmails.includes(userEmail);
 };
+
+export const handleSettlementInputs = () => {
+  return [];
+};
