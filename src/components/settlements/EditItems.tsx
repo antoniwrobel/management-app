@@ -94,6 +94,7 @@ export const EditItems = (props: EditItemProps) => {
               updateDoc(item, {
                 settled: true,
                 settlementDate: values.settlementDate,
+                status: 'rozliczono',
                 details: e.details ? e.details + ' - ' + values.details : values.details
               });
             });
@@ -113,7 +114,8 @@ export const EditItems = (props: EditItemProps) => {
 
               updateDoc(itemToUpdate, {
                 settled: true,
-                details: itemFound.details ? itemFound.details + ' - ' + values.details : values.details
+                details: itemFound.details ? itemFound.details + ' - ' + values.details : values.details,
+                status: 'rozliczono'
               });
             });
 

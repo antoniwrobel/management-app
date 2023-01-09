@@ -70,7 +70,7 @@ export const EditItem = (props: EditItemProps) => {
     getItems();
   };
 
-  const buttonDisabled = currentSelected?.status === 'sprzedano';
+  const buttonDisabled = currentSelected?.status === 'sprzedano' || currentSelected?.status === 'rozliczono';
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const magazynInputs = handleInputs();
 
@@ -197,7 +197,7 @@ export const EditItem = (props: EditItemProps) => {
                       const fullWidth = index >= 1 && magazynInputs[index - 1].addOnly ? true : input.fullWidth;
 
                       const editEnabledOptions = currentSelected.status === 'zwrot' ? ['status'] : [''];
-                      const statusBlock = ['sprzedano', 'zwrot'];
+                      const statusBlock = ['sprzedano', 'zwrot', 'rozliczono'];
                       const editDisabled =
                         statusBlock.includes(currentSelected.status) && !editEnabledOptions.includes(input.name);
 
@@ -252,7 +252,11 @@ export const EditItem = (props: EditItemProps) => {
                               >
                                 {input.options?.map((option) => {
                                   return (
-                                    <MenuItem key={option} value={option} disabled={option === 'zwrot'}>
+                                    <MenuItem
+                                      key={option}
+                                      value={option}
+                                      disabled={option === 'zwrot' || option === 'rozliczono'}
+                                    >
                                       {option}
                                     </MenuItem>
                                   );

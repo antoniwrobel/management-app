@@ -45,7 +45,7 @@ export const handleInputs = (addForm = false) => {
     },
     {
       type: 'select',
-      options: ['utworzono', 'sprzedano', 'zwrot'],
+      options: ['utworzono', 'sprzedano', 'zwrot', 'rozliczono'],
       name: 'status',
       label: 'status',
       fullWidth: true,
