@@ -391,7 +391,6 @@ const MagazynKomis = () => {
           <TableContainer component={Paper} sx={{ mt: '20px', overflowX: 'initial' }}>
             <Table
               sx={{
-                minWidth: 1550,
                 '& .MuiTableCell-root': {
                   borderLeft: '1px solid rgba(224, 224, 224, 1)'
                 }
@@ -505,12 +504,7 @@ const MagazynKomis = () => {
                     </TableCell>
                   )}
                   {columnsVisible.includes(11) && !editBlocked ? (
-                    <TableCell
-                      align="right"
-                      sx={{
-                        minWidth: '300px'
-                      }}
-                    >
+                    <TableCell align="right" sx={{ minWidth: '300px' }}>
                       Akcja
                     </TableCell>
                   ) : null}
@@ -553,14 +547,7 @@ const MagazynKomis = () => {
                             arrow
                             sx={{ fontSize: '18px' }}
                           >
-                            <Box
-                              sx={{
-                                maxWidth: '250px',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap'
-                              }}
-                            >
+                            <Box sx={{ whiteSpace: 'nowrap' }}>
                               {item.url ? (
                                 <a href={item.url} target="_blank" rel="noreferrer">
                                   {item.productName}
@@ -784,9 +771,7 @@ const MagazynKomis = () => {
       >
         <Box sx={{ fontWeight: 'bold', display: 'flex', justifyContent: 'space-between' }}>
           Podsumowanie
-          <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
-            {summaryStan.toFixed(2)}zł
-          </Box>
+          <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>{summaryStan.toFixed(2)}zł</Box>
         </Box>
       </Box>
     </Container>
