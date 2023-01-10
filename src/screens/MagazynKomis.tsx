@@ -504,7 +504,7 @@ const MagazynKomis = () => {
                     </TableCell>
                   )}
                   {columnsVisible.includes(11) && !editBlocked ? (
-                    <TableCell align="right" sx={{ minWidth: '300px' }}>
+                    <TableCell align="right" sx={{ minWidth: '250px' }}>
                       Akcja
                     </TableCell>
                   ) : null}
@@ -704,7 +704,7 @@ const MagazynKomis = () => {
                       )}
                       {columnsVisible.includes(11) && !editBlocked ? (
                         <>
-                          <TableCell align="right">
+                          <TableCell align="right" sx={{ padding: '15px 10px 15px 0' }}>
                             {item.status === 'sprzedano' ? (
                               <>
                                 <>
