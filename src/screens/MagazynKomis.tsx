@@ -237,6 +237,8 @@ const MagazynKomis = () => {
     return debounce(setSearchTerm, 500);
   }, []);
 
+  const [columnsVisible, setColumnsVisible] = useState([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -302,82 +304,105 @@ const MagazynKomis = () => {
                 }}
               >
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Nazwa produktu</TableCell>
-                  <TableCell
-                    align="center"
-                    sx={{
-                      whiteSpace: 'nowrap',
-                      fontWeight: 'bold',
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => {
-                      setSortedBy('status');
-                      setDireciton((prev) =>
-                        prev.status === 'asc' ? { ...prev, status: 'desc' } : { ...prev, status: 'asc' }
-                      );
-                    }}
-                  >
-                    Status <br />
-                    zamówienia
-                    {sortedBy === 'status' ? (
-                      <Box sx={{ position: 'absolute', top: 0, right: 0 }}>
-                        {direction.status === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
-                      </Box>
-                    ) : null}
-                  </TableCell>
-                  <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
-                    Kwota <br />
-                    zakupu
-                  </TableCell>
-                  <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
-                    Kwota <br />
-                    sprzedazy
-                  </TableCell>
-                  <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
-                    Koszt <br />
-                    wysyłki
-                  </TableCell>
-                  <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
-                    Zapłacono <br />
-                    łącznie
-                  </TableCell>
-                  <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
-                    Prowizja <br /> od sprzedaży
-                  </TableCell>
-                  <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
-                    Saldo <br />
-                    Stan
-                  </TableCell>
-                  <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
-                    Saldo <br />
-                    Wojtek
-                  </TableCell>
-                  <TableCell
-                    align="center"
-                    sx={{
-                      whiteSpace: 'nowrap',
-                      fontWeight: 'bold',
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => {
-                      setSortedBy('createdDate');
-                      setDireciton((prev) =>
-                        prev.createdDate === 'asc' ? { ...prev, createdDate: 'desc' } : { ...prev, createdDate: 'asc' }
-                      );
-                    }}
-                  >
-                    Data <br />
-                    stworzenia
-                    {sortedBy === 'createdDate' ? (
-                      <Box sx={{ position: 'absolute', top: 0, right: 0 }}>
-                        {direction.createdDate === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
-                      </Box>
-                    ) : null}
-                  </TableCell>
-                  <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
-                    Uwagi
-                  </TableCell>
-                  {!editBlocked ? (
+                  {columnsVisible.includes(0) && <TableCell sx={{ fontWeight: 'bold' }}>Nazwa produktu</TableCell>}
+                  {columnsVisible.includes(1) && (
+                    <TableCell
+                      align="center"
+                      sx={{
+                        whiteSpace: 'nowrap',
+                        fontWeight: 'bold',
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => {
+                        setSortedBy('status');
+                        setDireciton((prev) =>
+                          prev.status === 'asc' ? { ...prev, status: 'desc' } : { ...prev, status: 'asc' }
+                        );
+                      }}
+                    >
+                      Status <br />
+                      zamówienia
+                      {sortedBy === 'status' ? (
+                        <Box sx={{ position: 'absolute', top: 0, right: 0 }}>
+                          {direction.status === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+                        </Box>
+                      ) : null}
+                    </TableCell>
+                  )}
+
+                  {columnsVisible.includes(2) && (
+                    <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
+                      Kwota <br />
+                      zakupu
+                    </TableCell>
+                  )}
+                  {columnsVisible.includes(3) && (
+                    <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
+                      Kwota <br />
+                      sprzedazy
+                    </TableCell>
+                  )}
+                  {columnsVisible.includes(4) && (
+                    <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
+                      Koszt <br />
+                      wysyłki
+                    </TableCell>
+                  )}
+                  {columnsVisible.includes(5) && (
+                    <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
+                      Zapłacono <br />
+                      łącznie
+                    </TableCell>
+                  )}
+                  {columnsVisible.includes(6) && (
+                    <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
+                      Prowizja <br /> od sprzedaży
+                    </TableCell>
+                  )}
+                  {columnsVisible.includes(7) && (
+                    <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
+                      Saldo <br />
+                      Stan
+                    </TableCell>
+                  )}
+                  {columnsVisible.includes(8) && (
+                    <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
+                      Saldo <br />
+                      Wojtek
+                    </TableCell>
+                  )}
+                  {columnsVisible.includes(9) && (
+                    <TableCell
+                      align="center"
+                      sx={{
+                        whiteSpace: 'nowrap',
+                        fontWeight: 'bold',
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => {
+                        setSortedBy('createdDate');
+                        setDireciton((prev) =>
+                          prev.createdDate === 'asc'
+                            ? { ...prev, createdDate: 'desc' }
+                            : { ...prev, createdDate: 'asc' }
+                        );
+                      }}
+                    >
+                      Data <br />
+                      stworzenia
+                      {sortedBy === 'createdDate' ? (
+                        <Box sx={{ position: 'absolute', top: 0, right: 0 }}>
+                          {direction.createdDate === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+                        </Box>
+                      ) : null}
+                    </TableCell>
+                  )}
+                  {columnsVisible.includes(10) && (
+                    <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
+                      Uwagi
+                    </TableCell>
+                  )}
+                  {columnsVisible.includes(11) && !editBlocked ? (
                     <TableCell
                       align="right"
                       sx={{
@@ -409,169 +434,186 @@ const MagazynKomis = () => {
 
                   return (
                     <TableRow key={item.id} sx={{ backgroundColor: `${item.color}26` }}>
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        sx={{
-                          color: item.status === 'zwrot' ? 'red' : 'inherit',
-                          fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
-                          position: 'relative',
-                          ...removedCellStyles
-                        }}
-                      >
-                        <BootstrapTooltip
-                          title={item.productName}
-                          placement="bottom-start"
-                          arrow
-                          sx={{ fontSize: '18px' }}
+                      {columnsVisible.includes(0) && (
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
+                            position: 'relative',
+                            ...removedCellStyles
+                          }}
                         >
-                          <Box
-                            sx={{
-                              maxWidth: '250px',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap'
-                            }}
+                          <BootstrapTooltip
+                            title={item.productName}
+                            placement="bottom-start"
+                            arrow
+                            sx={{ fontSize: '18px' }}
                           >
-                            {item.url ? (
-                              <a href={item.url} target="_blank" rel="noreferrer">
-                                {item.productName}
-                              </a>
-                            ) : (
-                              item.productName
-                            )}
+                            <Box
+                              sx={{
+                                maxWidth: '250px',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                              }}
+                            >
+                              {item.url ? (
+                                <a href={item.url} target="_blank" rel="noreferrer">
+                                  {item.productName}
+                                </a>
+                              ) : (
+                                item.productName
+                              )}
 
-                            {item.settled && item.status !== 'zwrot' ? (
-                              <Box
-                                sx={{
-                                  position: 'absolute',
-                                  top: '17px',
-                                  right: '6px'
-                                }}
-                              >
-                                <CheckCircleSharpIcon fontSize="small" sx={{ color: 'green ' }} />
-                              </Box>
+                              {item.settled && item.status !== 'zwrot' ? (
+                                <Box
+                                  sx={{
+                                    position: 'absolute',
+                                    top: '17px',
+                                    right: '6px'
+                                  }}
+                                >
+                                  <CheckCircleSharpIcon fontSize="small" sx={{ color: 'green ' }} />
+                                </Box>
+                              ) : null}
+                            </Box>
+                          </BootstrapTooltip>
+                        </TableCell>
+                      )}
+
+                      {columnsVisible.includes(1) && (
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : item.status === 'sprzedano' ? 'green' : 'inherit',
+                            fontWeight: 'bold'
+                          }}
+                        >
+                          {item.status}
+                        </TableCell>
+                      )}
+
+                      {columnsVisible.includes(2) && (
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
+                            ...removedCellStyles
+                          }}
+                        >
+                          {item.purchaseAmount}zł
+                        </TableCell>
+                      )}
+
+                      {columnsVisible.includes(3) && (
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
+                            ...removedCellStyles
+                          }}
+                        >
+                          {item.saleAmount ? `${item.saleAmount}zł` : '-'}{' '}
+                        </TableCell>
+                      )}
+
+                      {columnsVisible.includes(4) && (
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
+                            ...removedCellStyles
+                          }}
+                        >
+                          {item.sendCost ? `${item.sendCost}zł` : '-'}{' '}
+                        </TableCell>
+                      )}
+
+                      {columnsVisible.includes(5) && (
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
+                          }}
+                        >
+                          {item.status === 'sprzedano' ? item.sendCost + item.saleAmount + 'zł' : '-'}
+                        </TableCell>
+                      )}
+                      {columnsVisible.includes(6) && (
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
+                          }}
+                        >
+                          <Box sx={{ display: 'flex', justifyContent: item.provisionPayed ? 'space-around' : 'right' }}>
+                            {item.provision ? item.provision.toFixed(2) + 'zł' : '-'}
+                            {item.provisionPayed ? (
+                              <CheckCircleSharpIcon fontSize="small" sx={{ color: 'green ' }} />
                             ) : null}
                           </Box>
-                        </BootstrapTooltip>
-                      </TableCell>
-
-                      <TableCell
-                        align="right"
-                        sx={{
-                          color: item.status === 'zwrot' ? 'red' : item.status === 'sprzedano' ? 'green' : 'inherit',
-                          fontWeight: 'bold'
-                        }}
-                      >
-                        {item.status}
-                      </TableCell>
-
-                      <TableCell
-                        align="right"
-                        sx={{
-                          color: item.status === 'zwrot' ? 'red' : 'inherit',
-                          fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
-                          ...removedCellStyles
-                        }}
-                      >
-                        {item.purchaseAmount}zł
-                      </TableCell>
-
-                      <TableCell
-                        align="right"
-                        sx={{
-                          color: item.status === 'zwrot' ? 'red' : 'inherit',
-                          fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
-                          ...removedCellStyles
-                        }}
-                      >
-                        {item.saleAmount ? `${item.saleAmount}zł` : '-'}{' '}
-                      </TableCell>
-
-                      <TableCell
-                        align="right"
-                        sx={{
-                          color: item.status === 'zwrot' ? 'red' : 'inherit',
-                          fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
-                          ...removedCellStyles
-                        }}
-                      >
-                        {item.sendCost ? `${item.sendCost}zł` : '-'}{' '}
-                      </TableCell>
-
-                      <TableCell
-                        align="right"
-                        sx={{
-                          color: item.status === 'zwrot' ? 'red' : 'inherit',
-                          fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
-                        }}
-                      >
-                        {item.status === 'sprzedano' ? item.sendCost + item.saleAmount + 'zł' : '-'}
-                      </TableCell>
-
-                      <TableCell
-                        align="right"
-                        sx={{
-                          color: item.status === 'zwrot' ? 'red' : 'inherit',
-                          fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
-                        }}
-                      >
-                        <Box sx={{ display: 'flex', justifyContent: item.provisionPayed ? 'space-around' : 'right' }}>
-                          {item.provision ? item.provision.toFixed(2) + 'zł' : '-'}
-                          {item.provisionPayed ? (
-                            <CheckCircleSharpIcon fontSize="small" sx={{ color: 'green ' }} />
-                          ) : null}
-                        </Box>
-                      </TableCell>
-
-                      <TableCell
-                        align="right"
-                        sx={{
-                          color: item.status === 'zwrot' ? 'red' : 'inherit',
-                          fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
-                          ...removedCellStyles
-                        }}
-                      >
-                        {item.clearingValueStan ? `${item.clearingValueStan.toFixed(2)}zł` : '-'}
-                      </TableCell>
-
-                      <TableCell
-                        align="right"
-                        sx={{
-                          color: item.status === 'zwrot' ? 'red' : 'inherit',
-                          fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
-                          ...removedCellStyles
-                        }}
-                      >
-                        {item.clearingValueWojtek ? `${item.clearingValueWojtek.toFixed(2)}zł` : '-'}
-                      </TableCell>
-
-                      <TableCell
-                        align="right"
-                        sx={{
-                          color: item.status === 'zwrot' ? 'red' : 'inherit',
-                          fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
-                          ...removedCellStyles
-                        }}
-                      >
-                        {dayjs(item.createDate).format('DD/MM/YYYY')}
-                      </TableCell>
-
-                      <TableCell
-                        align="right"
-                        sx={{
-                          color: item.status === 'zwrot' ? 'red' : 'inherit',
-                          fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
-                          maxWidth: '200px',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          textAlign: 'left'
-                        }}
-                      >
-                        {item.details}
-                      </TableCell>
-                      {!editBlocked ? (
+                        </TableCell>
+                      )}
+                      {columnsVisible.includes(7) && (
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
+                            ...removedCellStyles
+                          }}
+                        >
+                          {item.clearingValueStan ? `${item.clearingValueStan.toFixed(2)}zł` : '-'}
+                        </TableCell>
+                      )}
+                      {columnsVisible.includes(8) && (
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
+                            ...removedCellStyles
+                          }}
+                        >
+                          {item.clearingValueWojtek ? `${item.clearingValueWojtek.toFixed(2)}zł` : '-'}
+                        </TableCell>
+                      )}
+                      {columnsVisible.includes(9) && (
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
+                            ...removedCellStyles
+                          }}
+                        >
+                          {dayjs(item.createDate).format('DD/MM/YYYY')}
+                        </TableCell>
+                      )}
+                      {columnsVisible.includes(10) && (
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
+                            maxWidth: '200px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            textAlign: 'left'
+                          }}
+                        >
+                          {item.details}
+                        </TableCell>
+                      )}
+                      {columnsVisible.includes(11) && !editBlocked ? (
                         <>
                           <TableCell align="right">
                             {item.status === 'sprzedano' ? (
