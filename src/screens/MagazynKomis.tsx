@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
@@ -12,6 +12,7 @@ import Paper from '@mui/material/Paper';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import CheckCircleSharpIcon from '@mui/icons-material/CheckCircleSharp';
+import DeleteSharpIcon from '@mui/icons-material/DeleteSharp';
 
 import { auth, db } from '../config/firebase';
 import { ItemType, SettlementItemType, SpendingType, ValveType } from './types';
@@ -21,9 +22,12 @@ import { EditItem } from '../components/inventory/EditItem';
 import { AddToValveModal } from '../components/inventory/AddToValveModal';
 import { ConfirmationModal } from '../components/modal/ConfirmationModal';
 import { isAdminUser } from './helpers';
-import { styled, TextField, Tooltip, tooltipClasses, TooltipProps } from '@mui/material';
+import { IconButton, styled, TextField, Tooltip, tooltipClasses, TooltipProps } from '@mui/material';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+
+import cloneDeep from 'lodash.clonedeep';
+import debounce from 'lodash.debounce';
 
 import dayjs from 'dayjs';
 
@@ -33,11 +37,12 @@ const MagazynKomis = () => {
   const [valveModalOpen, setValveModalOpen] = useState(false);
 
   const [returnConfirmationOpen, setReturnConfirmationOpen] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState("")
-
+  const [searchTerm, setSearchTerm] = useState('');
 
   const [currentSelected, setCurrentSelected] = useState<ItemType>();
   const [items, setItems] = useState<ItemType[]>([]);
+  const [itemsAll, setItemsAll] = useState<ItemType[]>([]);
+
   const [user] = useState(auth.currentUser);
 
   const itemsCollectionRef = collection(db, 'items');
@@ -49,6 +54,7 @@ const MagazynKomis = () => {
   const [direction, setDireciton] = useState<{
     [key: string]: string;
   }>({});
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const editBlocked = !isAdminUser(user);
 
@@ -56,12 +62,67 @@ const MagazynKomis = () => {
     const data = await getDocs(itemsCollectionRef);
     const items = data.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as ItemType[];
 
-    setItems(items);
+    const deafultSortedItems = handleItemsOrder(items);
+
+    setItems(deafultSortedItems);
+    setItemsAll(deafultSortedItems);
   };
 
   useEffect(() => {
     getItems();
   }, []);
+
+  const handleItemsOrder = (items: ItemType[]) => {
+    const itemsToUpdate = cloneDeep(items);
+    const deafultSortedItems =
+      sortedBy === 'status'
+        ? itemsToUpdate
+            //@ts-ignore
+            .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
+            .sort((a, b) => {
+              if (direction.status === 'asc') {
+                return a.status === b.status ? 0 : a.status === 'sprzedano' ? -1 : 1;
+              } else {
+                return a.status === b.status ? 0 : a.status === 'sprzedano' ? 1 : -1;
+              }
+            })
+        : sortedBy === 'createdDate'
+        ? itemsToUpdate
+            //@ts-ignore
+            .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
+            .sort((a, b) => {
+              if (direction.createdDate === 'asc') {
+                //@ts-ignore
+                return new Date(b.createDate) - new Date(a.createDate);
+              } else {
+                //@ts-ignore
+                return new Date(a.createDate) - new Date(b.createDate);
+              }
+            })
+        : itemsToUpdate
+            //@ts-ignore
+            .sort((a, b) => new Date(b.createDate) - new Date(a.createDate));
+
+    return deafultSortedItems;
+  };
+
+  useEffect(() => {
+    const deafultSortedItems = handleItemsOrder(items);
+    setItems(deafultSortedItems);
+  }, [direction, sortedBy]);
+
+  useEffect(() => {
+    const b = cloneDeep(itemsAll);
+    const u = b.filter((e) => e.productName.toLowerCase().includes(searchTerm));
+
+    setItems(u);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    return () => {
+      debouncedResults.cancel();
+    };
+  });
 
   const editRow = (itemId: string) => {
     const selectedItem = items.find((item) => item.id === itemId);
@@ -117,10 +178,10 @@ const MagazynKomis = () => {
         removed: !item.settled && true,
         ...(item.provision &&
           item.provision > 0 && {
-          details: currentSelected?.details
-            ? currentSelected.details + ` - zwrot - poniesione koszta ${item.provision!.toFixed(2)}zł`
-            : `zwrot - poniesione koszta: ${item.provision!.toFixed(2)}zł`
-        })
+            details: currentSelected?.details
+              ? currentSelected.details + ` - zwrot - poniesione koszta ${item.provision!.toFixed(2)}zł`
+              : `zwrot - poniesione koszta: ${item.provision!.toFixed(2)}zł`
+          })
       });
     }
 
@@ -170,51 +231,24 @@ const MagazynKomis = () => {
 
   let summaryStan = 0;
 
-  const sortedItems =
-    sortedBy === 'status'
-      ? [...items]
-        //@ts-ignore
-        .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
-        .sort((a, b) => {
-          if (direction.status === 'asc') {
-            return a.status === b.status ? 0 : a.status === 'sprzedano' ? -1 : 1;
-          } else {
-            return a.status === b.status ? 0 : a.status === 'sprzedano' ? 1 : -1;
-          }
-        })
-      : sortedBy === 'createdDate'
-        ? [...items]
-          //@ts-ignore
-          .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
-          .sort((a, b) => {
-            if (direction.createdDate === 'asc') {
-              //@ts-ignore
-              return new Date(b.createDate) - new Date(a.createDate);
-            } else {
-              //@ts-ignore
-              return new Date(a.createDate) - new Date(b.createDate);
-            }
-          })
-        : [...items]
-          //@ts-ignore
-          .sort((a, b) => new Date(b.createDate) - new Date(a.createDate));
-  const haveRemoved = items.filter(e => e.removed)
+  const haveRemoved = items.filter((e) => e.removed);
+
+  const debouncedResults = useMemo(() => {
+    return debounce(setSearchTerm, 500);
+  }, []);
+
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        {!editBlocked &&
-
-          < TextField
+        {!editBlocked && (
+          <TextField
             sx={{ mt: '20px', mr: '16px' }}
             type="text"
-            label="wyszukaj nazwy"
+            label="wyszukaj po nazwie"
             variant="outlined"
-            onChange={(e) => setSearchTerm(e.target.value)}
-            //@ts-ignore
-            value={searchTerm}
-
+            onChange={(e) => debouncedResults(e.target.value)}
           />
-        }
+        )}
         {!editBlocked && (
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
             <Button variant="contained" onClick={() => setModalOpen(true)}>
@@ -359,7 +393,7 @@ const MagazynKomis = () => {
                 <TableRow sx={{ height: '70px' }}>
                   <TableCell />
                 </TableRow>
-                {[...sortedItems].map((item) => {
+                {items.map((item) => {
                   if (!showDeleted && item.removed) {
                     return;
                   }
@@ -369,8 +403,8 @@ const MagazynKomis = () => {
                   const removedCellStyles =
                     item.status === 'zwrot'
                       ? {
-                        textDecoration: 'line-through'
-                      }
+                          textDecoration: 'line-through'
+                        }
                       : {};
 
                   return (
