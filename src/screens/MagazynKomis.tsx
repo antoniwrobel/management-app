@@ -113,7 +113,7 @@ const MagazynKomis = () => {
 
   useEffect(() => {
     const b = cloneDeep(itemsAll);
-    const u = b.filter((e) => e.productName.toLowerCase().includes(searchTerm));
+    const u = b.filter((e) => e.productName.toLowerCase().includes(searchTerm.trim()));
 
     setItems(u);
   }, [searchTerm]);
