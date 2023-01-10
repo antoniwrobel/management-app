@@ -320,31 +320,55 @@ const MagazynKomis = () => {
 
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        {!editBlocked && (
-          <TextField
-            sx={{ mt: '20px', mr: '16px' }}
-            type="text"
-            label="wyszukaj po nazwie"
-            variant="outlined"
-            onChange={(e) => debouncedResults(e.target.value)}
-          />
-        )}
-        {!editBlocked && (
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
-            <Button variant="contained" onClick={() => setModalOpen(true)}>
-              Dodaj
-            </Button>
-          </Box>
-        )}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div>
+          <FormControl sx={{ m: 1, width: 500, mt: '20px', mr: '16px' }}>
+            <InputLabel id="demo-multiple-checkbox-label">Pokaż kolumny</InputLabel>
+            <Select
+              labelId="demo-multiple-checkbox-label"
+              id="demo-multiple-checkbox"
+              multiple
+              value={personName}
+              onChange={handleChange}
+              input={<OutlinedInput label="Pokaż kolumny" />}
+              renderValue={(selected) => selected.join(', ')}
+              MenuProps={MenuProps}
+            >
+              {names.map((name) => (
+                <MenuItem key={name} value={name}>
+                  <Checkbox checked={personName.indexOf(name) > -1} />
+                  <ListItemText primary={name} />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          {!editBlocked && (
+            <TextField
+              sx={{ mt: '20px', mr: '16px' }}
+              type="text"
+              label="wyszukaj po nazwie"
+              variant="outlined"
+              onChange={(e) => debouncedResults(e.target.value)}
+            />
+          )}
+          {!editBlocked && (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px', height: '55px' }}>
+              <Button variant="contained" onClick={() => setModalOpen(true)}>
+                Dodaj
+              </Button>
+            </Box>
+          )}
 
-        {haveRemoved.length ? (
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
-            <Button variant="contained" onClick={() => setShowDeleted((prev) => !prev)}>
-              {!showDeleted ? 'Pokaż usunięte' : 'Schowaj usunięte'}
-            </Button>
-          </Box>
-        ) : null}
+          {haveRemoved.length ? (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px', height: '55px' }}>
+              <Button variant="contained" onClick={() => setShowDeleted((prev) => !prev)}>
+                {!showDeleted ? 'Pokaż usunięte' : 'Schowaj usunięte'}
+              </Button>
+            </Box>
+          ) : null}
+        </Box>
       </Box>
 
       <AddItem modalOpen={modalOpen} setModalOpen={setModalOpen} getItems={getItems} />
@@ -362,29 +386,6 @@ const MagazynKomis = () => {
         setValveModalOpen={setValveModalOpen}
         valveModalOpen={valveModalOpen}
       />
-
-      <div>
-        <FormControl sx={{ m: 1, width: 500 }}>
-          <InputLabel id="demo-multiple-checkbox-label">Pokaż kolumny</InputLabel>
-          <Select
-            labelId="demo-multiple-checkbox-label"
-            id="demo-multiple-checkbox"
-            multiple
-            value={personName}
-            onChange={handleChange}
-            input={<OutlinedInput label="Pokaż kolumny" />}
-            renderValue={(selected) => selected.join(', ')}
-            MenuProps={MenuProps}
-          >
-            {names.map((name) => (
-              <MenuItem key={name} value={name}>
-                <Checkbox checked={personName.indexOf(name) > -1} />
-                <ListItemText primary={name} />
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </div>
 
       <Center>
         {haveItems ? (
