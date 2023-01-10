@@ -13,6 +13,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import CheckCircleSharpIcon from '@mui/icons-material/CheckCircleSharp';
 
+import DeleteOutlineSharpIcon from '@mui/icons-material/DeleteOutlineSharp';
 import { auth, db } from '../config/firebase';
 import { ItemType, SettlementItemType, SpendingType, ValveType } from './types';
 import { collection, getDocs, addDoc, updateDoc, doc } from '@firebase/firestore';
@@ -244,7 +245,8 @@ const MagazynKomis = () => {
     return debounce(setSearchTerm, 500);
   }, []);
 
-  const [columnsVisible, setColumnsVisible] = useState([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+  const defCols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+  const [columnsVisible, setColumnsVisible] = useState(defCols);
 
   const names = [
     'Nazwa produktu',
@@ -261,7 +263,7 @@ const MagazynKomis = () => {
     'Akcje'
   ];
 
-  const [personName, setPersonName] = useState<string[]>([
+  const defff = [
     'Nazwa produktu',
     'Status zamówienia',
     'Kwota zakupu',
@@ -274,7 +276,8 @@ const MagazynKomis = () => {
     'Data stworzenia',
     'Uwagi',
     'Akcje'
-  ]);
+  ];
+  const [personName, setPersonName] = useState<string[]>(defff);
 
   const handleChange = (event: SelectChangeEvent<typeof personName>) => {
     const {
@@ -306,22 +309,15 @@ const MagazynKomis = () => {
   const MenuProps = {
     PaperProps: {
       style: {
-        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP
+        maxHeight: '550px'
       }
     }
   };
 
-  function getStyles(name: string, personName: readonly string[], theme: Theme) {
-    return {
-      fontWeight:
-        personName.indexOf(name) === -1 ? theme.typography.fontWeightRegular : theme.typography.fontWeightMedium
-    };
-  }
-
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-        <div>
+        <Box display="flex">
           <FormControl sx={{ m: 1, width: 500, mt: '20px', mr: '16px' }}>
             <InputLabel id="demo-multiple-checkbox-label">Pokaż kolumny</InputLabel>
             <Select
@@ -342,7 +338,19 @@ const MagazynKomis = () => {
               ))}
             </Select>
           </FormControl>
-        </div>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px', height: '55px' }}>
+            <Button
+              variant="contained"
+              disabled={columnsVisible.length === defCols.length}
+              onClick={() => {
+                setColumnsVisible(defCols);
+                setPersonName(defff);
+              }}
+            >
+              <DeleteOutlineSharpIcon />
+            </Button>
+          </Box>
+        </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           {!editBlocked && (
             <TextField
