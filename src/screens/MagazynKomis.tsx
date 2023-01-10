@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
@@ -119,8 +119,7 @@ const MagazynKomis = () => {
     const deafultSortedItems =
       sortedBy === 'status'
         ? itemsToUpdate
-            //@ts-ignore
-            .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
+            .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime())
             .sort((a, b) => {
               if (direction.status === 'asc') {
                 return a.status === b.status ? 0 : a.status === 'sprzedano' ? -1 : 1;
@@ -130,20 +129,15 @@ const MagazynKomis = () => {
             })
         : sortedBy === 'createdDate'
         ? itemsToUpdate
-            //@ts-ignore
-            .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
+            .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime())
             .sort((a, b) => {
               if (direction.createdDate === 'asc') {
-                //@ts-ignore
-                return new Date(b.createDate) - new Date(a.createDate);
+                return new Date(b.createDate).getTime() - new Date(a.createDate).getTime();
               } else {
-                //@ts-ignore
-                return new Date(a.createDate) - new Date(b.createDate);
+                return new Date(a.createDate).getTime() - new Date(b.createDate).getTime();
               }
             })
-        : itemsToUpdate
-            //@ts-ignore
-            .sort((a, b) => new Date(b.createDate) - new Date(a.createDate));
+        : itemsToUpdate.sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());
 
     return deafultSortedItems;
   };
