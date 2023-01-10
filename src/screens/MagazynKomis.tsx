@@ -21,7 +21,7 @@ import { AddItem } from '../components/inventory/AddItem';
 import { EditItem } from '../components/inventory/EditItem';
 import { AddToValveModal } from '../components/inventory/AddToValveModal';
 import { ConfirmationModal } from '../components/modal/ConfirmationModal';
-import { isAdminUser } from './helpers';
+import { isAdminUser, useLocalStorage } from './helpers';
 import { styled, TextField, Theme, Tooltip, tooltipClasses, TooltipProps } from '@mui/material';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -57,12 +57,46 @@ const MagazynKomis = () => {
   const spendingsCollectionRef = collection(db, 'spendings');
   const valveCollectionRef = collection(db, 'valve');
   const settlementsCollectionRef = collection(db, 'settlements');
+
   const [showDeleted, setShowDeleted] = useState(false);
   const [sortedBy, setSortedBy] = useState('');
   const [direction, setDireciton] = useState<{
     [key: string]: string;
   }>({});
-  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const defCols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+  const names = [
+    'Nazwa produktu',
+    'Status zamówienia',
+    'Kwota zakupu',
+    'Kwota sprzedaży',
+    'Koszt wysyłki',
+    'Zapłacono łącznie',
+    'Prowizja od sprzedaży',
+    'Saldo Stan',
+    'Saldo Wojtek',
+    'Data stworzenia',
+    'Uwagi',
+    'Akcje'
+  ];
+
+  const defff = [
+    'Nazwa produktu',
+    'Status zamówienia',
+    'Kwota zakupu',
+    'Kwota sprzedaży',
+    'Koszt wysyłki',
+    'Zapłacono łącznie',
+    'Prowizja od sprzedaży',
+    'Saldo Stan',
+    'Saldo Wojtek',
+    'Data stworzenia',
+    'Uwagi',
+    'Akcje'
+  ];
+
+  const [columnsVisible, setColumnsVisible] = useLocalStorage('columnsVisible', defCols);
+  const [personName, setPersonName] = useLocalStorage<string[]>('personName', defff);
 
   const editBlocked = !isAdminUser(user);
 
@@ -245,40 +279,6 @@ const MagazynKomis = () => {
     return debounce(setSearchTerm, 500);
   }, []);
 
-  const defCols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-  const [columnsVisible, setColumnsVisible] = useState(defCols);
-
-  const names = [
-    'Nazwa produktu',
-    'Status zamówienia',
-    'Kwota zakupu',
-    'Kwota sprzedaży',
-    'Koszt wysyłki',
-    'Zapłacono łącznie',
-    'Prowizja od sprzedaży',
-    'Saldo Stan',
-    'Saldo Wojtek',
-    'Data stworzenia',
-    'Uwagi',
-    'Akcje'
-  ];
-
-  const defff = [
-    'Nazwa produktu',
-    'Status zamówienia',
-    'Kwota zakupu',
-    'Kwota sprzedaży',
-    'Koszt wysyłki',
-    'Zapłacono łącznie',
-    'Prowizja od sprzedaży',
-    'Saldo Stan',
-    'Saldo Wojtek',
-    'Data stworzenia',
-    'Uwagi',
-    'Akcje'
-  ];
-  const [personName, setPersonName] = useState<string[]>(defff);
-
   const handleChange = (event: SelectChangeEvent<typeof personName>) => {
     const {
       target: { value }
@@ -304,8 +304,6 @@ const MagazynKomis = () => {
     }
   }, [personName]);
 
-  const ITEM_HEIGHT = 48;
-  const ITEM_PADDING_TOP = 8;
   const MenuProps = {
     PaperProps: {
       style: {
