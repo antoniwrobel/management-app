@@ -12,7 +12,6 @@ import Paper from '@mui/material/Paper';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import CheckCircleSharpIcon from '@mui/icons-material/CheckCircleSharp';
-import DeleteSharpIcon from '@mui/icons-material/DeleteSharp';
 
 import { auth, db } from '../config/firebase';
 import { ItemType, SettlementItemType, SpendingType, ValveType } from './types';
@@ -22,12 +21,20 @@ import { EditItem } from '../components/inventory/EditItem';
 import { AddToValveModal } from '../components/inventory/AddToValveModal';
 import { ConfirmationModal } from '../components/modal/ConfirmationModal';
 import { isAdminUser } from './helpers';
-import { IconButton, styled, TextField, Tooltip, tooltipClasses, TooltipProps } from '@mui/material';
+import { styled, TextField, Theme, Tooltip, tooltipClasses, TooltipProps } from '@mui/material';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 import cloneDeep from 'lodash.clonedeep';
 import debounce from 'lodash.debounce';
+
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import ListItemText from '@mui/material/ListItemText';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Checkbox from '@mui/material/Checkbox';
 
 import dayjs from 'dayjs';
 
@@ -239,6 +246,78 @@ const MagazynKomis = () => {
 
   const [columnsVisible, setColumnsVisible] = useState([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
 
+  const names = [
+    'Nazwa produktu',
+    'Status zamówienia',
+    'Kwota zakupu',
+    'Kwota sprzedaży',
+    'Koszt wysyłki',
+    'Zapłacono łącznie',
+    'Prowizja od sprzedaży',
+    'Saldo Stan',
+    'Saldo Wojtek',
+    'Data stworzenia',
+    'Uwagi',
+    'Akcje'
+  ];
+
+  const [personName, setPersonName] = useState<string[]>([
+    'Nazwa produktu',
+    'Status zamówienia',
+    'Kwota zakupu',
+    'Kwota sprzedaży',
+    'Koszt wysyłki',
+    'Zapłacono łącznie',
+    'Prowizja od sprzedaży',
+    'Saldo Stan',
+    'Saldo Wojtek',
+    'Data stworzenia',
+    'Uwagi',
+    'Akcje'
+  ]);
+
+  const handleChange = (event: SelectChangeEvent<typeof personName>) => {
+    const {
+      target: { value }
+    } = event;
+    setPersonName(
+      // On autofill we get a stringified value.
+      typeof value === 'string' ? value.split(',') : value
+    );
+  };
+
+  useEffect(() => {
+    const currentIds = names
+      .map((tabName, id) => {
+        if (personName.includes(tabName)) {
+          return id;
+        }
+      })
+      .filter((x) => x !== undefined);
+
+    if (currentIds) {
+      //@ts-ignore
+      setColumnsVisible(currentIds);
+    }
+  }, [personName]);
+
+  const ITEM_HEIGHT = 48;
+  const ITEM_PADDING_TOP = 8;
+  const MenuProps = {
+    PaperProps: {
+      style: {
+        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP
+      }
+    }
+  };
+
+  function getStyles(name: string, personName: readonly string[], theme: Theme) {
+    return {
+      fontWeight:
+        personName.indexOf(name) === -1 ? theme.typography.fontWeightRegular : theme.typography.fontWeightMedium
+    };
+  }
+
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -283,6 +362,29 @@ const MagazynKomis = () => {
         setValveModalOpen={setValveModalOpen}
         valveModalOpen={valveModalOpen}
       />
+
+      <div>
+        <FormControl sx={{ m: 1, width: 500 }}>
+          <InputLabel id="demo-multiple-checkbox-label">Pokaż kolumny</InputLabel>
+          <Select
+            labelId="demo-multiple-checkbox-label"
+            id="demo-multiple-checkbox"
+            multiple
+            value={personName}
+            onChange={handleChange}
+            input={<OutlinedInput label="Pokaż kolumny" />}
+            renderValue={(selected) => selected.join(', ')}
+            MenuProps={MenuProps}
+          >
+            {names.map((name) => (
+              <MenuItem key={name} value={name}>
+                <Checkbox checked={personName.indexOf(name) > -1} />
+                <ListItemText primary={name} />
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </div>
 
       <Center>
         {haveItems ? (
