@@ -344,15 +344,14 @@ const MagazynKomis = () => {
           </Box>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          {!editBlocked && (
-            <TextField
-              sx={{ mt: '20px', mr: '16px' }}
-              type="text"
-              label="wyszukaj po nazwie"
-              variant="outlined"
-              onChange={(e) => debouncedResults(e.target.value)}
-            />
-          )}
+          <TextField
+            sx={{ mt: '20px', mr: '16px' }}
+            type="text"
+            label="wyszukaj po nazwie"
+            variant="outlined"
+            onChange={(e) => debouncedResults(e.target.value)}
+          />
+
           {!editBlocked && (
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px', height: '55px' }}>
               <Button variant="contained" onClick={() => setModalOpen(true)}>
