@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, createRef, RefObject } from 'react';
 
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
@@ -22,7 +22,7 @@ import { EditItem } from '../components/inventory/EditItem';
 import { AddToValveModal } from '../components/inventory/AddToValveModal';
 import { ConfirmationModal } from '../components/modal/ConfirmationModal';
 import { isAdminUser, useLocalStorage } from './helpers';
-import { styled, TextField, Theme, Tooltip, tooltipClasses, TooltipProps } from '@mui/material';
+import { styled, TextField, Tooltip, tooltipClasses, TooltipProps } from '@mui/material';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
@@ -37,7 +37,18 @@ import ListItemText from '@mui/material/ListItemText';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
 
+import * as htmlToImage from 'html-to-image';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+import { getStorage, ref, uploadBytes } from 'firebase/storage';
+import AddAPhotoSharpIcon from '@mui/icons-material/AddAPhotoSharp';
+
 import dayjs from 'dayjs';
+import 'dayjs/locale/pl';
+import Typography from '@mui/material/Typography';
+
+dayjs.locale('pl');
 
 const MagazynKomis = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -306,9 +317,47 @@ const MagazynKomis = () => {
     }
   };
 
+  const date = dayjs().format('DD-MM-YY');
+  const h = dayjs().get('hour');
+  const m = dayjs().get('minutes');
+
+  const [screenshotDisabled, setScreenshotDisabled] = useState(false);
+
+  const storage = getStorage();
+  const tableRef = createRef<HTMLElement | null>();
+  const screenShotName = `screenshot_${date}_${h}:${m}`;
+  const tableImageRef = ref(storage, `screenshots/${screenShotName}`);
+
+  const takeScreenShot = async (node: HTMLElement) => {
+    const blob = await htmlToImage.toBlob(node);
+
+    if (!blob) {
+      setScreenshotDisabled(false);
+      toast.error('Coś poszło nie tak!');
+      return;
+    }
+
+    const metadata = {
+      contentType: 'image/jpeg',
+      fileName: screenShotName
+    };
+
+    try {
+      await uploadBytes(tableImageRef, blob, {
+        contentType: 'image/jpeg',
+        customMetadata: { filename: screenShotName }
+      });
+      toast.success('Screenshot został zapisany!');
+    } catch (error) {
+      toast.error('Coś poszło nie tak!');
+    } finally {
+      setScreenshotDisabled(false);
+    }
+  };
+
   return (
-    <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+    <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%', position: 'relative' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
         <Box display="flex">
           <FormControl sx={{ m: 1, width: 500, mt: '20px', mr: '16px' }}>
             <InputLabel id="demo-multiple-checkbox-label">Pokaż kolumny</InputLabel>
@@ -330,6 +379,20 @@ const MagazynKomis = () => {
               ))}
             </Select>
           </FormControl>
+
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="colored"
+          />
+
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px', height: '55px' }}>
             <Button
               variant="contained"
@@ -343,7 +406,39 @@ const MagazynKomis = () => {
             </Button>
           </Box>
         </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+
+        {!editBlocked ? (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              mt: '20px',
+              mr: '16px',
+              height: '55px',
+              cursor: 'pointer'
+            }}
+          >
+            <Button
+              variant="contained"
+              disabled={screenshotDisabled}
+              onClick={() => {
+                if (screenshotDisabled) {
+                  return;
+                }
+                if (tableRef && tableRef.current) {
+                  setScreenshotDisabled(true);
+                  takeScreenShot(tableRef.current);
+                }
+              }}
+            >
+              <AddAPhotoSharpIcon />
+            </Button>
+          </Box>
+        ) : (
+          <Box></Box>
+        )}
+        <div></div>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', ml: 'auto' }}>
           <TextField
             sx={{ mt: '20px', mr: '16px' }}
             type="text"
@@ -388,7 +483,31 @@ const MagazynKomis = () => {
 
       <Center>
         {haveItems ? (
-          <TableContainer component={Paper} sx={{ mt: '20px', overflowX: 'initial' }}>
+          <TableContainer
+            component={Paper}
+            sx={{ mt: '20px', overflowX: 'initial', position: 'relative', mb: '20px' }}
+            //@ts-ignore
+            ref={tableRef}
+          >
+            <Box
+              sx={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                top: '20px'
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  textAlign: 'center',
+                  visibility: screenshotDisabled ? 'visible' : 'hidden'
+                }}
+              >
+                data i czas zrobienia screenshota: {date} {h}:{m}
+              </Typography>
+            </Box>
             <Table
               sx={{
                 '& .MuiTableCell-root': {
@@ -756,6 +875,7 @@ const MagazynKomis = () => {
                 })}
               </TableBody>
             </Table>
+            <Box sx={{ height: '50px' }} />
           </TableContainer>
         ) : (
           <Box sx={{ my: '20px' }}>Brak danych</Box>

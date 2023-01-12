@@ -4,5 +4,5 @@ export const firebaseConfig = {
   projectId: process.env.REACT_APP_FirebaseProjectId,
   storageBucket: process.env.REACT_APP_FirebaseStorageBucket,
   messagingSenderId: process.env.REACT_APP_FirebaseMessagingSenderId,
-  appId: process.env.REACT_APP_FirebaseAppId,
+  appId: process.env.REACT_APP_FirebaseAppId
 };

@@ -3,6 +3,7 @@ import MagazynWrapper from '../screens/MagazynWrapper';
 import RozliczeniaWrapper from '../screens/RozliczeniaWrapper';
 import Spendings from '../screens/Wydatki';
 import Skarbonka from '../screens/Skarbonka';
+import Screenshots from '../screens/Screenshots';
 interface RouteType {
   path: string;
   component: any;
@@ -39,6 +40,12 @@ const routes: RouteType[] = [
     path: '/wydatki',
     component: () => Spendings,
     name: 'Wydatki',
+    isProtected: true
+  },
+  {
+    path: '/screenshots',
+    component: () => Screenshots,
+    name: 'Screenshots',
     isProtected: true
   }
 ];
