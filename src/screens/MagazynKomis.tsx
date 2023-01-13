@@ -45,10 +45,7 @@ import { getStorage, ref, uploadBytes } from 'firebase/storage';
 import AddAPhotoSharpIcon from '@mui/icons-material/AddAPhotoSharp';
 
 import dayjs from 'dayjs';
-import 'dayjs/locale/pl';
 import Typography from '@mui/material/Typography';
-
-dayjs.locale('pl');
 
 const MagazynKomis = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -317,16 +314,13 @@ const MagazynKomis = () => {
     }
   };
 
-  const date = dayjs().format('DD-MM-YY');
-  const h = dayjs().get('hour');
-  const m = dayjs().get('minutes');
-
+  const dateTimeValue = dayjs().format('DD-MM-YYYY-HH:mm');
   const [screenshotDisabled, setScreenshotDisabled] = useState(false);
-
   const storage = getStorage();
   const tableRef = createRef<HTMLElement | null>();
-  const screenShotName = `screenshot_${date}_${h}:${m}`;
-  const tableImageRef = ref(storage, `screenshots/${screenShotName}`);
+  const screenShotName = `magazyn_${dateTimeValue}`;
+
+  const tableImageRef = ref(storage, `screenshots/magazyn/${screenShotName}`);
 
   const takeScreenShot = async (node: HTMLElement) => {
     const blob = await htmlToImage.toBlob(node);
@@ -336,11 +330,6 @@ const MagazynKomis = () => {
       toast.error('Coś poszło nie tak!');
       return;
     }
-
-    const metadata = {
-      contentType: 'image/jpeg',
-      fileName: screenShotName
-    };
 
     try {
       await uploadBytes(tableImageRef, blob, {
@@ -425,6 +414,7 @@ const MagazynKomis = () => {
                 if (screenshotDisabled) {
                   return;
                 }
+
                 if (tableRef && tableRef.current) {
                   setScreenshotDisabled(true);
                   takeScreenShot(tableRef.current);
@@ -437,7 +427,7 @@ const MagazynKomis = () => {
         ) : (
           <Box></Box>
         )}
-        <div></div>
+
         <Box sx={{ display: 'flex', justifyContent: 'space-between', ml: 'auto' }}>
           <TextField
             sx={{ mt: '20px', mr: '16px' }}
@@ -505,7 +495,7 @@ const MagazynKomis = () => {
                   visibility: screenshotDisabled ? 'visible' : 'hidden'
                 }}
               >
-                data i czas zrobienia screenshota: {date} {h}:{m}
+                data i czas zrobienia screenshota: {dateTimeValue}
               </Typography>
             </Box>
             <Table

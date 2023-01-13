@@ -7,58 +7,107 @@ import { Box } from '@mui/material';
 
 import { getStorage, ref, listAll, getDownloadURL } from 'firebase/storage';
 
+import PQueue from 'p-queue';
+
 const Screenshots = () => {
   const storage = getStorage();
-  const screenshotsRef = ref(storage, 'screenshots');
+  const screenshotsRef1 = ref(storage, 'screenshots/magazyn');
+  const screenshotsRef2 = ref(storage, 'screenshots/rozliczenia');
+  const screenshotsRef3 = ref(storage, 'screenshots/skarbonka');
+  const screenshotsRef4 = ref(storage, 'screenshots/wydatki');
 
-  const [items, setItems] = useState([]) as any;
+  const [items, setItems] = useState({ magazyn: [], rozliczenia: [], skarbonka: [], wydatki: [] }) as any;
+  const [loading, setLoading] = useState(false);
 
-  const getData = async () => {
-    const d = [] as any;
+  const queue = new PQueue({ concurrency: 1 });
 
-    const response = await listAll(screenshotsRef);
+  const getData = () => {
+    setLoading(true);
 
-    response.items.forEach((item) => {
-      const url = getDownloadURL(item);
-      d.push(url);
+    const promiseArray = [
+      () => listAll(screenshotsRef1),
+      () => listAll(screenshotsRef2),
+      () => listAll(screenshotsRef3),
+      () => listAll(screenshotsRef4)
+    ];
+
+    const response = queue.addAll(promiseArray);
+    const temp = {} as any;
+
+    response.then(async (res) => {
+      const items = {
+        magazyn: [],
+        rozliczenia: [],
+        skarbonka: [],
+        wydatki: []
+      } as any;
+
+      const r = await Promise.all(
+        res.map((folder, index) => {
+          const variant = index === 0 ? 'magazyn' : index === 1 ? 'rozliczenia' : index === 2 ? 'skarbonka' : 'wydatki';
+
+          const links = folder.items.map((item) => {
+            const url = getDownloadURL(item);
+            return url;
+          });
+
+          return {
+            [variant]: Promise.all(links)
+          };
+        })
+      );
+
+      console.log(r);
     });
 
-    const temp = await Promise.all(d);
-    setItems(() => temp.reverse());
+    // console.log({ data });
   };
 
   useEffect(() => {
     getData();
   }, []);
 
+  if (loading) {
+    return <div>loading...</div>;
+  }
+
   return (
     <Container sx={{ p: '0px !important', m: '24px', maxWidth: '100% !important', width: 'auto' }}>
       <Center>
-        {items.length ? (
-          <Box sx={{ width: '100%' }}>
-            {items.map((details: any) => {
-              return (
-                <Box key={details}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      width: '100%',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      background: '#dedede',
-                      p: '20px 20px 40px 20px',
-                      boxSizing: 'border-box'
-                    }}
-                  >
-                    <img src={details} alt="screen" />
-                  </Box>
-                </Box>
-              );
-            })}
-          </Box>
-        ) : (
-          <Box sx={{ my: '40px' }}>Brak danych</Box>
-        )}
+        {!loading &&
+          Object.keys(items).map((tabKey) => {
+            const item = items[tabKey];
+
+            return item.length ? (
+              <Box sx={{ width: '100%' }} key={tabKey}>
+                {item.map((url: any, id: any) => {
+                  if (typeof url !== 'string') {
+                    return;
+                  }
+
+                  return (
+                    <Box key={tabKey + id}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          width: '100%',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: '#dedede',
+                          p: '20px 20px 40px 20px',
+                          boxSizing: 'border-box'
+                        }}
+                      ></Box>
+                    </Box>
+                  );
+                })}
+              </Box>
+            ) : (
+              <Box sx={{ my: '40px' }} key={tabKey}>
+                Brak danych
+              </Box>
+            );
+          })}
       </Center>
     </Container>
   );

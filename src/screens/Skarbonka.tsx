@@ -9,12 +9,19 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Container from '@mui/material/Container';
 
-import { db } from '../config/firebase';
-import { useEffect, useState } from 'react';
+import { auth, db } from '../config/firebase';
+import { createRef, useEffect, useState } from 'react';
 import { collection, getDocs, doc, getDoc } from '@firebase/firestore';
 import { Box, Button } from '@mui/material';
 import { ItemType, ValveType } from './types';
 import dayjs from 'dayjs';
+import { getStorage, ref, uploadBytes } from 'firebase/storage';
+import * as htmlToImage from 'html-to-image';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Typography } from '@mui/material';
+import { isAdminUser } from './helpers';
+import AddAPhotoSharpIcon from '@mui/icons-material/AddAPhotoSharp';
 
 const Skarbonka = () => {
   const [data, setData] = useState<ValveType[]>([]);
@@ -39,122 +46,226 @@ const Skarbonka = () => {
   }, [details]);
 
   let total = 0;
+  const [user] = useState(auth.currentUser);
+  const editBlocked = !isAdminUser(user);
+
+  const dateTimeValue = dayjs().format('DD-MM-YYYY-HH:mm');
+  const [screenshotDisabled, setScreenshotDisabled] = useState(false);
+  const storage = getStorage();
+  const tableRef = createRef<HTMLElement | null>();
+  const screenShotName = `skarbonka_${dateTimeValue}`;
+  const tableImageRef = ref(storage, `screenshots/skarbonka/${screenShotName}`);
+
+  const takeScreenShot = async (node: HTMLElement) => {
+    const blob = await htmlToImage.toBlob(node);
+
+    if (!blob) {
+      setScreenshotDisabled(false);
+      toast.error('Coś poszło nie tak!');
+      return;
+    }
+
+    try {
+      await uploadBytes(tableImageRef, blob, {
+        contentType: 'image/jpeg',
+        customMetadata: { filename: screenShotName }
+      });
+      toast.success('Screenshot został zapisany!');
+    } catch (error) {
+      toast.error('Coś poszło nie tak!');
+    } finally {
+      setScreenshotDisabled(false);
+    }
+  };
 
   return (
     <Container sx={{ p: '0px !important', m: '24px', maxWidth: '100% !important', width: 'auto' }}>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+
       {data.length ? (
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
-          <Button variant="contained" onClick={() => setShowDeleted((prev) => !prev)}>
+          {!editBlocked ? (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                mt: '20px',
+                mr: 'auto',
+                ml: '10px',
+                height: '55px',
+                cursor: 'pointer'
+              }}
+            >
+              <Button
+                variant="contained"
+                disabled={screenshotDisabled}
+                onClick={() => {
+                  if (screenshotDisabled) {
+                    return;
+                  }
+
+                  if (tableRef && tableRef.current) {
+                    setScreenshotDisabled(true);
+                    takeScreenShot(tableRef.current);
+                  }
+                }}
+              >
+                <AddAPhotoSharpIcon />
+              </Button>
+            </Box>
+          ) : (
+            <Box></Box>
+          )}
+          <Button variant="contained" sx={{ height: '50px' }} onClick={() => setShowDeleted((prev) => !prev)}>
             {!showDeleted ? 'Pokaż usunięte' : 'Schowaj usunięte'}
           </Button>
         </Box>
       ) : null}
 
       <Center>
-        {data.length ? (
-          <TableContainer component={Paper} sx={{ mt: '20px' }}>
-            <Table
-              sx={{
-                minWidth: 1550,
-                '& .MuiTableCell-root': {
-                  borderLeft: '1px solid rgba(224, 224, 224, 1)'
-                }
-              }}
-            >
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Nazwa potrącenia</TableCell>
+        <div
+          style={{ width: '100%' }}
+          //@ts-ignore
+          ref={tableRef}
+        >
+          {data.length ? (
+            <TableContainer component={Paper} sx={{ mt: '90px', overflowX: 'initial', position: 'relative' }}>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  left: 0,
+                  right: 0,
+                  top: '-50px'
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                    visibility: screenshotDisabled ? 'visible' : 'hidden'
+                  }}
+                >
+                  data i czas zrobienia screenshota: {dateTimeValue}
+                </Typography>
+              </Box>
+              <Table
+                sx={{
+                  minWidth: 1550,
+                  '& .MuiTableCell-root': {
+                    borderLeft: '1px solid rgba(224, 224, 224, 1)'
+                  }
+                }}
+              >
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Nazwa potrącenia</TableCell>
 
-                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>
-                    Kwota
-                  </TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                      Kwota
+                    </TableCell>
 
-                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                    Data dodania
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {data // @ts-ignore
-                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                  .map((d) => {
-                    if (!showDeleted && d.removed) {
-                      return;
-                    }
+                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                      Data dodania
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {data // @ts-ignore
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                    .map((d) => {
+                      if (!showDeleted && d.removed) {
+                        return;
+                      }
 
-                    if (!d.removed) {
-                      total += d.amount;
-                    }
+                      if (!d.removed) {
+                        total += d.amount;
+                      }
 
-                    const removedCellStyles = d.removed
-                      ? {
-                          textDecoration: 'line-through'
-                        }
-                      : {};
+                      const removedCellStyles = d.removed
+                        ? {
+                            textDecoration: 'line-through'
+                          }
+                        : {};
 
-                    return (
-                      <TableRow
-                        key={d.id}
-                        onClick={async () => {
-                          const docRef = doc(db, 'items', d.elementId);
-                          const docSnap = await getDoc(docRef);
-                          const data = docSnap.data() as ItemType;
-                          setDetails(data);
-                        }}
-                      >
-                        <TableCell
-                          component="th"
-                          scope="row"
-                          sx={{
-                            color: d.removed ? 'red' : 'inherit',
-                            ...removedCellStyles
+                      return (
+                        <TableRow
+                          key={d.id}
+                          onClick={async () => {
+                            const docRef = doc(db, 'items', d.elementId);
+                            const docSnap = await getDoc(docRef);
+                            const data = docSnap.data() as ItemType;
+                            setDetails(data);
                           }}
                         >
-                          {d.elementName}
-                        </TableCell>
-                        <TableCell component="th" scope="row" align="right">
-                          {d.removed ? (
-                            <Box
-                              sx={{
-                                textDecoration: 'line-through',
-                                color: d.removed ? 'red' : 'inherit',
-                                fontWeight: 'bold'
-                              }}
-                            >
-                              {d.amount.toFixed(2)}zł
-                            </Box>
-                          ) : (
-                            <Box>{d.amount.toFixed(2)}zł</Box>
-                          )}
-                        </TableCell>
-                        <TableCell component="th" scope="row" align="right">
-                          {dayjs(d.createdAt).format('DD/MM/YYYY')}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        ) : (
-          <Box sx={{ my: '40px' }}>Brak danych</Box>
-        )}
+                          <TableCell
+                            component="th"
+                            scope="row"
+                            sx={{
+                              color: d.removed ? 'red' : 'inherit',
+                              ...removedCellStyles
+                            }}
+                          >
+                            {d.elementName}
+                          </TableCell>
+                          <TableCell component="th" scope="row" align="right">
+                            {d.removed ? (
+                              <Box
+                                sx={{
+                                  textDecoration: 'line-through',
+                                  color: d.removed ? 'red' : 'inherit',
+                                  fontWeight: 'bold'
+                                }}
+                              >
+                                {d.amount.toFixed(2)}zł
+                              </Box>
+                            ) : (
+                              <Box>{d.amount.toFixed(2)}zł</Box>
+                            )}
+                          </TableCell>
+                          <TableCell component="th" scope="row" align="right">
+                            {dayjs(d.createdAt).format('DD/MM/YYYY')}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                </TableBody>
+              </Table>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  boxSizing: 'border-box',
+                  width: 'auto',
+                  margin: '40px 20px 0',
+                  padding: '16px'
+                }}
+              >
+                <Box sx={{ fontWeight: 'bold' }}>Podsumowanie</Box>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  Suma skarbonki:{' '}
+                  <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
+                    {total.toFixed(2)}zł
+                  </Box>
+                </Box>
+              </Box>
+            </TableContainer>
+          ) : (
+            <Box sx={{ my: '40px' }}>Brak danych</Box>
+          )}
+        </div>
       </Center>
-      <Box
-        sx={{
-          padding: '16px',
-          display: 'flex',
-          flexDirection: 'column'
-        }}
-      >
-        <Box sx={{ fontWeight: 'bold' }}>Podsumowanie</Box>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-          Suma skarbonki:{' '}
-          <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
-            {total.toFixed(2)}zł
-          </Box>
-        </Box>
-      </Box>
     </Container>
   );
 };
