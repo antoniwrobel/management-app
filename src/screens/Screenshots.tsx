@@ -2,11 +2,38 @@ import withLayout from '../components/layout/withLayout';
 import Container from '@mui/material/Container';
 
 import { useEffect, useState } from 'react';
-import { Box, Tab, Tabs } from '@mui/material';
+import {
+  Box,
+  Button,
+  CardActions,
+  CardContent,
+  CardMedia,
+  Paper,
+  Stack,
+  Tab,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tabs,
+  TextField,
+  Typography
+} from '@mui/material';
 
 import { getStorage, ref, listAll, getDownloadURL } from 'firebase/storage';
 
 import PQueue from 'p-queue';
+import Center from '../components/utils/Center';
+import { Link } from 'react-router-dom';
+import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+import { format } from 'path';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+dayjs.extend(customParseFormat);
 
 const a = {} as any;
 
@@ -42,11 +69,14 @@ const Screenshots = () => {
     } as any;
 
     const folder = response.map(async (folder, index) => {
-      const urlPromiseArray = folder.items.map((item) => {
-        return () => getDownloadURL(item);
+      const urlPromiseArray = folder.items.map(async (item) => {
+        return {
+          url: await getDownloadURL(item),
+          fileName: item.name
+        };
       });
 
-      const result = await queue.addAll(urlPromiseArray);
+      const result = await Promise.all(urlPromiseArray);
       return result.reverse();
     });
 
@@ -76,7 +106,11 @@ const Screenshots = () => {
   }, [setItems, setLoading]);
 
   if (loading) {
-    return <div>loading...</div>;
+    return (
+      <Center height="100vh">
+        <h2>loading...</h2>
+      </Center>
+    );
   }
 
   return (
@@ -135,33 +169,95 @@ const TabPanel = ({ children, value, index }: TabPanelProps) => {
 
 const Content = ({ loading, items, value }: { loading: any; items: any; value: any }) => {
   return (
-    <Box>
-      {!loading &&
-        items &&
-        //@ts-ignore
-        items.map((url) => {
-          const variant = value === 0 ? 'magazyn' : value === 1 ? 'rozliczenia' : value === 2 ? 'skarbonka' : 'wydatki';
+    <TableContainer component={Paper} sx={{ mt: '20px', overflowX: 'initial', mb: '20px' }}>
+      <Table
+        sx={{
+          '& .MuiTableCell-root': {
+            borderLeft: '1px solid rgba(224, 224, 224, 1)'
+          }
+        }}
+        stickyHeader
+      >
+        <TableHead sx={{ zIndex: 1 }}>
+          <TableRow>
+            <TableCell>Data i godzina</TableCell>
+            <TableCell>Podgląd</TableCell>
+          </TableRow>
+        </TableHead>
 
-          return (
-            <Box key={url} sx={{ width: '100%' }}>
-              <Box
-                key={variant + url}
-                sx={{
-                  overflow: 'hidden',
-                  display: 'flex',
-                  width: '100%',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: '#dedede',
-                  p: '20px 20px 40px 20px',
-                  boxSizing: 'border-box'
-                }}
-              >
-                <img src={url} alt="screen" />
-              </Box>
-            </Box>
-          );
-        })}
-    </Box>
+        <TableBody>
+          {!loading &&
+            items &&
+            //@ts-ignore
+            items.map(({ url, fileName }) => {
+              const variant =
+                value === 0 ? 'magazyn' : value === 1 ? 'rozliczenia' : value === 2 ? 'skarbonka' : 'wydatki';
+              const data = fileName.substring(0, fileName.length - 6).split('_')[1];
+              const time = fileName.slice(-5);
+
+              const formattedDate = dayjs(data, 'DD-MM-YYYY', true);
+
+              return (
+                <TableRow key={variant + url}>
+                  <TableCell sx={{ width: '150px' }}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <Stack spacing={3}>
+                        <DesktopDatePicker
+                          onChange={() => ({})}
+                          label="Data"
+                          inputFormat="DD-MM-YYYY"
+                          value={formattedDate}
+                          renderInput={(params) => {
+                            return <TextField {...params} datatype="date" type="date" disabled />;
+                          }}
+                        />
+                      </Stack>
+                    </LocalizationProvider>
+                    <TextField
+                      sx={{ mt: '10px' }}
+                      disabled
+                      type="text"
+                      label="Godzina"
+                      variant="outlined"
+                      value={time}
+                      fullWidth
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <a href={url} target={'_blank'}>
+                      <CardMedia
+                        component="img"
+                        image={url}
+                        alt="green iguana"
+                        sx={{
+                          height: '500px',
+                          zIndex: 999,
+                          position: 'relative'
+                        }}
+                      />
+                    </a>
+                    <CardContent>
+                      <Typography variant="body2" color="text.secondary" fontWeight="bold">
+                        {variant}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        dodatkowe szczegóły zdjęcia, które dodam później
+                      </Typography>
+                    </CardContent>
+                    <CardActions>
+                      <Button size="small" onClick={() => console.log('share')}>
+                        Share
+                      </Button>
+                      <Button size="small" onClick={() => console.log('learn more')}>
+                        Learn More
+                      </Button>
+                    </CardActions>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 };
