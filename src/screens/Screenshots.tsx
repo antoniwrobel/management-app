@@ -227,12 +227,16 @@ const Content = ({ loading, items, value }: { loading: any; items: any; value: a
                     <a href={url} target={'_blank'}>
                       <CardMedia
                         component="img"
+                        height="80px"
                         image={url}
-                        alt="green iguana"
+                        alt="screenshot"
                         sx={{
-                          height: '500px',
+                          transition: 'all 0.2s ease',
                           zIndex: 999,
-                          position: 'relative'
+                          position: 'relative',
+                          '&:hover': {
+                            transform: 'scale3d(1.025, 1.025, 1)'
+                          }
                         }}
                       />
                     </a>
