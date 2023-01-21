@@ -1,13 +1,7 @@
 import EditModal from '../modal/EditModal';
 import { Formik } from 'formik';
 import { collection, getDocs, updateDoc, doc, addDoc } from '@firebase/firestore';
-import {
-  Box,
-  Button,
-  Stack,
-  TextField,
-  Typography
-} from '@mui/material';
+import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { ItemType, SettlementItemType } from '../../screens/types';
@@ -29,6 +23,9 @@ export const EditItems = (props: EditItemProps) => {
     return <></>;
   }
   const amountToHandle = currentSelected.reduce((a, curr) => {
+    if (curr.settled && curr.status === 'zwrot') {
+      return -curr.clearingValueWojtek + a;
+    }
     return curr.clearingValueWojtek + a;
   }, 0);
 

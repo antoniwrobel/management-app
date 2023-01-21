@@ -363,6 +363,20 @@ const RozliczeniaKomis = () => {
                                     +
                                   </Button>
                                 </TableCell>
+                              ) : !item.removed && item.status === 'zwrot' && item.settled ? (
+                                <TableCell align="right">
+                                  {' '}
+                                  <Button
+                                    size="small"
+                                    variant="contained"
+                                    type="submit"
+                                    color={'error'}
+                                    onClick={() => handleMulitSettlement(item)}
+                                    sx={{ ml: '20px' }}
+                                  >
+                                    +
+                                  </Button>
+                                </TableCell>
                               ) : (
                                 <TableCell align="right"></TableCell>
                               )}
