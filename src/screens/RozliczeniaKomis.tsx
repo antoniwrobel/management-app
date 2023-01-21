@@ -295,7 +295,7 @@ const RozliczeniaKomis = () => {
                             }}
                           >
                             {item.productName}
-                            {item.settled && item.status !== 'zwrot' ? (
+                            {item.settled ? (
                               <Box
                                 sx={{
                                   position: 'absolute',
@@ -365,7 +365,6 @@ const RozliczeniaKomis = () => {
                                 </TableCell>
                               ) : !item.removed && item.status === 'zwrot' && item.settled ? (
                                 <TableCell align="right">
-                                  {' '}
                                   <Button
                                     size="small"
                                     variant="contained"
