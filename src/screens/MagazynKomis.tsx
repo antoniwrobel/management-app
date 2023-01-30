@@ -220,6 +220,8 @@ const MagazynKomis = () => {
       await updateDoc(settlementsDoc, {
         status: 'zwrot',
         clearingValueWojtek: item.settled ? item.saleAmount : item.clearingValueWojtek,
+        settled: false,
+        settlementStatus: 'nierozliczono',
         removed: !item.settled && true,
         ...(item.provision &&
           item.provision > 0 && {

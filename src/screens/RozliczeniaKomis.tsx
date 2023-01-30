@@ -62,8 +62,8 @@ const RozliczeniaKomis = () => {
     }
   };
 
-  const dateTimeValue = dayjs().format('DD-MM-YYYY-HH:mm');
   const [screenshotDisabled, setScreenshotDisabled] = useState(false);
+  const dateTimeValue = dayjs().format('DD-MM-YYYY-HH:mm');
   const storage = getStorage();
   const tableRef = createRef<HTMLElement | null>();
   const screenShotName = `rozliczenia_${dateTimeValue}`;
@@ -248,11 +248,13 @@ const RozliczeniaKomis = () => {
                         return;
                       }
 
-                      if (!item.removed && !item.settled) {
+                      if (!item.removed && item.settled && item.settlementStatus === 'rozliczono') {
+                        console.log('pozycja zwrocona, rozliczona, nie usunieta => ', item);
+                      } else if (!item.removed && !item.settled && item.settlementStatus !== 'nierozliczono') {
                         summaryWojtek += item.clearingValueWojtek;
-                      }
-
-                      if (
+                      } else if (!item.removed && !item.settled && item.settlementStatus === 'nierozliczono') {
+                        summaryWojtek -= item.clearingValueWojtek;
+                      } else if (
                         !item.removed &&
                         item.status === 'zwrot' &&
                         item.settled &&
@@ -349,7 +351,7 @@ const RozliczeniaKomis = () => {
                           </TableCell>
                           {!editBlocked ? (
                             <>
-                              {!item.removed && item.settlementStatus !== 'rozliczono' ? (
+                              {!item.removed && item.settlementStatus !== 'rozliczono' && item.status !== 'zwrot' ? (
                                 <TableCell align="right">
                                   <Button
                                     size="small"
@@ -363,7 +365,10 @@ const RozliczeniaKomis = () => {
                                     +
                                   </Button>
                                 </TableCell>
-                              ) : !item.removed && item.status === 'zwrot' && item.settled ? (
+                              ) : !item.removed &&
+                                item.status === 'zwrot' &&
+                                !item.settled &&
+                                item.settlementStatus === 'nierozliczono' ? (
                                 <TableCell align="right">
                                   <Button
                                     size="small"

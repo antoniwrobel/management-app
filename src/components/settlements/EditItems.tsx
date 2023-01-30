@@ -22,8 +22,9 @@ export const EditItems = (props: EditItemProps) => {
   if (!currentSelected) {
     return <></>;
   }
+
   const amountToHandle = currentSelected.reduce((a, curr) => {
-    if (curr.settled && curr.status === 'zwrot') {
+    if (curr.settlementStatus === 'nierozliczono' && curr.status === 'zwrot') {
       return -curr.clearingValueWojtek + a;
     }
     return curr.clearingValueWojtek + a;
