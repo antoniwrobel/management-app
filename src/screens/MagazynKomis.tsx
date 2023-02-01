@@ -631,7 +631,9 @@ const MagazynKomis = () => {
                     return;
                   }
 
-                  summaryStan += item.clearingValueStan || 0;
+                  if (item.status === 'sprzedano') {
+                    summaryStan += item.clearingValueStan || 0;
+                  }
 
                   const removedCellStyles =
                     item.status === 'zwrot'
