@@ -142,7 +142,7 @@ export const EditItem = (props: EditItemProps) => {
             if (!currentSelected) return;
 
             const itemDoc = doc(db, 'items', currentSelected.id);
-            const profit = (values.saleAmount - values.purchaseAmount - (values.provision || 0)) / 2;
+            const profit = (values.saleAmount - values.purchaseAmount - (values.provision || 0) - (values.sendCost || 0)) / 2;
             const clearingValueWojtek = values.purchaseAmount + profit || 0;
             const clearingValueStan = profit;
             const shouldAddSpendings = values.status === 'sprzedano';
@@ -151,11 +151,11 @@ export const EditItem = (props: EditItemProps) => {
 
             try {
               await updateDoc(itemDoc, {
-                createDate: values.createDate || null,
+                createDate: isReturn ? dayjs().format() : values.createDate || null,
                 productName: values.productName,
                 purchaseAmount: values.purchaseAmount,
                 saleAmount: values.saleAmount,
-                soldDate: values.soldDate || null,
+                soldDate: isReturn ? null : values.soldDate || null,
                 sendCost: values.sendCost,
                 status: values.status,
                 details: isReturn ? '' : values.details,

@@ -22,11 +22,16 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Typography } from '@mui/material';
 import { isAdminUser } from './helpers';
 import AddAPhotoSharpIcon from '@mui/icons-material/AddAPhotoSharp';
+import { EditItems } from '../components/valve/EditItem';
 
 const Skarbonka = () => {
   const [data, setData] = useState<ValveType[]>([]);
   const [details, setDetails] = useState<ItemType>();
   const [showDeleted, setShowDeleted] = useState(false);
+
+  const [currentSelected, setCurrentSelected] = useState<ValveType[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+
   const valveCollectionRef = collection(db, 'valve');
 
   const getData = async () => {
@@ -39,6 +44,19 @@ const Skarbonka = () => {
   useEffect(() => {
     getData();
   }, []);
+
+
+
+  const handleMulitSettlement = (item: ValveType) => {
+    const itemAdded = currentSelected.find((currentSelected) => currentSelected.id === item.id);
+
+    if (itemAdded) {
+      const updatedCurrentSelected = currentSelected.filter((e) => e.id !== item.id);
+      setCurrentSelected(updatedCurrentSelected);
+    } else {
+      setCurrentSelected((prev) => [...prev, item]);
+    }
+  };
 
   useEffect(() => {
     if (!details) return;
@@ -133,6 +151,22 @@ const Skarbonka = () => {
         </Box>
       ) : null}
 
+      {!editBlocked ? (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
+            <Button variant="contained" onClick={() => setModalOpen(true)} disabled={!currentSelected.length}>
+              Wypłać
+            </Button>
+          </Box>
+        ) : null}
+
+        <EditItems
+          currentSelected={currentSelected}
+          editModalOpen={modalOpen}
+          getItems={getData}
+          setEditModalOpen={setModalOpen}
+        />
+
+
       <Center>
         <div
           style={{ width: '100%' }}
@@ -176,8 +210,16 @@ const Skarbonka = () => {
                       Kwota
                     </TableCell>
 
-                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                    <TableCell align="center" sx={{ fontWeight: 'bold' }}>
                       Data dodania
+                    </TableCell>
+
+                    <TableCell align="center" sx={{ fontWeight: 'bold'}}>
+                      Uwagi
+                    </TableCell>
+
+                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                      Akcja
                     </TableCell>
                   </TableRow>
                 </TableHead>
@@ -189,7 +231,7 @@ const Skarbonka = () => {
                         return;
                       }
 
-                      if (!d.removed) {
+                      if (!d.removed && !d.hasBeenUsed) {
                         total += d.amount;
                       }
 
@@ -199,6 +241,9 @@ const Skarbonka = () => {
                           }
                         : {};
 
+                        const itemSelectedFound = currentSelected.find((e) => e.id === d.id);
+                        const isSelected = Boolean(itemSelectedFound);
+
                       return (
                         <TableRow
                           key={d.id}
@@ -207,6 +252,9 @@ const Skarbonka = () => {
                             const docSnap = await getDoc(docRef);
                             const data = docSnap.data() as ItemType;
                             setDetails(data);
+                          }}
+                          sx={{
+                            background: isSelected ? '#0000ff2e' : d.hasBeenUsed ? "#f9f214" : "#fff"
                           }}
                         >
                           <TableCell
@@ -237,6 +285,25 @@ const Skarbonka = () => {
                           <TableCell component="th" scope="row" align="right">
                             {dayjs(d.createdAt).format('DD/MM/YYYY')}
                           </TableCell>
+                          <TableCell component="th" scope="row" align="right">
+                            {d.details ? d.details : "-"}
+                          </TableCell>
+                          {!d.hasBeenUsed ?
+                            <TableCell align="right">
+                              <Button
+                                size="small"
+                                variant="contained"
+                                type="submit"
+                                onClick={() => handleMulitSettlement(d)}
+                                sx={{ ml: '20px' }}
+                              >
+                                +
+                              </Button>
+                            </TableCell> :
+                            <TableCell align="right">
+                          </TableCell>
+                          }
+                          
                         </TableRow>
                       );
                     })}

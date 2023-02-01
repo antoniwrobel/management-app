@@ -31,6 +31,9 @@ export type ValveType = {
   createdAt: Date;
   userName: string;
   removed: boolean;
+  hasBeenUsed?: boolean;
+  useDate: Date;
+  details?: string
 };
 
 export type SpendingType = {

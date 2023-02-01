@@ -233,7 +233,7 @@ const Spendings = ({}: Props) => {
                             color: 'red'
                           }
                         : {};
-
+                        
                       if (!d.removed) {
                         if (d.addedBy === 'Wojtek dla Stan') {
                           //@ts-ignore

@@ -4,14 +4,14 @@ import { collection, getDocs, updateDoc, doc, addDoc } from '@firebase/firestore
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { ItemType, SettlementItemType } from '../../screens/types';
+import { ItemType, SettlementItemType, ValveType } from '../../screens/types';
 import { db } from '../../config/firebase';
 
 import dayjs from 'dayjs';
 
 type EditItemProps = {
   editModalOpen: boolean;
-  currentSelected: SettlementItemType[];
+  currentSelected: ValveType[];
   getItems: () => void;
   setEditModalOpen: (value: boolean) => void;
 };
@@ -24,10 +24,7 @@ export const EditItems = (props: EditItemProps) => {
   }
 
   const amountToHandle = currentSelected.reduce((a, curr) => {
-    if (curr.settlementStatus === 'nierozliczono' && curr.status === 'zwrot') {
-      return -curr.clearingValueWojtek + a;
-    }
-    return curr.clearingValueWojtek + a;
+    return curr.amount + a;
   }, 0);
 
   return (
@@ -36,12 +33,12 @@ export const EditItems = (props: EditItemProps) => {
         <Formik
           initialValues={{
             details: '',
-            settlementDate: dayjs().format()
+            useDate: dayjs().format()
           }}
           validate={(values) => {
             const errors = {} as any;
             if (values.details.trim().length === 0) {
-              errors.details = 'Podaj szczegóły płatności';
+              errors.details = 'Podaj szczegóły pobrania pieniędzy';
             }
 
             return errors;
@@ -49,38 +46,16 @@ export const EditItems = (props: EditItemProps) => {
           onSubmit={async (values, { setSubmitting }) => {
             if (!currentSelected.length) return;
 
-            const promisesSettlement = currentSelected.map((e) => {
-              const item = doc(db, 'settlements', e.id);
-              updateDoc(item, {
-                settled: true,
-                settlementDate: values.settlementDate,
-                settlementStatus: 'rozliczono',
-                details: e.details ? e.details + ' - ' + values.details : values.details
+            const promisesValve = currentSelected.map((e) => {
+              const valve = doc(db, 'valve', e.id);
+              updateDoc(valve, {
+                hasBeenUsed: true,
+                details: values.details,
+                usedAt: values.useDate
               });
             });
 
-            const itemsCollectionRef = collection(db, 'items');
-            const itemDoc = await getDocs(itemsCollectionRef);
-            const items = itemDoc.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as ItemType[];
-
-            const promisesItems = currentSelected.map((e) => {
-              const itemFound = items.find((item) => item.id === e.elementId);
-
-              if (!itemFound) {
-                return;
-              }
-
-              const itemToUpdate = doc(db, 'items', itemFound.id);
-
-              updateDoc(itemToUpdate, {
-                settled: true,
-                details: itemFound.details ? itemFound.details + ' - ' + values.details : values.details,
-                settlementStatus: 'rozliczono'
-              });
-            });
-
-            await Promise.all(promisesSettlement);
-            await Promise.all(promisesItems);
+            await Promise.all(promisesValve);
 
             getItems();
             setSubmitting(false);
@@ -90,15 +65,9 @@ export const EditItems = (props: EditItemProps) => {
           {({ handleChange, setFieldValue, handleBlur, values, touched, errors, handleSubmit, isSubmitting }) => {
             return (
               <form onSubmit={handleSubmit}>
-                <Box sx={{ display: 'flex' }}>
-                  <Typography>Czy na pewno chcesz się rozliczyć za: </Typography>
-                  <Typography sx={{ fontWeight: 'bold', ml: '5px' }}>
-                    {currentSelected.length === 1 ? '1 rzecz' : `${currentSelected.length} rzeczy`}?
-                  </Typography>
-                </Box>
                 <Box sx={{ display: 'flex', mt: '10px' }}>
-                  <Typography>Suma do rozliczenia to:</Typography>
-                  <Typography sx={{ fontWeight: 'bold', ml: '5px' }}>{amountToHandle.toFixed(2)}zł</Typography>
+                  <Typography>Suma pobrania ze skarbonki to:</Typography>
+                  <Typography sx={{ fontWeight: 'bold', ml: '5px' }}>{amountToHandle}zł</Typography>
                 </Box>
 
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -107,15 +76,15 @@ export const EditItems = (props: EditItemProps) => {
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <Stack spacing={3}>
                           <DesktopDatePicker
-                            label="data rozliczenia"
+                            label="data pobrania"
                             inputFormat="DD/MM/YYYY"
-                            value={values.settlementDate}
+                            value={values.useDate}
                             onChange={(d) => {
-                              setFieldValue('settlementDate', dayjs(d).format());
+                              setFieldValue('useDate', dayjs(d).format());
                             }}
                             renderInput={(params) => {
                               return (
-                                <TextField {...params} datatype="date" type="date" helperText={errors.settlementDate} />
+                                <TextField {...params} datatype="date" type="date" helperText={errors.useDate} />
                               );
                             }}
                           />
@@ -125,7 +94,7 @@ export const EditItems = (props: EditItemProps) => {
                       <TextField
                         type="text"
                         name="details"
-                        label="szczegóły rozliczenia"
+                        label="szczegóły pobrania"
                         variant="outlined"
                         sx={{
                           mt: '20px'
@@ -152,7 +121,7 @@ export const EditItems = (props: EditItemProps) => {
                     Zamknij
                   </Button>
                   <Button variant="outlined" size="small" type="submit" disabled={isSubmitting}>
-                    Rozlicz
+                    Wypłać
                   </Button>
                 </Box>
               </form>

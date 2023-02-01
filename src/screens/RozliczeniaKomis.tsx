@@ -249,7 +249,7 @@ const RozliczeniaKomis = () => {
                       }
 
                       if (!item.removed && item.settled && item.settlementStatus === 'rozliczono') {
-                        console.log('pozycja zwrocona, rozliczona, nie usunieta => ', item);
+                        
                       } else if (!item.removed && !item.settled && item.settlementStatus !== 'nierozliczono') {
                         summaryWojtek += item.clearingValueWojtek;
                       } else if (!item.removed && !item.settled && item.settlementStatus === 'nierozliczono') {

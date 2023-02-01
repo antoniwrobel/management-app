@@ -72,14 +72,13 @@ const MagazynKomis = () => {
     [key: string]: string;
   }>({});
 
-  const defCols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  const defCols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
   const names = [
     'Nazwa produktu',
     'Status zamówienia',
     'Kwota zakupu',
     'Kwota sprzedaży',
     'Koszt wysyłki',
-    'Zapłacono łącznie',
     'Prowizja od sprzedaży',
     'Saldo Stan',
     'Saldo Wojtek',
@@ -95,7 +94,6 @@ const MagazynKomis = () => {
     'Kwota zakupu',
     'Kwota sprzedaży',
     'Koszt wysyłki',
-    'Zapłacono łącznie',
     'Prowizja od sprzedaży',
     'Saldo Stan',
     'Saldo Wojtek',
@@ -188,6 +186,8 @@ const MagazynKomis = () => {
     }
   };
 
+
+
   const handleReturn = async (item: ItemType) => {
     const { id, productName, provision } = item;
 
@@ -227,8 +227,8 @@ const MagazynKomis = () => {
         removed: !item.settled && true,
         ...(item.provision &&
           item.provision > 0 && {
-            details: currentSelected?.details
-              ? currentSelected.details + ` - zwrot - poniesione koszta ${item.provision!.toFixed(2)}zł`
+            details: item.details
+              ? item.details + ` - zwrot - poniesione koszta ${item.provision!.toFixed(2)}zł`
               : `zwrot - poniesione koszta: ${item.provision!.toFixed(2)}zł`
           })
       });
@@ -563,30 +563,25 @@ const MagazynKomis = () => {
                       wysyłki
                     </TableCell>
                   )}
+      
                   {columnsVisible.includes(5) && (
-                    <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
-                      Zapłacono <br />
-                      łącznie
-                    </TableCell>
-                  )}
-                  {columnsVisible.includes(6) && (
                     <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
                       Prowizja <br /> od sprzedaży
                     </TableCell>
                   )}
-                  {columnsVisible.includes(7) && (
+                  {columnsVisible.includes(6) && (
                     <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
                       Saldo <br />
                       Stan
                     </TableCell>
                   )}
-                  {columnsVisible.includes(8) && (
+                  {columnsVisible.includes(7) && (
                     <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
                       Saldo <br />
                       Wojtek
                     </TableCell>
                   )}
-                  {columnsVisible.includes(9) && (
+                  {columnsVisible.includes(8) && (
                     <TableCell
                       align="center"
                       sx={{
@@ -612,18 +607,18 @@ const MagazynKomis = () => {
                       ) : null}
                     </TableCell>
                   )}
-                  {columnsVisible.includes(10) && (
+                  {columnsVisible.includes(9) && (
                     <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
                       Data <br />
                       sprzedaży
                     </TableCell>
                   )}
-                  {columnsVisible.includes(11) && (
+                  {columnsVisible.includes(10) && (
                     <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
                       Uwagi
                     </TableCell>
                   )}
-                  {columnsVisible.includes(12) && !editBlocked ? (
+                  {columnsVisible.includes(11) && !editBlocked ? (
                     <TableCell align="right" sx={{ minWidth: '250px' }}>
                       Akcja
                     </TableCell>
@@ -753,26 +748,12 @@ const MagazynKomis = () => {
                             fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
                           }}
                         >
-                          {item.status === 'sprzedano' ? item.sendCost + item.saleAmount + 'zł' : '-'}
-                        </TableCell>
-                      )}
-                      {columnsVisible.includes(6) && (
-                        <TableCell
-                          align="right"
-                          sx={{
-                            color: item.status === 'zwrot' ? 'red' : 'inherit',
-                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
-                          }}
-                        >
                           <Box sx={{ display: 'flex', justifyContent: item.provisionPayed ? 'space-around' : 'right' }}>
                             {item.provision ? item.provision.toFixed(2) + 'zł' : '-'}
-                            {item.provisionPayed ? (
-                              <CheckCircleSharpIcon fontSize="small" sx={{ color: 'green ' }} />
-                            ) : null}
                           </Box>
                         </TableCell>
                       )}
-                      {columnsVisible.includes(7) && (
+                      {columnsVisible.includes(6) && (
                         <TableCell
                           align="right"
                           sx={{
@@ -784,7 +765,7 @@ const MagazynKomis = () => {
                           {item.clearingValueStan ? `${item.clearingValueStan.toFixed(2)}zł` : '-'}
                         </TableCell>
                       )}
-                      {columnsVisible.includes(8) && (
+                      {columnsVisible.includes(7) && (
                         <TableCell
                           align="right"
                           sx={{
@@ -796,7 +777,7 @@ const MagazynKomis = () => {
                           {item.clearingValueWojtek ? `${item.clearingValueWojtek.toFixed(2)}zł` : '-'}
                         </TableCell>
                       )}
-                      {columnsVisible.includes(9) && (
+                      {columnsVisible.includes(8) && (
                         <TableCell
                           align="right"
                           sx={{
@@ -809,7 +790,7 @@ const MagazynKomis = () => {
                         </TableCell>
                       )}
 
-                      {columnsVisible.includes(10) && (
+                      {columnsVisible.includes(9) && (
                         <TableCell
                           align="right"
                           sx={{
@@ -822,7 +803,7 @@ const MagazynKomis = () => {
                         </TableCell>
                       )}
 
-                      {columnsVisible.includes(11) && (
+                      {columnsVisible.includes(10) && (
                         <TableCell
                           align="right"
                           sx={{
@@ -838,7 +819,7 @@ const MagazynKomis = () => {
                           {item.details}
                         </TableCell>
                       )}
-                      {columnsVisible.includes(12) && !editBlocked ? (
+                      {columnsVisible.includes(11) && !editBlocked ? (
                         <>
                           <TableCell align="right" sx={{ padding: '15px 10px 15px 0' }}>
                             {item.status === 'sprzedano' ? (
