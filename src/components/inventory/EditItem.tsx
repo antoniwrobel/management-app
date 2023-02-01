@@ -181,6 +181,9 @@ export const EditItem = (props: EditItemProps) => {
                   details: values.details,
                   elementId: currentSelected.id
                 });
+                await updateDoc(itemDoc, {
+                  soldDate: dayjs().format()
+                });
               } catch (error) {
                 console.error(error);
               }

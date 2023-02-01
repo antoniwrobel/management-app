@@ -72,7 +72,7 @@ const MagazynKomis = () => {
     [key: string]: string;
   }>({});
 
-  const defCols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+  const defCols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
   const names = [
     'Nazwa produktu',
     'Status zamówienia',
@@ -84,6 +84,7 @@ const MagazynKomis = () => {
     'Saldo Stan',
     'Saldo Wojtek',
     'Data stworzenia',
+    'Data sprzedaży',
     'Uwagi',
     'Akcje'
   ];
@@ -99,6 +100,7 @@ const MagazynKomis = () => {
     'Saldo Stan',
     'Saldo Wojtek',
     'Data stworzenia',
+    'Data sprzedaży',
     'Uwagi',
     'Akcje'
   ];
@@ -612,10 +614,16 @@ const MagazynKomis = () => {
                   )}
                   {columnsVisible.includes(10) && (
                     <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
+                      Data <br />
+                      sprzedaży
+                    </TableCell>
+                  )}
+                  {columnsVisible.includes(11) && (
+                    <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
                       Uwagi
                     </TableCell>
                   )}
-                  {columnsVisible.includes(11) && !editBlocked ? (
+                  {columnsVisible.includes(12) && !editBlocked ? (
                     <TableCell align="right" sx={{ minWidth: '250px' }}>
                       Akcja
                     </TableCell>
@@ -800,7 +808,21 @@ const MagazynKomis = () => {
                           {dayjs(item.createDate).format('DD/MM/YYYY')}
                         </TableCell>
                       )}
+
                       {columnsVisible.includes(10) && (
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: item.status === 'zwrot' ? 'red' : 'inherit',
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
+                            ...removedCellStyles
+                          }}
+                        >
+                          {item.soldDate ? dayjs(item.soldDate).format('DD/MM/YYYY') : '-'}
+                        </TableCell>
+                      )}
+
+                      {columnsVisible.includes(11) && (
                         <TableCell
                           align="right"
                           sx={{
@@ -816,7 +838,7 @@ const MagazynKomis = () => {
                           {item.details}
                         </TableCell>
                       )}
-                      {columnsVisible.includes(11) && !editBlocked ? (
+                      {columnsVisible.includes(12) && !editBlocked ? (
                         <>
                           <TableCell align="right" sx={{ padding: '15px 10px 15px 0' }}>
                             {item.status === 'sprzedano' ? (
