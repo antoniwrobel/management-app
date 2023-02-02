@@ -97,20 +97,22 @@ export const PayoutModal = (props: EditItemProps) => {
         >
           {({ setFieldValue, values, handleChange, touched, errors, handleSubmit, isSubmitting }) => (
             <form onSubmit={handleSubmit}>
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Typography sx={{ mb: '0px' }}>
+              <Box sx={{ display: 'flex' }}>
+                <Typography sx={{ mb: '20px' }}>
                   {/* @ts-ignore */}
-                  {totalStan - totalWojtek > 0 ? 'do odebrania od Wojtka:' : 'do oddania Wojtkowi:'}
-
+                  {totalStan - totalWojtek > 0 ? 'Do odebrania od Wojtka: ' : 'Do oddania Wojtkowi: '}
+                </Typography>
+                <Typography sx={{ ml: '5px', mb: '20px', fontWeight: 'bold' }}>
                   {
                     //@ts-ignore
                     Math.abs(totalStan - totalWojtek).toFixed(2)
                   }
+                  zł
                 </Typography>
               </Box>
 
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: '20px' }}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <Stack spacing={3}>
                       <DesktopDatePicker
