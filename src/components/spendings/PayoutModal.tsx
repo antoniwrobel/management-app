@@ -2,7 +2,7 @@ import EditModal from '../modal/EditModal';
 
 import { Formik } from 'formik';
 import { updateDoc, doc } from '@firebase/firestore';
-import { Box, Button, Stack, TextField } from '@mui/material';
+import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { SpendingType } from '../../screens/types';
 import { db } from '../../config/firebase';
 
@@ -25,6 +25,40 @@ export const PayoutModal = (props: EditItemProps) => {
     return <></>;
   }
 
+  const handleTotal = () => {
+    let totalWojtek = 0;
+    let totalStan = 0;
+
+    multiCurrentSelected.map((d) => {
+      const amount = Number(d.amount);
+      if (!d.removed && !d.hasBeenUsed) {
+        if (d.addedBy === 'Wojtek dla Stan') {
+          totalWojtek += amount;
+        }
+
+        if (d.addedBy === 'Stan dla Wojtek') {
+          totalStan += amount;
+        }
+
+        if (d.addedBy === 'Stan / 2') {
+          totalStan += amount;
+          totalWojtek += amount / 2;
+        }
+
+        if (d.addedBy === 'Wojtek / 2') {
+          totalStan += amount / 2;
+          totalWojtek += amount;
+        }
+      }
+    });
+
+    return {
+      totalStan: totalStan.toFixed(2),
+      totalWojtek: totalWojtek.toFixed(2)
+    };
+  };
+  const { totalStan, totalWojtek } = handleTotal();
+
   return (
     <EditModal open={editModalOpen}>
       <>
@@ -37,7 +71,7 @@ export const PayoutModal = (props: EditItemProps) => {
             const errors = {} as any;
 
             if (!values.details.trim().length) {
-              errors.details = 'Podaj szczegóły wypłaty';
+              errors.details = 'Podaj szczegóły rozliczenia';
             }
             return errors;
           }}
@@ -63,6 +97,18 @@ export const PayoutModal = (props: EditItemProps) => {
         >
           {({ setFieldValue, values, handleChange, touched, errors, handleSubmit, isSubmitting }) => (
             <form onSubmit={handleSubmit}>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Typography sx={{ mb: '0px' }}>
+                  {/* @ts-ignore */}
+                  {totalStan - totalWojtek > 0 ? 'do odebrania od Wojtka:' : 'do oddania Wojtkowi:'}
+
+                  {
+                    //@ts-ignore
+                    Math.abs(totalStan - totalWojtek).toFixed(2)
+                  }
+                </Typography>
+              </Box>
+
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>

@@ -179,7 +179,7 @@ const Spendings = ({}: Props) => {
       {!editBlocked ? (
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px', height: '50px' }}>
           <Button variant="contained" disabled={!multiCurrentSelected.length} onClick={() => setShowPayoutModal(true)}>
-            Wypłać
+            Rozlicz
           </Button>
         </Box>
       ) : null}
@@ -248,6 +248,12 @@ const Spendings = ({}: Props) => {
                     <TableCell align="center" sx={{ fontWeight: 'bold' }}>
                       Kto wydał
                     </TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                      Szczegóły rozliczenia
+                    </TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                      Data rozliczenia
+                    </TableCell>
                     {!editBlocked ? (
                       <TableCell align="right" sx={{ fontWeight: 'bold' }}>
                         Akcja
@@ -313,6 +319,13 @@ const Spendings = ({}: Props) => {
                           <TableCell component="th" scope="row" align="right">
                             {d.addedBy}
                           </TableCell>
+                          <TableCell component="th" scope="row" align="right">
+                            {d.details || '-'}
+                          </TableCell>
+                          <TableCell component="th" scope="row" align="right">
+                            {d.payoutDate ? dayjs(d.payoutDate).format('DD/MM/YYYY') : '-'}
+                          </TableCell>
+
                           {!d.hasBeenUsed && !editBlocked && !d.removed ? (
                             <TableCell component="th" scope="row" align="right">
                               <Button
