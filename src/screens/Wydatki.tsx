@@ -24,6 +24,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Typography } from '@mui/material';
 import AddAPhotoSharpIcon from '@mui/icons-material/AddAPhotoSharp';
+import { PayoutModal } from '../components/spendings/PayoutModal';
 
 interface Props {}
 
@@ -32,6 +33,8 @@ const Spendings = ({}: Props) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [currentSelected, setCurrentSelected] = useState<SpendingType>();
+  const [multiCurrentSelected, setMultiCurrentSelected] = useState<SpendingType[]>([]);
+
   const [user] = useState(auth.currentUser);
   const editBlocked = !isAdminUser(user);
   const isStan = isAdminUser(user);
@@ -39,6 +42,10 @@ const Spendings = ({}: Props) => {
   const [showDeleted, setShowDeleted] = useState(false);
 
   const spendingsCollectionRef = collection(db, 'spendings');
+
+  const editButtonLocked = Boolean(multiCurrentSelected.length);
+
+  const [showPayoutModal, setShowPayoutModal] = useState(false);
 
   const getData = async () => {
     const d = await getDocs(spendingsCollectionRef);
@@ -48,11 +55,25 @@ const Spendings = ({}: Props) => {
   };
 
   const editRow = (itemId: string) => {
+    if (editButtonLocked) {
+      return;
+    }
     const selectedItem = data.find((item) => item.id === itemId);
 
     if (selectedItem) {
       setCurrentSelected(selectedItem);
       setEditModalOpen(true);
+    }
+  };
+
+  const handleMulitSettlement = (item: SpendingType) => {
+    const itemAdded = multiCurrentSelected.find((c) => c.id === item.id);
+
+    if (itemAdded) {
+      const updatedCurrentSelected = multiCurrentSelected.filter((e) => e.id !== item.id);
+      setMultiCurrentSelected(updatedCurrentSelected);
+    } else {
+      setMultiCurrentSelected((prev) => [...prev, item]);
     }
   };
 
@@ -155,12 +176,28 @@ const Spendings = ({}: Props) => {
         ) : null}
       </Box>
 
+      {!editBlocked ? (
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px', height: '50px' }}>
+          <Button variant="contained" disabled={!multiCurrentSelected.length} onClick={() => setShowPayoutModal(true)}>
+            Wypłać
+          </Button>
+        </Box>
+      ) : null}
+
       <AddItem modalOpen={modalOpen} setModalOpen={setModalOpen} getItems={getData} />
 
       <EditItem
         currentSelected={currentSelected}
         setEditModalOpen={setEditModalOpen}
         editModalOpen={editModalOpen}
+        getItems={getData}
+      />
+
+      <PayoutModal
+        multiCurrentSelected={multiCurrentSelected}
+        setMultiCurrentSelected={setMultiCurrentSelected}
+        setEditModalOpen={setShowPayoutModal}
+        editModalOpen={showPayoutModal}
         getItems={getData}
       />
 
@@ -226,6 +263,9 @@ const Spendings = ({}: Props) => {
                         return;
                       }
 
+                      const itemSelectedFound = multiCurrentSelected.find((e) => e.id === d.id);
+                      const isSelected = Boolean(itemSelectedFound);
+
                       const removedCellStyles = d.removed
                         ? {
                             textDecoration: 'line-through',
@@ -233,47 +273,39 @@ const Spendings = ({}: Props) => {
                             color: 'red'
                           }
                         : {};
-                        
-                      if (!d.removed) {
+
+                      const amount = Number(d.amount);
+
+                      if (!d.removed && !d.hasBeenUsed) {
                         if (d.addedBy === 'Wojtek dla Stan') {
-                          //@ts-ignore
-                          totalWojtek += parseFloat(d.amount);
+                          totalWojtek += amount;
                         }
 
                         if (d.addedBy === 'Stan dla Wojtek') {
-                          //@ts-ignore
-                          totalStan += parseFloat(d.amount);
-                        }
-
-                        if (d.addedBy === 'Wojtek') {
-                          //@ts-ignore
-                          totalWojtek += parseFloat(d.amount);
-                        } else if (d.addedBy === 'Stan') {
-                          //@ts-ignore
-                          totalStan += parseFloat(d.amount);
+                          totalStan += amount;
                         }
 
                         if (d.addedBy === 'Stan / 2') {
-                          //@ts-ignore
-                          totalStan += parseFloat(d.amount);
-                          //@ts-ignore
-                          totalWojtek += parseFloat(d.amount / 2);
-                        } else if (d.addedBy === 'Wojtek / 2') {
-                          //@ts-ignore
-                          totalStan += parseFloat(d.amount / 2);
-                          //@ts-ignore
-                          totalWojtek += parseFloat(d.amount);
+                          totalStan += amount;
+                          totalWojtek += amount / 2;
+                        }
+
+                        if (d.addedBy === 'Wojtek / 2') {
+                          totalStan += amount / 2;
+                          totalWojtek += amount;
                         }
                       }
 
                       return (
-                        <TableRow key={d.id}>
+                        <TableRow
+                          key={d.id}
+                          sx={{ background: isSelected ? '#0000ff2e' : d.hasBeenUsed ? '#f9f214' : '#fff' }}
+                        >
                           <TableCell component="th" scope="row" sx={removedCellStyles}>
                             {d.elementName}
                           </TableCell>
                           <TableCell component="th" scope="row" align="right" sx={removedCellStyles}>
-                            {/* @ts-ignore */}
-                            {parseFloat(d.amount).toFixed(2)}zł
+                            {amount.toFixed(2)}zł
                           </TableCell>
                           <TableCell component="th" scope="row" align="right">
                             {dayjs(d.createdAt).format('DD/MM/YYYY')}
@@ -281,10 +313,26 @@ const Spendings = ({}: Props) => {
                           <TableCell component="th" scope="row" align="right">
                             {d.addedBy}
                           </TableCell>
-                          {!editBlocked && !d.removed ? (
+                          {!d.hasBeenUsed && !editBlocked && !d.removed ? (
                             <TableCell component="th" scope="row" align="right">
-                              <Button size="small" variant="contained" type="submit" onClick={() => editRow(d.id)}>
+                              <Button
+                                size="small"
+                                variant="contained"
+                                type="submit"
+                                disabled={editButtonLocked}
+                                onClick={() => editRow(d.id)}
+                              >
                                 Edytuj
+                              </Button>
+
+                              <Button
+                                size="small"
+                                variant="contained"
+                                type="button"
+                                onClick={() => handleMulitSettlement(d)}
+                                sx={{ ml: '20px' }}
+                              >
+                                +
                               </Button>
                             </TableCell>
                           ) : (

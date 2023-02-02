@@ -33,18 +33,21 @@ export type ValveType = {
   removed: boolean;
   hasBeenUsed?: boolean;
   useDate: Date;
-  details?: string
+  details?: string;
 };
 
 export type SpendingType = {
   id: string;
   elementId: string;
   elementName: string;
-  amount: number;
+  amount: number | string;
   addedBy: string;
   createdAt: string;
   removed: boolean;
   payProvison: boolean;
+  hasBeenUsed?: boolean;
+  details?: string;
+  payoutDate?: Date;
 };
 
 export type SettlementItemType = {
@@ -59,5 +62,5 @@ export type SettlementItemType = {
   removed: boolean;
   settlementDate: string;
   settled: boolean;
-  settlementStatus: string
+  settlementStatus: string;
 };
