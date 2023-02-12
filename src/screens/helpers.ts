@@ -128,9 +128,12 @@ export const handleSpendingInputs = (addOnly = false) => {
   ];
 };
 
+const adminUserEmails = ['antoni.aleksander@gmail.com', 'stanwrobel90@gmail.com'];
+export const allowedUserEmails = adminUserEmails.concat('dolinek@wp.pl');
+
 export const isAdminUser = (user: User | null) => {
   if (!user) return false;
-  const adminUserEmails = ['antoni.aleksander@gmail.com', 'stanwrobel90@gmail.com'];
+
   const userEmail = user.email || '';
 
   return adminUserEmails.includes(userEmail);

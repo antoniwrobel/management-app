@@ -2,31 +2,44 @@ import routes from './config/routes';
 import Center from './components/utils/Center';
 import AuthChecker from './components/auth/AuthChecker';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Box, Button, CircularProgress } from '@mui/material';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { auth } from './config/firebase';
+import { allowedUserEmails } from './screens/helpers';
 
 function App() {
   const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
       if (user) {
-        console.info('User detected.');
+        if (user.email) {
+          if (!allowedUserEmails.includes(user.email)) {
+            setHasError(true);
+            setLoading(false);
+          }
+        }
       } else {
         console.info('No user detected');
       }
+
       setLoading(false);
     });
   }, []);
 
-  if (loading)
+  if (loading) {
     return (
       <Center height="100vh">
         <CircularProgress />
       </Center>
     );
+  }
+
+  if (hasError) {
+    return <Center height="100vh">no access</Center>;
+  }
 
   return (
     <div>
