@@ -142,9 +142,10 @@ export const EditItem = (props: EditItemProps) => {
             if (!currentSelected) return;
 
             const itemDoc = doc(db, 'items', currentSelected.id);
-            const profit = (values.saleAmount - values.purchaseAmount - (values.provision || 0) - (values.sendCost || 0)) / 2;
-            const clearingValueWojtek = values.purchaseAmount + profit || 0;
-            const clearingValueStan = profit;
+            const profit =
+              (values.saleAmount - values.purchaseAmount - (values.provision || 0) - (values.sendCost || 0)) / 2;
+            const clearingValueWojtek = (values.purchaseAmount + profit).toFixed(2) || 0;
+            const clearingValueStan = profit.toFixed(2);
             const shouldAddSpendings = values.status === 'sprzedano';
             const isReturn = currentSelected.status === 'zwrot' && values.status === 'utworzono';
             const shouldClearSettled = isReturn && currentSelected.settled;
@@ -316,7 +317,7 @@ export const EditItem = (props: EditItemProps) => {
                           type="text"
                           label="przelano do skarbonki"
                           variant="outlined"
-                          value={`${values.valueTransferedToValve}zł`}
+                          value={`${Number(values.valueTransferedToValve).toFixed(2)}zł`}
                           fullWidth
                         />
                       </Box>

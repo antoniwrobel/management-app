@@ -186,8 +186,6 @@ const MagazynKomis = () => {
     }
   };
 
-
-
   const handleReturn = async (item: ItemType) => {
     const { id, productName, provision } = item;
 
@@ -563,7 +561,7 @@ const MagazynKomis = () => {
                       wysyłki
                     </TableCell>
                   )}
-      
+
                   {columnsVisible.includes(5) && (
                     <TableCell align="center" sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
                       Prowizja <br /> od sprzedaży
@@ -635,7 +633,7 @@ const MagazynKomis = () => {
                   }
 
                   if (item.status === 'sprzedano') {
-                    summaryStan += item.clearingValueStan || 0;
+                    summaryStan += Number(item.clearingValueStan) || 0;
                   }
 
                   const removedCellStyles =
@@ -762,7 +760,7 @@ const MagazynKomis = () => {
                             ...removedCellStyles
                           }}
                         >
-                          {item.clearingValueStan ? `${item.clearingValueStan.toFixed(2)}zł` : '-'}
+                          {item.clearingValueStan ? `${Number(item.clearingValueStan).toFixed(2)}zł` : '-'}
                         </TableCell>
                       )}
                       {columnsVisible.includes(7) && (
@@ -774,7 +772,7 @@ const MagazynKomis = () => {
                             ...removedCellStyles
                           }}
                         >
-                          {item.clearingValueWojtek ? `${item.clearingValueWojtek.toFixed(2)}zł` : '-'}
+                          {item.clearingValueWojtek ? `${Number(item.clearingValueWojtek).toFixed(2)}zł` : '-'}
                         </TableCell>
                       )}
                       {columnsVisible.includes(8) && (
@@ -889,7 +887,7 @@ const MagazynKomis = () => {
       >
         <Box sx={{ fontWeight: 'bold', display: 'flex', justifyContent: 'space-between' }}>
           Podsumowanie
-          <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>{summaryStan.toFixed(2)}zł</Box>
+          <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>{summaryStan}zł</Box>
         </Box>
       </Box>
     </Container>

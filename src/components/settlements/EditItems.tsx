@@ -98,7 +98,7 @@ export const EditItems = (props: EditItemProps) => {
                 </Box>
                 <Box sx={{ display: 'flex', mt: '10px' }}>
                   <Typography>Suma do rozliczenia to:</Typography>
-                  <Typography sx={{ fontWeight: 'bold', ml: '5px' }}>{amountToHandle.toFixed(2)}zł</Typography>
+                  <Typography sx={{ fontWeight: 'bold', ml: '5px' }}>{Number(amountToHandle).toFixed(2)}zł</Typography>
                 </Box>
 
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
