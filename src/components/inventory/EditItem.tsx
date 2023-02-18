@@ -317,7 +317,7 @@ export const EditItem = (props: EditItemProps) => {
                           type="text"
                           label="przelano do skarbonki"
                           variant="outlined"
-                          value={`${values.valueTransferedToValve}zł`}
+                          value={`${Number(values.valueTransferedToValve).toFixed(2)}zł`}
                           fullWidth
                         />
                       </Box>

@@ -45,8 +45,6 @@ const Skarbonka = () => {
     getData();
   }, []);
 
-
-
   const handleMulitSettlement = (item: ValveType) => {
     const itemAdded = currentSelected.find((currentSelected) => currentSelected.id === item.id);
 
@@ -152,20 +150,19 @@ const Skarbonka = () => {
       ) : null}
 
       {!editBlocked ? (
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
-            <Button variant="contained" onClick={() => setModalOpen(true)} disabled={!currentSelected.length}>
-              Wypłać
-            </Button>
-          </Box>
-        ) : null}
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px' }}>
+          <Button variant="contained" onClick={() => setModalOpen(true)} disabled={!currentSelected.length}>
+            Wypłać
+          </Button>
+        </Box>
+      ) : null}
 
-        <EditItems
-          currentSelected={currentSelected}
-          editModalOpen={modalOpen}
-          getItems={getData}
-          setEditModalOpen={setModalOpen}
-        />
-
+      <EditItems
+        currentSelected={currentSelected}
+        editModalOpen={modalOpen}
+        getItems={getData}
+        setEditModalOpen={setModalOpen}
+      />
 
       <Center>
         <div
@@ -214,7 +211,7 @@ const Skarbonka = () => {
                       Data dodania
                     </TableCell>
 
-                    <TableCell align="center" sx={{ fontWeight: 'bold'}}>
+                    <TableCell align="center" sx={{ fontWeight: 'bold' }}>
                       Uwagi
                     </TableCell>
 
@@ -241,8 +238,8 @@ const Skarbonka = () => {
                           }
                         : {};
 
-                        const itemSelectedFound = currentSelected.find((e) => e.id === d.id);
-                        const isSelected = Boolean(itemSelectedFound);
+                      const itemSelectedFound = currentSelected.find((e) => e.id === d.id);
+                      const isSelected = Boolean(itemSelectedFound);
 
                       return (
                         <TableRow
@@ -254,7 +251,7 @@ const Skarbonka = () => {
                             setDetails(data);
                           }}
                           sx={{
-                            background: isSelected ? '#0000ff2e' : d.hasBeenUsed ? "#f9f214" : "#fff"
+                            background: isSelected ? '#0000ff2e' : d.hasBeenUsed ? '#f9f214' : '#fff'
                           }}
                         >
                           <TableCell
@@ -286,9 +283,9 @@ const Skarbonka = () => {
                             {dayjs(d.createdAt).format('DD/MM/YYYY')}
                           </TableCell>
                           <TableCell component="th" scope="row" align="right">
-                            {d.details ? d.details : "-"}
+                            {d.details ? d.details : '-'}
                           </TableCell>
-                          {!d.hasBeenUsed ?
+                          {!d.hasBeenUsed ? (
                             <TableCell align="right">
                               <Button
                                 size="small"
@@ -299,11 +296,10 @@ const Skarbonka = () => {
                               >
                                 +
                               </Button>
-                            </TableCell> :
-                            <TableCell align="right">
-                          </TableCell>
-                          }
-                          
+                            </TableCell>
+                          ) : (
+                            <TableCell align="right"></TableCell>
+                          )}
                         </TableRow>
                       );
                     })}

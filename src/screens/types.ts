@@ -15,8 +15,8 @@ export type ItemType = {
   previousSaleAmount: number | null;
   removed: boolean;
   url: string;
-  clearingValueWojtek: string;
-  clearingValueStan: string;
+  clearingValueWojtek: number;
+  clearingValueStan: number;
   provision: number | null;
   provisionPayed: boolean;
   settled: boolean;

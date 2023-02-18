@@ -8,7 +8,7 @@ import { auth, db } from '../../config/firebase';
 import { addDoc, updateDoc, doc, collection, getDocs } from '@firebase/firestore';
 import { useState } from 'react';
 import { ItemType, SettlementItemType } from '../../screens/types';
-import { Typography } from '@mui/material';
+import { Checkbox, Typography } from '@mui/material';
 
 import dayjs from 'dayjs';
 
@@ -23,18 +23,14 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
   const { valveModalOpen, currentSelected, getItems, setValveModalOpen } = props;
   const [user] = useState(auth.currentUser);
 
+  const [transferAll, setTransferAll] = useState(false);
+
   const valveCollectionRef = collection(db, 'valve');
   const settlementsCollectionRef = collection(db, 'settlements');
 
   if (!currentSelected) {
     return <></>;
   }
-  const { saleAmount, purchaseAmount, sendCost, provision, valueTransferedToValve } = currentSelected;
-
-  const amountLeft = (
-    (saleAmount - purchaseAmount - sendCost - (provision || 0) - (valueTransferedToValve || 0)) /
-    2
-  ).toFixed(2);
 
   return (
     <ValveModal open={valveModalOpen}>
@@ -45,15 +41,21 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
             <Typography
               sx={{ display: 'inline-block', fontStyle: 'oblique', fontWeight: 'bold', mb: '10px', ml: '3px' }}
             >
-              {currentSelected.clearingValueWojtek || 0}zł
+              {Number(currentSelected.clearingValueWojtek).toFixed(2) || 0}zł
             </Typography>
             <br />
             <Typography sx={{ display: 'inline-block' }}>Dopuszczalna kwota do odłożenia to: </Typography>
             <Typography
               sx={{ display: 'inline-block', fontStyle: 'oblique', fontWeight: 'bold', mb: '10px', ml: '3px' }}
             >
-              {amountLeft}zł
+              {Number(currentSelected.clearingValueStan).toFixed(2)}zł
             </Typography>
+            <br />
+            <Box sx={{ height: '1px', background: 'black', my: '10px', boxSizing: 'border-box' }} />
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: '20px' }}>
+              <Typography sx={{ display: 'inline-block' }}>Przelej całą kwotę</Typography>
+              <Checkbox name="transferAll" checked={transferAll} onChange={() => setTransferAll((prev) => !prev)} />
+            </Box>
           </Box>
         </Box>
 
@@ -67,21 +69,15 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
             }
 
             const errors = {} as any;
+            if (transferAll) {
+              return;
+            }
 
             if (!values.amount) {
               errors.amount = 'Podaj wartość do przekazania!';
             }
-            console.log(
-              Number(amountLeft) -
-                Number(currentSelected.clearingValueStan) -
-                Number(currentSelected.clearingValueWojtek)
-            );
-            if (
-              Number(amountLeft) -
-                Number(currentSelected.clearingValueStan) -
-                Number(currentSelected.clearingValueWojtek) <
-              0
-            ) {
+
+            if (currentSelected.clearingValueStan - Number(values.amount) < 0) {
               errors.amount = 'Podana wartość przewyższa dopuszczalną kwotę!';
             }
 
@@ -89,16 +85,18 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
           }}
           onSubmit={async (values, { setSubmitting }) => {
             if (!currentSelected) return;
-
             const { amount } = values;
             const itemDoc = doc(db, 'items', currentSelected.id);
-
             const amountToReduce = parseFloat(amount);
 
             await updateDoc(itemDoc, {
-              valueTransferedToValve: (currentSelected.valueTransferedToValve || 0) + amountToReduce * 2,
-              clearingValueWojtek: (Number(currentSelected.clearingValueWojtek) - amountToReduce).toFixed(2),
-              clearingValueStan: (Number(currentSelected.clearingValueStan) - amountToReduce).toFixed(2)
+              valueTransferedToValve: transferAll
+                ? Number(currentSelected.clearingValueWojtek) +
+                  Number(currentSelected.clearingValueStan) +
+                  (currentSelected.valueTransferedToValve || 0)
+                : (currentSelected.valueTransferedToValve || 0) + amountToReduce * 2,
+              clearingValueWojtek: transferAll ? 0 : Number(currentSelected.clearingValueWojtek) - amountToReduce,
+              clearingValueStan: transferAll ? 0 : Number(currentSelected.clearingValueStan) - amountToReduce
             });
 
             const d = await getDocs(settlementsCollectionRef);
@@ -110,51 +108,55 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
                 if (element.removed) {
                   return;
                 }
-
                 const settlementsDoc = doc(db, 'settlements', element.id);
 
                 return updateDoc(settlementsDoc, {
-                  clearingValueWojtek: (Number(currentSelected.clearingValueWojtek) - amountToReduce).toFixed(2),
-                  clearingValueStan: (Number(currentSelected.clearingValueStan) - amountToReduce).toFixed(2)
+                  clearingValueWojtek: transferAll ? 0 : Number(currentSelected.clearingValueWojtek) - amountToReduce,
+                  clearingValueStan: transferAll ? 0 : Number(currentSelected.clearingValueStan) - amountToReduce
                 });
               });
-
               await Promise.all(elementsPromise);
             }
 
             await addDoc(valveCollectionRef, {
-              amount: parseFloat(amount) * 2,
+              amount: transferAll
+                ? Number(currentSelected.clearingValueWojtek) + Number(currentSelected.clearingValueStan)
+                : parseFloat(amount) * 2,
               elementId: currentSelected.id,
               elementName: currentSelected.productName,
               createdAt: dayjs().format(),
               userName: user?.displayName
             });
-
             getItems();
             setSubmitting(false);
             setValveModalOpen(false);
           }}
         >
           {({ values, touched, errors, handleChange, handleBlur, handleSubmit, isSubmitting }) => {
+            const fixedValue = transferAll ? '' : values.amount;
+
             return (
               <form onSubmit={handleSubmit}>
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
-                    <Box sx={{ gridColumn: 'span 4' }}>
-                      <TextField
-                        type="number"
-                        name="amount"
-                        label="kwota potrącenia od każdej osoby"
-                        variant="outlined"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        value={values.amount}
-                        error={touched.amount && Boolean(errors.amount)}
-                        helperText={touched.amount && errors.amount}
-                        fullWidth
-                      />
+                  {transferAll ? null : (
+                    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
+                      <Box sx={{ gridColumn: 'span 4' }}>
+                        <TextField
+                          type="number"
+                          name="amount"
+                          label="kwota potrącenia od każdej osoby"
+                          variant="outlined"
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          value={fixedValue}
+                          error={touched.amount && Boolean(errors.amount)}
+                          helperText={touched.amount && errors.amount}
+                          fullWidth
+                          disabled={transferAll}
+                        />
+                      </Box>
                     </Box>
-                  </Box>
+                  )}
 
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px' }}>
                     <Button
