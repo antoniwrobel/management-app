@@ -249,18 +249,17 @@ const RozliczeniaKomis = () => {
                       }
 
                       if (!item.removed && item.settled && item.settlementStatus === 'rozliczono') {
-                        
                       } else if (!item.removed && !item.settled && item.settlementStatus !== 'nierozliczono') {
-                        summaryWojtek += item.clearingValueWojtek;
+                        summaryWojtek += Number(item.clearingValueWojtek);
                       } else if (!item.removed && !item.settled && item.settlementStatus === 'nierozliczono') {
-                        summaryWojtek -= item.clearingValueWojtek;
+                        summaryWojtek -= Number(item.clearingValueWojtek);
                       } else if (
                         !item.removed &&
                         item.status === 'zwrot' &&
                         item.settled &&
                         item.settlementStatus === 'rozliczono'
                       ) {
-                        summaryWojtek -= item.clearingValueWojtek;
+                        summaryWojtek -= Number(item.clearingValueWojtek);
                       }
 
                       const itemSelectedFound = currentSelected.find((e) => e.id === item.id);
@@ -329,7 +328,7 @@ const RozliczeniaKomis = () => {
                           >
                             <Box sx={removedCellStyles}>
                               {item.settled && item.status === 'zwrot' && '-'}
-                              {item.clearingValueWojtek.toFixed(2)}zł
+                              {Number(item.clearingValueWojtek).toFixed(2)}zł
                             </Box>
                           </TableCell>
 

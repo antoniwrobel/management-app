@@ -29,6 +29,12 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
   if (!currentSelected) {
     return <></>;
   }
+  const { saleAmount, purchaseAmount, sendCost, provision, valueTransferedToValve } = currentSelected;
+
+  const amountLeft = (
+    (saleAmount - purchaseAmount - sendCost - (provision || 0) - (valueTransferedToValve || 0)) /
+    2
+  ).toFixed(2);
 
   return (
     <ValveModal open={valveModalOpen}>
@@ -39,7 +45,14 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
             <Typography
               sx={{ display: 'inline-block', fontStyle: 'oblique', fontWeight: 'bold', mb: '10px', ml: '3px' }}
             >
-              {(currentSelected.clearingValueWojtek || 0).toFixed(2)}zł
+              {currentSelected.clearingValueWojtek || 0}zł
+            </Typography>
+            <br />
+            <Typography sx={{ display: 'inline-block' }}>Dopuszczalna kwota do odłożenia to: </Typography>
+            <Typography
+              sx={{ display: 'inline-block', fontStyle: 'oblique', fontWeight: 'bold', mb: '10px', ml: '3px' }}
+            >
+              {amountLeft}zł
             </Typography>
           </Box>
         </Box>
@@ -49,10 +62,27 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
             amount: ''
           }}
           validate={(values) => {
+            if (!currentSelected) {
+              return;
+            }
+
             const errors = {} as any;
 
             if (!values.amount) {
               errors.amount = 'Podaj wartość do przekazania!';
+            }
+            console.log(
+              Number(amountLeft) -
+                Number(currentSelected.clearingValueStan) -
+                Number(currentSelected.clearingValueWojtek)
+            );
+            if (
+              Number(amountLeft) -
+                Number(currentSelected.clearingValueStan) -
+                Number(currentSelected.clearingValueWojtek) <
+              0
+            ) {
+              errors.amount = 'Podana wartość przewyższa dopuszczalną kwotę!';
             }
 
             return errors;
@@ -67,8 +97,8 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
 
             await updateDoc(itemDoc, {
               valueTransferedToValve: (currentSelected.valueTransferedToValve || 0) + amountToReduce * 2,
-              clearingValueWojtek: currentSelected.clearingValueWojtek - amountToReduce,
-              clearingValueStan: currentSelected.clearingValueStan - amountToReduce
+              clearingValueWojtek: (Number(currentSelected.clearingValueWojtek) - amountToReduce).toFixed(2),
+              clearingValueStan: (Number(currentSelected.clearingValueStan) - amountToReduce).toFixed(2)
             });
 
             const d = await getDocs(settlementsCollectionRef);
@@ -84,8 +114,8 @@ export const AddToValveModal = (props: AddToValveModalProps) => {
                 const settlementsDoc = doc(db, 'settlements', element.id);
 
                 return updateDoc(settlementsDoc, {
-                  clearingValueWojtek: currentSelected.clearingValueWojtek - amountToReduce,
-                  clearingValueStan: currentSelected.clearingValueStan - amountToReduce
+                  clearingValueWojtek: (Number(currentSelected.clearingValueWojtek) - amountToReduce).toFixed(2),
+                  clearingValueStan: (Number(currentSelected.clearingValueStan) - amountToReduce).toFixed(2)
                 });
               });
 
