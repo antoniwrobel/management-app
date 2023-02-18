@@ -238,6 +238,10 @@ const RozliczeniaKomis = () => {
                     // @ts-ignore
                     .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
                     .map((item) => {
+                      if (!item.hasOwnProperty('elementId')) {
+                        return;
+                      }
+
                       if (hideSettled) {
                         if (item.settlementStatus === 'rozliczono' && item.status === 'sprzedano') {
                           return;
@@ -249,7 +253,6 @@ const RozliczeniaKomis = () => {
                       }
 
                       if (!item.removed && item.settled && item.settlementStatus === 'rozliczono') {
-                        
                       } else if (!item.removed && !item.settled && item.settlementStatus !== 'nierozliczono') {
                         summaryWojtek += item.clearingValueWojtek;
                       } else if (!item.removed && !item.settled && item.settlementStatus === 'nierozliczono') {
