@@ -12,7 +12,7 @@ const RozliczeniaWrapper = () => {
   };
 
   return (
-    <Box display={'flex'} alignItems={'center'} flexDirection={'column'} boxShadow={2} margin={3}>
+    <Box display={'flex'} alignItems={'center'} flexDirection={'column'} boxShadow={2} margin={3} overflow="scroll">
       <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
         <Tabs value={value} onChange={handleChange}>
           <Tab label="Komis" />
