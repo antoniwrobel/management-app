@@ -12,7 +12,7 @@ import Paper from '@mui/material/Paper';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import CheckCircleSharpIcon from '@mui/icons-material/CheckCircleSharp';
-
+import { useNavigate } from "react-router-dom";
 import DeleteOutlineSharpIcon from '@mui/icons-material/DeleteOutlineSharp';
 import ModeEditSharpIcon from '@mui/icons-material/ModeEditSharp';
 import { auth, db } from '../config/firebase';
@@ -49,6 +49,8 @@ import dayjs from 'dayjs';
 import Typography from '@mui/material/Typography';
 
 const MagazynKomis = () => {
+  const navigate = useNavigate();
+
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [valveModalOpen, setValveModalOpen] = useState(false);
@@ -175,6 +177,8 @@ const MagazynKomis = () => {
     if (selectedItem) {
       setCurrentSelected(selectedItem);
       setEditModalOpen(true);
+
+      navigate(`?id=${selectedItem.id}`)
     }
   };
 
@@ -383,6 +387,25 @@ const MagazynKomis = () => {
     console.log("naciśnieto klawisz escape - czyszczę filtrowanie")
   })
 
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search)
+    const itemId = searchParams.get('id')
+
+    if(!itemId){
+      return
+    }
+
+    const selectedItem = items.find((item) => item.id === itemId);
+    
+    if(!selectedItem){
+      return 
+    }
+
+    setCurrentSelected(selectedItem)
+    setEditModalOpen(true)
+    
+  },[items])
+
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%', position: 'relative' }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
@@ -555,9 +578,7 @@ const MagazynKomis = () => {
                 }}
               >
                 <TableRow>
-                <TableCell align="center">
-
-                </TableCell>
+                <TableCell align="center"/>
                   {columnsVisible.includes(0) && <TableCell sx={{ fontWeight: 'bold' }}>Nazwa produktu</TableCell>}
                   {columnsVisible.includes(1) && (
                     <TableCell
@@ -672,7 +693,7 @@ const MagazynKomis = () => {
                   if(showDeleted && !item.removed){
                     return 
                   }
-                  
+
                   if (!showDeleted && item.removed) {
                     return;
                   }
@@ -691,13 +712,13 @@ const MagazynKomis = () => {
                   return (
                     <TableRow key={item.id} sx={{ backgroundColor: `${item.color}26` }}>
                       
-                      <TableCell sx={{cursor: !item.removed ? "pointer" : "initial", textAlign: "center"}}>
-                        <ModeEditSharpIcon fontSize="small" onClick={() => {
+                      <TableCell sx={{cursor: !item.removed ? "pointer" : "initial", textAlign: "center"}} onClick={() => {
                           if(item.removed){
                             return
                           }
                           editRow(item.id)
-                        }} sx={{color: "rgb(25, 118, 210)", visibility: item.removed ? "hidden" : "initial"}}/>
+                        }}>
+                        <ModeEditSharpIcon fontSize="small" sx={{color: "rgb(25, 118, 210)", visibility: item.removed ? "hidden" : "initial"}}/>
                       </TableCell>
                       
                       {columnsVisible.includes(0) && (

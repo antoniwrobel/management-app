@@ -228,6 +228,9 @@ const Skarbonka = () => {
                         return;
                       }
 
+                      if(showDeleted && !d.removed){
+                        return 
+                      }
                       if (!d.removed && !d.hasBeenUsed) {
                         total += d.amount;
                       }

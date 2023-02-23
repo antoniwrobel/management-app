@@ -242,6 +242,10 @@ const RozliczeniaKomis = () => {
                         return;
                       }
 
+                      if(showDeleted && !item.removed){
+                        return 
+                      }
+
                       if (hideSettled) {
                         if (item.settlementStatus === 'rozliczono' && item.status === 'sprzedano') {
                           return;

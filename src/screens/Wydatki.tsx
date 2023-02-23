@@ -269,6 +269,10 @@ const Spendings = ({}: Props) => {
                         return;
                       }
 
+                      if(showDeleted && !d.removed){
+                        return 
+                      }
+
                       const itemSelectedFound = multiCurrentSelected.find((e) => e.id === d.id);
                       const isSelected = Boolean(itemSelectedFound);
 

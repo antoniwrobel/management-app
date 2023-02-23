@@ -19,10 +19,11 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { ItemType, ValveType } from '../../screens/types';
 import { db } from '../../config/firebase';
 import { handleInputs } from '../../screens/helpers';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ConfirmationModal } from '../modal/ConfirmationModal';
 
 import dayjs from 'dayjs';
+import { useNavigate } from 'react-router-dom';
 
 type EditItemProps = {
   editModalOpen: boolean;
@@ -33,7 +34,8 @@ type EditItemProps = {
 
 export const EditItem = (props: EditItemProps) => {
   const { currentSelected, editModalOpen, getItems, setEditModalOpen } = props;
-
+  const navigate = useNavigate()
+  
   const matches = useMediaQuery('(max-width:500px)');
   const valveCollectionRef = collection(db, 'valve');
   const settlementsCollectionRef = collection(db, 'settlements');
@@ -63,18 +65,20 @@ export const EditItem = (props: EditItemProps) => {
 
     updateDoc(item, {
       removed: true,
-      status: "usunięto",
+      status: currentSelected.status === "utworzono" ? "usunięto" : currentSelected.status,
       deletedDate: dayjs().format()
     });
 
     setDeleteConfirmationOpen(false);
     setEditModalOpen(false);
     getItems();
+    navigate("/")
   };
-
+  
   const buttonDisabled = currentSelected?.status === 'sprzedano';
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const magazynInputs = handleInputs();
+
 
   if (!currentSelected) {
     return <></>;
@@ -343,12 +347,15 @@ export const EditItem = (props: EditItemProps) => {
                       variant="outlined"
                       sx={{ mr: '10px' }}
                       color="error"
-                      onClick={() => setEditModalOpen(false)}
+                      onClick={() => {
+                        navigate("/")
+                        setEditModalOpen(false)}
+                      }
                       size="small"
                     >
                       Zamknij
                     </Button>
-                    <Button variant="outlined" size="small" type="submit" disabled={isSubmitting || buttonDisabled}>
+                    <Button variant="outlined" size="small" type="submit" disabled={isSubmitting || buttonDisabled} onClick={() => navigate("/")}>
                       Zapisz
                     </Button>
                   </Box>
