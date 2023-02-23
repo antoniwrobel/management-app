@@ -56,17 +56,13 @@ export const EditItem = (props: EditItemProps) => {
       const searchParams = new URLSearchParams(window.location.search);
       const historyOpen = searchParams.get('history');
 
-      if (!historyData.length) {
-        getChangesHistory();
-      }
-
       if (historyOpen) {
         navigate(`?id=${currentSelected.id}&history=1`);
       } else {
         navigate(`?id=${currentSelected.id}`);
       }
     }
-  }, [editModalOpen, window.location.search, historySectionOpen, historyData]);
+  }, [editModalOpen, window.location.search, historySectionOpen]);
 
   const matches = useMediaQuery('(max-width:500px)');
   const valveCollectionRef = collection(db, 'valve');
