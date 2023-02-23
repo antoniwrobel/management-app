@@ -51,6 +51,7 @@ const MagazynKomis = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [valveModalOpen, setValveModalOpen] = useState(false);
+  const [showSold, setShowSold] = useState(false);
 
   const [returnConfirmationOpen, setReturnConfirmationOpen] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -137,7 +138,6 @@ const MagazynKomis = () => {
             })
         : sortedBy === 'createdDate'
         ? itemsToUpdate
-            .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime())
             .sort((a, b) => {
               if (direction.createdDate === 'asc') {
                 return new Date(b.createDate).getTime() - new Date(a.createDate).getTime();
@@ -147,7 +147,7 @@ const MagazynKomis = () => {
             })
         : itemsToUpdate.sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());
 
-    return deafultSortedItems;
+    return deafultSortedItems
   };
 
   useEffect(() => {
@@ -278,7 +278,8 @@ const MagazynKomis = () => {
 
   let summaryStan = 0;
 
-  const haveRemoved = items.filter((e) => e.removed);
+  const removedItems = items.filter((e) => e.removed);
+  const soldItems = items.filter(e => Boolean(e.soldDate))
 
   const debouncedResults = useMemo(() => {
     return debounce(setSearchTerm, 500);
@@ -396,6 +397,9 @@ const MagazynKomis = () => {
     
   }, [items])
 
+  let totalPurchase = 0
+  let totalSold = 0
+
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%', position: 'relative' }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
@@ -499,10 +503,18 @@ const MagazynKomis = () => {
             </Box>
           )}
 
-          {haveRemoved.length ? (
+          {removedItems.length ? (
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px', height: '55px' }}>
               <Button variant="contained" onClick={() => setShowDeleted((prev) => !prev)}>
                 {!showDeleted ? 'Pokaż usunięte' : 'Schowaj usunięte'}
+              </Button>
+            </Box>
+          ) : null}
+
+          {soldItems.length ? (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px', height: '55px' }}>
+              <Button variant="contained" onClick={() => setShowSold((prev) => !prev)}>
+                {!showSold ? 'Pokaż sprzedane' : 'Pokaż utworzone'}
               </Button>
             </Box>
           ) : null}
@@ -576,22 +588,10 @@ const MagazynKomis = () => {
                       sx={{
                         whiteSpace: 'nowrap',
                         fontWeight: 'bold',
-                        cursor: 'pointer'
-                      }}
-                      onClick={() => {
-                        setSortedBy('status');
-                        setDireciton((prev) =>
-                          prev.status === 'asc' ? { ...prev, status: 'desc' } : { ...prev, status: 'asc' }
-                        );
                       }}
                     >
                       Status <br />
                       zamówienia
-                      {sortedBy === 'status' ? (
-                        <Box sx={{ position: 'absolute', top: 0, right: 0 }}>
-                          {direction.status === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
-                        </Box>
-                      ) : null}
                     </TableCell>
                   )}
 
@@ -680,6 +680,19 @@ const MagazynKomis = () => {
                   <TableCell />
                 </TableRow>
                 {items.map((item) => {
+                  if(item.status === "sprzedano"){
+                    totalPurchase += Number(item.purchaseAmount)
+                    totalSold += Number(item.saleAmount)
+                  }
+
+                  if(!showSold && item.status === "sprzedano"){
+                    return 
+                  }
+
+                  if(showSold && item.status !== "sprzedano"){
+                    return 
+                  }
+
                   if(showDeleted && !item.removed){
                     return 
                   }
@@ -719,6 +732,7 @@ const MagazynKomis = () => {
                             color: item.status === 'zwrot' ? 'red' : 'inherit',
                             fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
                             position: 'relative',
+                            pr: "45px",
                             ...removedCellStyles
                           }}
                         >
@@ -943,19 +957,55 @@ const MagazynKomis = () => {
           <Box sx={{ my: '20px' }}>Brak danych</Box>
         )}
       </Center>
+      {showSold &&
+        <Box
+          sx={{
+            padding: '16px',
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+        >
+          <Box sx={{ fontWeight: 'bold', display: 'flex', justifyContent: 'space-between' }}>
+            Podsumowanie
+            <Box>
+              <Box sx={{display: "flex", justifyContent: "space-between"}}> 
+                <Typography
+                  sx={{
+                    width: "180px",
+                    textAlign: "right"
+                  }}
+                >
+                  dochód na osobę :
+                </Typography>
+                <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>{summaryStan.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}zł</Box>
+              </Box>
 
-      <Box
-        sx={{
-          padding: '16px',
-          display: 'flex',
-          flexDirection: 'column'
-        }}
-      >
-        <Box sx={{ fontWeight: 'bold', display: 'flex', justifyContent: 'space-between' }}>
-          Podsumowanie
-          <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>{summaryStan.toFixed(2)}zł</Box>
+              <Box sx={{display: "flex", justifyContent: "space-between"}}>
+                <Typography
+                    sx={{
+                      width: "180px",
+                      textAlign: "right"
+                    }}
+                  >
+                    kwota zakupu :
+                  </Typography>
+                <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>{totalPurchase.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}zł</Box>
+              </Box>
+              <Box sx={{display: "flex", justifyContent: "space-between"}}>
+                <Typography 
+                  sx={{
+                    width: "180px",
+                    textAlign: "right"
+                  }}
+                >
+                  kwota sprzedaży :
+                </Typography>
+                <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>{totalSold.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}zł</Box>
+              </Box>
+            </Box>
+          </Box>
         </Box>
-      </Box>
+      }
     </Container>
   );
 };
