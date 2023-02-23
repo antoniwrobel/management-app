@@ -48,21 +48,6 @@ import AddAPhotoSharpIcon from '@mui/icons-material/AddAPhotoSharp';
 import dayjs from 'dayjs';
 import Typography from '@mui/material/Typography';
 
-
-//@ts-ignore
-const useKeypress = (key, action) => {
-  useEffect(() => {
-    //@ts-ignore
-    const onKeyup = (e) => {
-      if (e.key === key){
-        action()
-      } 
-    }
-    window.addEventListener('keyup', onKeyup);
-    return () => window.removeEventListener('keyup', onKeyup);
-  }, []);
-}
-
 const MagazynKomis = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -362,16 +347,40 @@ const MagazynKomis = () => {
     }
   };
 
+  const useKeypress = (key: string, action: () => void) => {
+    useEffect(() => {
+      //@ts-ignore
+      const onKeyup = (e) => {
+        if (e.key === key){
+          action()
+        } 
+      }
+      window.addEventListener('keyup', onKeyup);
+      
+      return () => window.removeEventListener('keyup', onKeyup);
+    }, [editModalOpen, modalOpen, valveModalOpen]);
+  }
+
   const inputRef = useRef<HTMLInputElement>(null)
 
   useKeypress("Escape", () => {
-    if(inputRef && inputRef.current){
-      if(inputRef.current.value.length){
-        inputRef.current.value = ""
-        setSearchTerm("")
-      }
-      
+    const allModals = [modalOpen, editModalOpen, valveModalOpen]
+    const isAnyModalOpen = allModals.some(modal => modal)
+    const noInputRefValue = !inputRef || !inputRef.current || !inputRef.current.value.length
+
+    if(noInputRefValue){
+      return
     }
+
+    if(isAnyModalOpen){
+      console.log("nie można usunąć danych - otwarty modal")
+      return
+    }
+    
+    inputRef.current.value = ""
+    setSearchTerm("") 
+
+    console.log("naciśnieto klawisz escape - czyszczę filtrowanie")
   })
 
   return (
