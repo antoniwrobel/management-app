@@ -11,8 +11,10 @@ const Magazyn = () => {
     setValue(newValue);
   };
 
+  const isMobile = window.innerWidth < 900
+
   return (
-    <Box display={'flex'} alignItems={'center'} flexDirection={'column'} boxShadow={2} margin={3} overflow="scroll">
+    <Box display={'flex'} alignItems={'center'} flexDirection={'column'} boxShadow={2} margin={3} overflow={isMobile ? "scroll" : "initial"}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider', width: '100%' }}>
         <Tabs value={value} onChange={handleChange}>
           <Tab label="Komis" />

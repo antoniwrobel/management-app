@@ -887,7 +887,7 @@ const MagazynKomis = () => {
       >
         <Box sx={{ fontWeight: 'bold', display: 'flex', justifyContent: 'space-between' }}>
           Podsumowanie
-          <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>{summaryStan}zł</Box>
+          <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>{summaryStan.toFixed(2)}zł</Box>
         </Box>
       </Box>
     </Container>
