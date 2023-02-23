@@ -12,7 +12,6 @@ import Paper from '@mui/material/Paper';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import CheckCircleSharpIcon from '@mui/icons-material/CheckCircleSharp';
-import { useNavigate } from "react-router-dom";
 import DeleteOutlineSharpIcon from '@mui/icons-material/DeleteOutlineSharp';
 import ModeEditSharpIcon from '@mui/icons-material/ModeEditSharp';
 import { auth, db } from '../config/firebase';
@@ -49,8 +48,6 @@ import dayjs from 'dayjs';
 import Typography from '@mui/material/Typography';
 
 const MagazynKomis = () => {
-  const navigate = useNavigate();
-
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [valveModalOpen, setValveModalOpen] = useState(false);
@@ -177,8 +174,6 @@ const MagazynKomis = () => {
     if (selectedItem) {
       setCurrentSelected(selectedItem);
       setEditModalOpen(true);
-
-      navigate(`?id=${selectedItem.id}`)
     }
   };
 
@@ -390,21 +385,16 @@ const MagazynKomis = () => {
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search)
     const itemId = searchParams.get('id')
+    const selectedItem = items.find((item) => item.id === itemId);
 
-    if(!itemId){
+    if(!selectedItem){
       return
     }
-
-    const selectedItem = items.find((item) => item.id === itemId);
     
-    if(!selectedItem){
-      return 
-    }
-
     setCurrentSelected(selectedItem)
     setEditModalOpen(true)
     
-  },[items])
+  }, [items])
 
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%', position: 'relative' }}>
@@ -520,7 +510,7 @@ const MagazynKomis = () => {
       </Box>
 
       <AddItem modalOpen={modalOpen} setModalOpen={setModalOpen} getItems={getItems} />
-
+        
       <EditItem
         currentSelected={currentSelected}
         setEditModalOpen={setEditModalOpen}

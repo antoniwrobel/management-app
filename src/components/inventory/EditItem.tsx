@@ -38,6 +38,20 @@ export const EditItem = (props: EditItemProps) => {
   const { currentSelected, editModalOpen, getItems, setEditModalOpen } = props;
   const navigate = useNavigate()
 
+  useEffect(() => {
+ 
+    if(!currentSelected){
+      return 
+    }
+    
+    navigate(`?id=${currentSelected.id}`)
+
+    if(!editModalOpen){
+      navigate("/")
+    }
+    
+  }, [editModalOpen])
+
   const matches = useMediaQuery('(max-width:500px)');
   const valveCollectionRef = collection(db, 'valve');
   const settlementsCollectionRef = collection(db, 'settlements');
@@ -354,14 +368,13 @@ export const EditItem = (props: EditItemProps) => {
                       sx={{ mr: '10px' }}
                       color="error"
                       onClick={() => {
-                        navigate("/")
                         setEditModalOpen(false)}
                       }
                       size="small"
                     >
                       Zamknij
                     </Button>
-                    <Button variant="outlined" size="small" type="submit" disabled={isSubmitting || buttonDisabled} onClick={() => navigate("/")}>
+                    <Button variant="outlined" size="small" type="submit" disabled={isSubmitting || buttonDisabled}>
                       Zapisz
                     </Button>
                   </Box>
