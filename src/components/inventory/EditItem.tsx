@@ -21,9 +21,11 @@ import { db } from '../../config/firebase';
 import { handleInputs } from '../../screens/helpers';
 import { useEffect, useState } from 'react';
 import { ConfirmationModal } from '../modal/ConfirmationModal';
-
+import LinkSharpIcon from '@mui/icons-material/LinkSharp';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 type EditItemProps = {
   editModalOpen: boolean;
@@ -35,7 +37,7 @@ type EditItemProps = {
 export const EditItem = (props: EditItemProps) => {
   const { currentSelected, editModalOpen, getItems, setEditModalOpen } = props;
   const navigate = useNavigate()
-  
+
   const matches = useMediaQuery('(max-width:500px)');
   const valveCollectionRef = collection(db, 'valve');
   const settlementsCollectionRef = collection(db, 'settlements');
@@ -79,6 +81,10 @@ export const EditItem = (props: EditItemProps) => {
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const magazynInputs = handleInputs();
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(window.location.href)
+    toast.success('Skopiowano do schowka!');
+  }
 
   if (!currentSelected) {
     return <></>;
@@ -330,19 +336,19 @@ export const EditItem = (props: EditItemProps) => {
                     ) : null}
                   </Box>
 
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: '20px' }}>
                     <Button
                       variant="contained"
                       size="small"
                       color="error"
                       disabled={isSubmitting || buttonDisabled}
-                      sx={{ mr: 'auto' }}
                       onClick={() => {
                         setDeleteConfirmationOpen(true);
                       }}
                     >
                       Usuń
                     </Button>
+                    <LinkSharpIcon fontSize="large" sx={{marginLeft: "16px", mr: "auto", color: "#197bcf", cursor: "pointer"}} onClick={copyToClipboard} />
                     <Button
                       variant="outlined"
                       sx={{ mr: '10px' }}
