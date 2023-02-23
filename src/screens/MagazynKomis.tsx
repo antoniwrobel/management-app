@@ -14,6 +14,7 @@ import TableRow from '@mui/material/TableRow';
 import CheckCircleSharpIcon from '@mui/icons-material/CheckCircleSharp';
 
 import DeleteOutlineSharpIcon from '@mui/icons-material/DeleteOutlineSharp';
+import ModeEditSharpIcon from '@mui/icons-material/ModeEditSharp';
 import { auth, db } from '../config/firebase';
 import { ItemType, SettlementItemType, SpendingType, ValveType } from './types';
 import { collection, getDocs, addDoc, updateDoc, doc } from '@firebase/firestore';
@@ -517,6 +518,9 @@ const MagazynKomis = () => {
                 }}
               >
                 <TableRow>
+                <TableCell align="center">
+
+                </TableCell>
                   {columnsVisible.includes(0) && <TableCell sx={{ fontWeight: 'bold' }}>Nazwa produktu</TableCell>}
                   {columnsVisible.includes(1) && (
                     <TableCell
@@ -645,6 +649,11 @@ const MagazynKomis = () => {
 
                   return (
                     <TableRow key={item.id} sx={{ backgroundColor: `${item.color}26` }}>
+                      {!item.removed && (
+                        <TableCell sx={{cursor: "pointer", textAlign: "center"}}>
+                          <ModeEditSharpIcon fontSize="small" onClick={() => editRow(item.id)}  sx={{color: "rgb(25, 118, 210)"}}/>
+                        </TableCell>
+                        )}
                       {columnsVisible.includes(0) && (
                         <TableCell
                           component="th"
