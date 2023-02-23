@@ -128,26 +128,25 @@ const MagazynKomis = () => {
     const deafultSortedItems =
       sortedBy === 'status'
         ? itemsToUpdate
-          .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime())
-          .sort((a, b) => {
-            if (direction.status === 'asc') {
-              return a.status === b.status ? 0 : a.status === 'sprzedano' ? -1 : 1;
-            } else {
-              return a.status === b.status ? 0 : a.status === 'sprzedano' ? 1 : -1;
-            }
-          })
-        : sortedBy === 'createdDate'
-          ? itemsToUpdate
+            .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime())
             .sort((a, b) => {
-              if (direction.createdDate === 'asc') {
-                return new Date(b.createDate).getTime() - new Date(a.createDate).getTime();
+              if (direction.status === 'asc') {
+                return a.status === b.status ? 0 : a.status === 'sprzedano' ? -1 : 1;
               } else {
-                return new Date(a.createDate).getTime() - new Date(b.createDate).getTime();
+                return a.status === b.status ? 0 : a.status === 'sprzedano' ? 1 : -1;
               }
             })
-          : itemsToUpdate.sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());
+        : sortedBy === 'createdDate'
+        ? itemsToUpdate.sort((a, b) => {
+            if (direction.createdDate === 'asc') {
+              return new Date(b.createDate).getTime() - new Date(a.createDate).getTime();
+            } else {
+              return new Date(a.createDate).getTime() - new Date(b.createDate).getTime();
+            }
+          })
+        : itemsToUpdate.sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());
 
-    return deafultSortedItems
+    return deafultSortedItems;
   };
 
   useEffect(() => {
@@ -225,10 +224,10 @@ const MagazynKomis = () => {
         removed: !item.settled && true,
         ...(item.provision &&
           item.provision > 0 && {
-          details: item.details
-            ? item.details + ` - zwrot - poniesione koszta ${item.provision!.toFixed(2)}zł`
-            : `zwrot - poniesione koszta: ${item.provision!.toFixed(2)}zł`
-        })
+            details: item.details
+              ? item.details + ` - zwrot - poniesione koszta ${item.provision!.toFixed(2)}zł`
+              : `zwrot - poniesione koszta: ${item.provision!.toFixed(2)}zł`
+          })
       });
     }
 
@@ -279,7 +278,7 @@ const MagazynKomis = () => {
   let summaryStan = 0;
 
   const removedItems = items.filter((e) => e.removed);
-  const soldItems = items.filter(e => Boolean(e.soldDate))
+  const soldItems = items.filter((e) => Boolean(e.soldDate));
 
   const debouncedResults = useMemo(() => {
     return debounce(setSearchTerm, 500);
@@ -289,9 +288,7 @@ const MagazynKomis = () => {
     const {
       target: { value }
     } = event;
-    setPersonName(
-      typeof value === 'string' ? value.split(',') : value
-    );
+    setPersonName(typeof value === 'string' ? value.split(',') : value);
   };
 
   useEffect(() => {
@@ -352,53 +349,53 @@ const MagazynKomis = () => {
       //@ts-ignore
       const onKeyup = (e) => {
         if (e.key === key) {
-          action()
+          action();
         }
-      }
+      };
       window.addEventListener('keyup', onKeyup);
 
       return () => window.removeEventListener('keyup', onKeyup);
     }, [editModalOpen, modalOpen, valveModalOpen]);
-  }
+  };
 
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  useKeypress("Escape", () => {
-    const allModals = [modalOpen, editModalOpen, valveModalOpen]
-    const isAnyModalOpen = allModals.some(modal => modal)
-    const noInputRefValue = !inputRef || !inputRef.current || !inputRef.current.value.length
+  useKeypress('Escape', () => {
+    const allModals = [modalOpen, editModalOpen, valveModalOpen];
+    const isAnyModalOpen = allModals.some((modal) => modal);
+    const noInputRefValue = !inputRef || !inputRef.current || !inputRef.current.value.length;
 
     if (noInputRefValue) {
-      return
+      return;
     }
 
     if (isAnyModalOpen) {
-      console.log("nie można usunąć danych - otwarty modal")
-      return
+      console.log('nie można usunąć danych - otwarty modal');
+      return;
     }
 
-    inputRef.current.value = ""
-    setSearchTerm("")
+    inputRef.current.value = '';
+    setSearchTerm('');
 
-    console.log("naciśnieto klawisz escape - czyszczę filtrowanie")
-  })
+    console.log('naciśnieto klawisz escape - czyszczę filtrowanie');
+  });
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search)
-    const itemId = searchParams.get('id')
+    const searchParams = new URLSearchParams(window.location.search);
+    const itemId = searchParams.get('id');
+    const historyOpen = searchParams.get('history');
     const selectedItem = items.find((item) => item.id === itemId);
 
     if (!selectedItem) {
-      return
+      return;
     }
 
-    setCurrentSelected(selectedItem)
-    setEditModalOpen(true)
+    setCurrentSelected(selectedItem);
+    setEditModalOpen(true);
+  }, [items, window.location.search]);
 
-  }, [items])
-
-  let totalPurchase = 0
-  let totalSold = 0
+  let totalPurchase = 0;
+  let totalSold = 0;
 
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%', position: 'relative' }}>
@@ -485,12 +482,21 @@ const MagazynKomis = () => {
         )}
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', ml: 'auto' }}>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <input
-              style={{ position: "relative", top: "7px", height: "54px", marginRight: "16px", borderRadius: "4px", padding: "4px 8px", boxSizing: "border-box", fontSize: "18px" }}
+              style={{
+                position: 'relative',
+                top: '7px',
+                height: '54px',
+                marginRight: '16px',
+                borderRadius: '4px',
+                padding: '4px 8px',
+                boxSizing: 'border-box',
+                fontSize: '18px'
+              }}
               ref={inputRef}
               type="text"
-              placeholder='wyszukaj po nazwie'
+              placeholder="wyszukaj po nazwie"
               onChange={(e) => debouncedResults(e.target.value)}
             />
           </Box>
@@ -587,7 +593,7 @@ const MagazynKomis = () => {
                       align="center"
                       sx={{
                         whiteSpace: 'nowrap',
-                        fontWeight: 'bold',
+                        fontWeight: 'bold'
                       }}
                     >
                       Status <br />
@@ -680,46 +686,50 @@ const MagazynKomis = () => {
                   <TableCell />
                 </TableRow>
                 {items.map((item) => {
-                  if (item.status === "sprzedano") {
-                    totalPurchase += Number(item.purchaseAmount)
-                    totalSold += Number(item.saleAmount)
+                  if (item.status === 'sprzedano') {
+                    totalPurchase += Number(item.purchaseAmount);
+                    totalSold += Number(item.saleAmount);
                     summaryStan += Number(item.clearingValueStan) || 0;
                   }
 
-                  if (!showSold && item.status === "sprzedano") {
-                    return
+                  if (!showSold && item.status === 'sprzedano') {
+                    return;
                   }
 
-                  if (showSold && item.status !== "sprzedano") {
-                    return
+                  if (showSold && item.status !== 'sprzedano') {
+                    return;
                   }
 
                   if (showDeleted && !item.removed) {
-                    return
+                    return;
                   }
 
                   if (!showDeleted && item.removed) {
                     return;
                   }
 
-
                   const removedCellStyles =
                     item.status === 'zwrot'
                       ? {
-                        textDecoration: 'line-through'
-                      }
+                          textDecoration: 'line-through'
+                        }
                       : {};
 
                   return (
                     <TableRow key={item.id} sx={{ backgroundColor: `${item.color}26` }}>
-
-                      <TableCell sx={{ cursor: !item.removed ? "pointer" : "initial", textAlign: "center" }} onClick={() => {
-                        if (item.removed) {
-                          return
-                        }
-                        editRow(item.id)
-                      }}>
-                        <ModeEditSharpIcon fontSize="small" sx={{ color: "rgb(25, 118, 210)", visibility: item.removed ? "hidden" : "initial" }} />
+                      <TableCell
+                        sx={{ cursor: !item.removed ? 'pointer' : 'initial', textAlign: 'center' }}
+                        onClick={() => {
+                          if (item.removed) {
+                            return;
+                          }
+                          editRow(item.id);
+                        }}
+                      >
+                        <ModeEditSharpIcon
+                          fontSize="small"
+                          sx={{ color: 'rgb(25, 118, 210)', visibility: item.removed ? 'hidden' : 'initial' }}
+                        />
                       </TableCell>
 
                       {columnsVisible.includes(0) && (
@@ -730,13 +740,12 @@ const MagazynKomis = () => {
                             color: item.status === 'zwrot' ? 'red' : 'inherit',
                             fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
                             position: 'relative',
-                            maxWidth: "400px",
-                            boxSizing: "border-box",
-                            pr: "45px",
+                            maxWidth: '400px',
+                            boxSizing: 'border-box',
+                            pr: '45px',
                             ...removedCellStyles
                           }}
                         >
-
                           <Box sx={{ whiteSpace: 'nowrap' }}>
                             {item.url ? (
                               <a href={item.url} target="_blank" rel="noreferrer">
@@ -758,7 +767,6 @@ const MagazynKomis = () => {
                               </Box>
                             ) : null}
                           </Box>
-
                         </TableCell>
                       )}
 
@@ -877,11 +885,7 @@ const MagazynKomis = () => {
                       )}
 
                       {columnsVisible.includes(10) && (
-                        <BootstrapTooltip
-                          title={item.details}
-                          placement="bottom-start"
-                          arrow
-                        >
+                        <BootstrapTooltip title={item.details} placement="bottom-start" arrow>
                           <TableCell
                             align="right"
                             sx={{
@@ -966,52 +970,55 @@ const MagazynKomis = () => {
           flexDirection: 'column'
         }}
       >
-        <Box sx={{ fontWeight: 'bold', display: 'flex', flexDirection: "column" }}>
-          <Box sx={{ width: "100%", textAlign: "right" }}>
-            Podsumowanie:
-          </Box>
+        <Box sx={{ fontWeight: 'bold', display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ width: '100%', textAlign: 'right' }}>Podsumowanie:</Box>
 
           <br />
 
           <Box>
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography
                 sx={{
-                  width: "100%",
-                  textAlign: "right"
+                  width: '100%',
+                  textAlign: 'right'
                 }}
               >
                 dochód na osobę:
               </Typography>
-              <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>{summaryStan.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}zł</Box>
+              <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>
+                {summaryStan.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}zł
+              </Box>
             </Box>
 
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography
                 sx={{
-                  width: "100%",
-                  textAlign: "right"
+                  width: '100%',
+                  textAlign: 'right'
                 }}
               >
                 kwota zakupu:
               </Typography>
-              <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>{totalPurchase.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}zł</Box>
+              <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>
+                {totalPurchase.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}zł
+              </Box>
             </Box>
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography
                 sx={{
-                  width: "100%",
-                  textAlign: "right"
+                  width: '100%',
+                  textAlign: 'right'
                 }}
               >
                 kwota sprzedaży:
               </Typography>
-              <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>{totalSold.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}zł</Box>
+              <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>
+                {totalSold.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}zł
+              </Box>
             </Box>
           </Box>
         </Box>
       </Box>
-
     </Container>
   );
 };
