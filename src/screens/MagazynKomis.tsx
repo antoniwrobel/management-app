@@ -61,7 +61,7 @@ const MagazynKomis = () => {
   const [itemsAll, setItemsAll] = useState<ItemType[]>([]);
 
   const [user] = useState(auth.currentUser);
-  
+
   const itemsCollectionRef = collection(db, 'items');
   const spendingsCollectionRef = collection(db, 'spendings');
   const valveCollectionRef = collection(db, 'valve');
@@ -128,16 +128,16 @@ const MagazynKomis = () => {
     const deafultSortedItems =
       sortedBy === 'status'
         ? itemsToUpdate
-            .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime())
-            .sort((a, b) => {
-              if (direction.status === 'asc') {
-                return a.status === b.status ? 0 : a.status === 'sprzedano' ? -1 : 1;
-              } else {
-                return a.status === b.status ? 0 : a.status === 'sprzedano' ? 1 : -1;
-              }
-            })
+          .sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime())
+          .sort((a, b) => {
+            if (direction.status === 'asc') {
+              return a.status === b.status ? 0 : a.status === 'sprzedano' ? -1 : 1;
+            } else {
+              return a.status === b.status ? 0 : a.status === 'sprzedano' ? 1 : -1;
+            }
+          })
         : sortedBy === 'createdDate'
-        ? itemsToUpdate
+          ? itemsToUpdate
             .sort((a, b) => {
               if (direction.createdDate === 'asc') {
                 return new Date(b.createDate).getTime() - new Date(a.createDate).getTime();
@@ -145,7 +145,7 @@ const MagazynKomis = () => {
                 return new Date(a.createDate).getTime() - new Date(b.createDate).getTime();
               }
             })
-        : itemsToUpdate.sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());
+          : itemsToUpdate.sort((a, b) => new Date(b.createDate).getTime() - new Date(a.createDate).getTime());
 
     return deafultSortedItems
   };
@@ -225,10 +225,10 @@ const MagazynKomis = () => {
         removed: !item.settled && true,
         ...(item.provision &&
           item.provision > 0 && {
-            details: item.details
-              ? item.details + ` - zwrot - poniesione koszta ${item.provision!.toFixed(2)}zł`
-              : `zwrot - poniesione koszta: ${item.provision!.toFixed(2)}zł`
-          })
+          details: item.details
+            ? item.details + ` - zwrot - poniesione koszta ${item.provision!.toFixed(2)}zł`
+            : `zwrot - poniesione koszta: ${item.provision!.toFixed(2)}zł`
+        })
       });
     }
 
@@ -351,9 +351,9 @@ const MagazynKomis = () => {
     useEffect(() => {
       //@ts-ignore
       const onKeyup = (e) => {
-        if (e.key === key){
+        if (e.key === key) {
           action()
-        } 
+        }
       }
       window.addEventListener('keyup', onKeyup);
 
@@ -368,17 +368,17 @@ const MagazynKomis = () => {
     const isAnyModalOpen = allModals.some(modal => modal)
     const noInputRefValue = !inputRef || !inputRef.current || !inputRef.current.value.length
 
-    if(noInputRefValue){
+    if (noInputRefValue) {
       return
     }
 
-    if(isAnyModalOpen){
+    if (isAnyModalOpen) {
       console.log("nie można usunąć danych - otwarty modal")
       return
     }
-    
+
     inputRef.current.value = ""
-    setSearchTerm("") 
+    setSearchTerm("")
 
     console.log("naciśnieto klawisz escape - czyszczę filtrowanie")
   })
@@ -388,13 +388,13 @@ const MagazynKomis = () => {
     const itemId = searchParams.get('id')
     const selectedItem = items.find((item) => item.id === itemId);
 
-    if(!selectedItem){
+    if (!selectedItem) {
       return
     }
-    
+
     setCurrentSelected(selectedItem)
     setEditModalOpen(true)
-    
+
   }, [items])
 
   let totalPurchase = 0
@@ -485,9 +485,9 @@ const MagazynKomis = () => {
         )}
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', ml: 'auto' }}>
-          <Box sx={{display: "flex", alignItems: "center"}}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <input
-              style={{position:"relative", top: "7px", height: "54px", marginRight: "16px", borderRadius: "4px", padding: "4px 8px", boxSizing: "border-box", fontSize: "18px"}}
+              style={{ position: "relative", top: "7px", height: "54px", marginRight: "16px", borderRadius: "4px", padding: "4px 8px", boxSizing: "border-box", fontSize: "18px" }}
               ref={inputRef}
               type="text"
               placeholder='wyszukaj po nazwie'
@@ -522,7 +522,7 @@ const MagazynKomis = () => {
       </Box>
 
       <AddItem modalOpen={modalOpen} setModalOpen={setModalOpen} getItems={getItems} />
-        
+
       <EditItem
         currentSelected={currentSelected}
         setEditModalOpen={setEditModalOpen}
@@ -580,7 +580,7 @@ const MagazynKomis = () => {
                 }}
               >
                 <TableRow>
-                <TableCell align="center"/>
+                  <TableCell align="center" />
                   {columnsVisible.includes(0) && <TableCell sx={{ fontWeight: 'bold' }}>Nazwa produktu</TableCell>}
                   {columnsVisible.includes(1) && (
                     <TableCell
@@ -680,50 +680,48 @@ const MagazynKomis = () => {
                   <TableCell />
                 </TableRow>
                 {items.map((item) => {
-                  if(item.status === "sprzedano"){
+                  if (item.status === "sprzedano") {
                     totalPurchase += Number(item.purchaseAmount)
                     totalSold += Number(item.saleAmount)
+                    summaryStan += Number(item.clearingValueStan) || 0;
                   }
 
-                  if(!showSold && item.status === "sprzedano"){
-                    return 
+                  if (!showSold && item.status === "sprzedano") {
+                    return
                   }
 
-                  if(showSold && item.status !== "sprzedano"){
-                    return 
+                  if (showSold && item.status !== "sprzedano") {
+                    return
                   }
 
-                  if(showDeleted && !item.removed){
-                    return 
+                  if (showDeleted && !item.removed) {
+                    return
                   }
 
                   if (!showDeleted && item.removed) {
                     return;
                   }
 
-                  if (item.status === 'sprzedano') {
-                    summaryStan += Number(item.clearingValueStan) || 0;
-                  }
 
                   const removedCellStyles =
                     item.status === 'zwrot'
                       ? {
-                          textDecoration: 'line-through'
-                        }
+                        textDecoration: 'line-through'
+                      }
                       : {};
 
                   return (
                     <TableRow key={item.id} sx={{ backgroundColor: `${item.color}26` }}>
-                      
-                      <TableCell sx={{cursor: !item.removed ? "pointer" : "initial", textAlign: "center"}} onClick={() => {
-                          if(item.removed){
-                            return
-                          }
-                          editRow(item.id)
-                        }}>
-                        <ModeEditSharpIcon fontSize="small" sx={{color: "rgb(25, 118, 210)", visibility: item.removed ? "hidden" : "initial"}}/>
+
+                      <TableCell sx={{ cursor: !item.removed ? "pointer" : "initial", textAlign: "center" }} onClick={() => {
+                        if (item.removed) {
+                          return
+                        }
+                        editRow(item.id)
+                      }}>
+                        <ModeEditSharpIcon fontSize="small" sx={{ color: "rgb(25, 118, 210)", visibility: item.removed ? "hidden" : "initial" }} />
                       </TableCell>
-                      
+
                       {columnsVisible.includes(0) && (
                         <TableCell
                           component="th"
@@ -732,38 +730,35 @@ const MagazynKomis = () => {
                             color: item.status === 'zwrot' ? 'red' : 'inherit',
                             fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
                             position: 'relative',
+                            maxWidth: "400px",
+                            boxSizing: "border-box",
                             pr: "45px",
                             ...removedCellStyles
                           }}
                         >
-                          <BootstrapTooltip
-                            title={item.productName}
-                            placement="bottom-start"
-                            arrow
-                            sx={{ fontSize: '18px' }}
-                          >
-                            <Box sx={{ whiteSpace: 'nowrap' }}>
-                              {item.url ? (
-                                <a href={item.url} target="_blank" rel="noreferrer">
-                                  {item.productName}
-                                </a>
-                              ) : (
-                                item.productName
-                              )}
 
-                              {item.settled && item.status !== 'zwrot' ? (
-                                <Box
-                                  sx={{
-                                    position: 'absolute',
-                                    top: '17px',
-                                    right: '6px'
-                                  }}
-                                >
-                                  <CheckCircleSharpIcon fontSize="small" sx={{ color: 'green ' }} />
-                                </Box>
-                              ) : null}
-                            </Box>
-                          </BootstrapTooltip>
+                          <Box sx={{ whiteSpace: 'nowrap' }}>
+                            {item.url ? (
+                              <a href={item.url} target="_blank" rel="noreferrer">
+                                {item.productName}
+                              </a>
+                            ) : (
+                              item.productName
+                            )}
+
+                            {item.settled && item.status !== 'zwrot' ? (
+                              <Box
+                                sx={{
+                                  position: 'absolute',
+                                  top: '17px',
+                                  right: '6px'
+                                }}
+                              >
+                                <CheckCircleSharpIcon fontSize="small" sx={{ color: 'green ' }} />
+                              </Box>
+                            ) : null}
+                          </Box>
+
                         </TableCell>
                       )}
 
@@ -826,7 +821,7 @@ const MagazynKomis = () => {
                             fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
                           }}
                         >
-                          <Box sx={{ display: 'flex', justifyContent: item.provisionPayed ? 'space-around' : 'right' }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'right' }}>
                             {item.provision ? item.provision.toFixed(2) + 'zł' : '-'}
                           </Box>
                         </TableCell>
@@ -882,20 +877,26 @@ const MagazynKomis = () => {
                       )}
 
                       {columnsVisible.includes(10) && (
-                        <TableCell
-                          align="right"
-                          sx={{
-                            color: item.status === 'zwrot' ? 'red' : 'inherit',
-                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
-                            maxWidth: '200px',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            textAlign: 'left'
-                          }}
+                        <BootstrapTooltip
+                          title={item.details}
+                          placement="bottom-start"
+                          arrow
                         >
-                          {item.details}
-                        </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{
+                              color: item.status === 'zwrot' ? 'red' : 'inherit',
+                              fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
+                              maxWidth: '100px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              textAlign: 'left'
+                            }}
+                          >
+                            {item.details}
+                          </TableCell>
+                        </BootstrapTooltip>
                       )}
                       {columnsVisible.includes(11) && !editBlocked ? (
                         <>
@@ -957,55 +958,60 @@ const MagazynKomis = () => {
           <Box sx={{ my: '20px' }}>Brak danych</Box>
         )}
       </Center>
-      {showSold &&
-        <Box
-          sx={{
-            padding: '16px',
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-        >
-          <Box sx={{ fontWeight: 'bold', display: 'flex', justifyContent: 'space-between' }}>
-            Podsumowanie
-            <Box>
-              <Box sx={{display: "flex", justifyContent: "space-between"}}> 
-                <Typography
-                  sx={{
-                    width: "180px",
-                    textAlign: "right"
-                  }}
-                >
-                  dochód na osobę :
-                </Typography>
-                <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>{summaryStan.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}zł</Box>
-              </Box>
 
-              <Box sx={{display: "flex", justifyContent: "space-between"}}>
-                <Typography
-                    sx={{
-                      width: "180px",
-                      textAlign: "right"
-                    }}
-                  >
-                    kwota zakupu :
-                  </Typography>
-                <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>{totalPurchase.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}zł</Box>
-              </Box>
-              <Box sx={{display: "flex", justifyContent: "space-between"}}>
-                <Typography 
-                  sx={{
-                    width: "180px",
-                    textAlign: "right"
-                  }}
-                >
-                  kwota sprzedaży :
-                </Typography>
-                <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>{totalSold.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}zł</Box>
-              </Box>
+      <Box
+        sx={{
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+      >
+        <Box sx={{ fontWeight: 'bold', display: 'flex', flexDirection: "column" }}>
+          <Box sx={{ width: "100%", textAlign: "right" }}>
+            Podsumowanie:
+          </Box>
+
+          <br />
+
+          <Box>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Typography
+                sx={{
+                  width: "100%",
+                  textAlign: "right"
+                }}
+              >
+                dochód na osobę:
+              </Typography>
+              <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>{summaryStan.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}zł</Box>
+            </Box>
+
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Typography
+                sx={{
+                  width: "100%",
+                  textAlign: "right"
+                }}
+              >
+                kwota zakupu:
+              </Typography>
+              <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>{totalPurchase.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}zł</Box>
+            </Box>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Typography
+                sx={{
+                  width: "100%",
+                  textAlign: "right"
+                }}
+              >
+                kwota sprzedaży:
+              </Typography>
+              <Box sx={{ fontWeight: 'bold', marginLeft: '10px', textAlign: 'end' }}>{totalSold.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}zł</Box>
             </Box>
           </Box>
         </Box>
-      }
+      </Box>
+
     </Container>
   );
 };

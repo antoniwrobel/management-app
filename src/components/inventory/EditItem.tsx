@@ -12,6 +12,7 @@ import {
   Select,
   Stack,
   TextField,
+  Typography,
   useMediaQuery
 } from '@mui/material';
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -24,7 +25,7 @@ import { ConfirmationModal } from '../modal/ConfirmationModal';
 import LinkSharpIcon from '@mui/icons-material/LinkSharp';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 type EditItemProps = {
@@ -38,22 +39,25 @@ export const EditItem = (props: EditItemProps) => {
   const { currentSelected, editModalOpen, getItems, setEditModalOpen } = props;
   const navigate = useNavigate()
 
+  const [historySectionOpen, setHistorySectionOpen] = useState(false)
+
   useEffect(() => {
- 
-    if(!currentSelected){
-      return 
+    if (!currentSelected) {
+      return
     }
-    
+
     navigate(`?id=${currentSelected.id}`)
 
-    if(!editModalOpen){
+    if (!editModalOpen) {
       navigate("/")
+      setHistoryData([])
     }
-    
+
   }, [editModalOpen])
 
   const matches = useMediaQuery('(max-width:500px)');
   const valveCollectionRef = collection(db, 'valve');
+  const changesCollectionRef = collection(db, 'changes');
   const settlementsCollectionRef = collection(db, 'settlements');
 
   const handleDeleteItem = async () => {
@@ -71,6 +75,7 @@ export const EditItem = (props: EditItemProps) => {
     if (elements.length) {
       const promises = elements.map((e) => {
         const finded = doc(db, 'valve', e.id);
+
         updateDoc(finded, {
           removed: true
         });
@@ -90,15 +95,74 @@ export const EditItem = (props: EditItemProps) => {
     getItems();
     navigate("/")
   };
-  
+
   const buttonDisabled = currentSelected?.status === 'sprzedano';
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const magazynInputs = handleInputs();
+  const [historyData, setHistoryData] = useState<any>([])
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(window.location.href)
     toast.success('Skopiowano do schowka!');
   }
+
+  const getChangesHistory = async () => {
+    if (!currentSelected) {
+      return
+    }
+
+    const c = await getDocs(changesCollectionRef);
+    const items = c.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
+    //@ts-ignore
+    const historyVersions = items.filter((item) => item.reference === currentSelected.id)
+
+    if (!historyVersions.length) {
+      return
+    }
+
+    //@ts-ignore
+    setHistoryData(historyVersions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)))
+  }
+
+  useEffect(() => {
+    getChangesHistory()
+  }, [currentSelected])
+
+  const hiddenKeys = ["reference", "id"]
+
+  const handleMapKey = (key: string) => {
+    switch (key) {
+      case "productName":
+        return "nazwy produktu"
+      case "condition":
+        return "stanu"
+      case "saleAmount":
+        return "kwoty sprzedaży"
+      case "purchaseAmount":
+        return "kwoty zakupu"
+      case "details":
+        return "uwag"
+      case "sendCost":
+        return "kosztów wysyłki"
+      case "provision":
+        return "prowizji"
+      default:
+        return key
+
+    }
+  }
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search)
+    const historyOpen = searchParams.get('history')
+
+
+    if (historyOpen) {
+      getChangesHistory()
+      setHistorySectionOpen(true)
+    }
+
+  }, [])
 
   if (!currentSelected) {
     return <></>;
@@ -113,6 +177,52 @@ export const EditItem = (props: EditItemProps) => {
           open={deleteConfirmationOpen}
           handleReject={() => setDeleteConfirmationOpen(false)}
         />
+
+        <EditModal open={historySectionOpen}>
+          <Box sx={{ maxHeight: "80vh", overflowX: "auto" }}>
+            <Box>
+              {/* @ts-ignore */}
+              {historyData.map((elementObj, id) => {
+                return <Box key={id} sx={{ mb: "20px", padding: "4px 8px", border: "1px solid #dedede", borderRadius: "4px" }}>
+                  {Object.keys(elementObj).sort((a, b) => a === "createdAt" ? -1 : 0).map(key => {
+                    if (hiddenKeys.includes(key)) {
+                      return
+                    }
+
+                    if (key === "createdAt") {
+                      return <Box key={key} sx={{ mb: "8px" }}>{dayjs(elementObj[key]).format("DD-MM-YYYY")}</Box>
+                    } else {
+                      return <Box key={key} display="flex">zmiana
+                        <Typography sx={{ fontWeight: "bold", ml: "4px" }}>
+                          {handleMapKey(key)} na:
+                        </Typography>
+                        <Box sx={{ ml: "auto" }}>
+                          {elementObj[key] ? elementObj[key] : "brak wartości"}
+                        </Box>
+
+                      </Box>
+
+                    }
+                  })}</Box>
+              })
+              }
+            </Box>
+            <Box display="flex" justifyContent="flex-end">
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={() => {
+                  setHistorySectionOpen(false)
+                  navigate(`?id=${currentSelected.id}`)
+                }}
+                size="small"
+              >
+                Zamknij
+              </Button>
+            </Box>
+
+          </Box>
+        </EditModal>
 
         <Formik
           initialValues={{
@@ -166,6 +276,38 @@ export const EditItem = (props: EditItemProps) => {
           }}
           onSubmit={async (values, { setSubmitting }) => {
             if (!currentSelected) return;
+            const valuesToCompare = ["condition", "details", "productName", "provision", "purchaseAmount", "saleAmount", "sendCost", "soldDate", "status", "url", "valueTransferedToValve"]
+            const changesObj = {}
+            valuesToCompare.forEach(value => {
+              //@ts-ignore
+              if (currentSelected[value] !== values[value]) {
+                //@ts-ignore
+                changesObj[value] = currentSelected[value]
+              }
+            })
+
+            const hasDataBeenChanged = Object.keys(changesObj).some(value => valuesToCompare.includes(value))
+            if (hasDataBeenChanged) {
+              //@ts-ignore
+              const combinedData = {}
+
+              Object.keys(changesObj).forEach(key => {
+                //@ts-ignore
+                combinedData[key] = changesObj[key]
+              })
+
+              //@ts-ignore
+              combinedData.reference = currentSelected.id
+
+              try {
+                await addDoc(changesCollectionRef, {
+                  createdAt: dayjs().format(),
+                  ...combinedData
+                });
+              } catch (error) {
+                console.error(error);
+              }
+            }
 
             const itemDoc = doc(db, 'items', currentSelected.id);
             const profit =
@@ -348,6 +490,19 @@ export const EditItem = (props: EditItemProps) => {
                         />
                       </Box>
                     ) : null}
+
+                    {historyData.length > 0 && <Box sx={{ gridColumn: 'span 4' }}>
+                      <Button
+                        variant="contained"
+                        sx={{ mr: '10px' }}
+                        onClick={() => {
+                          setHistorySectionOpen(true)
+                          navigate(`${window.location.search}&history=1`)
+                        }}
+                      >
+                        Historia
+                      </Button>
+                    </Box>}
                   </Box>
 
                   <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: '20px' }}>
@@ -362,14 +517,12 @@ export const EditItem = (props: EditItemProps) => {
                     >
                       Usuń
                     </Button>
-                    <LinkSharpIcon fontSize="large" sx={{marginLeft: "16px", mr: "auto", color: "#197bcf", cursor: "pointer"}} onClick={copyToClipboard} />
+                    <LinkSharpIcon fontSize="large" sx={{ marginLeft: "16px", mr: "auto", color: "#197bcf", cursor: "pointer" }} onClick={copyToClipboard} />
                     <Button
                       variant="outlined"
                       sx={{ mr: '10px' }}
                       color="error"
-                      onClick={() => {
-                        setEditModalOpen(false)}
-                      }
+                      onClick={() => { setEditModalOpen(false) }}
                       size="small"
                     >
                       Zamknij

@@ -21,6 +21,7 @@ export type ItemType = {
   provisionPayed: boolean;
   settled: boolean;
   settlementStatus: 'nierozliczono' | 'rozliczono';
+  version?: number
 };
 
 export type ValveType = {
