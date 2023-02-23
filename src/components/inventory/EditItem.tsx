@@ -62,7 +62,9 @@ export const EditItem = (props: EditItemProps) => {
     }
 
     updateDoc(item, {
-      removed: true
+      removed: true,
+      status: "usunięto",
+      deletedDate: dayjs().format()
     });
 
     setDeleteConfirmationOpen(false);

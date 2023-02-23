@@ -669,6 +669,10 @@ const MagazynKomis = () => {
                   <TableCell />
                 </TableRow>
                 {items.map((item) => {
+                  if(showDeleted && !item.removed){
+                    return 
+                  }
+                  
                   if (!showDeleted && item.removed) {
                     return;
                   }
@@ -686,11 +690,16 @@ const MagazynKomis = () => {
 
                   return (
                     <TableRow key={item.id} sx={{ backgroundColor: `${item.color}26` }}>
-                      {!item.removed && (
-                        <TableCell sx={{cursor: "pointer", textAlign: "center"}}>
-                          <ModeEditSharpIcon fontSize="small" onClick={() => editRow(item.id)}  sx={{color: "rgb(25, 118, 210)"}}/>
-                        </TableCell>
-                        )}
+                      
+                      <TableCell sx={{cursor: !item.removed ? "pointer" : "initial", textAlign: "center"}}>
+                        <ModeEditSharpIcon fontSize="small" onClick={() => {
+                          if(item.removed){
+                            return
+                          }
+                          editRow(item.id)
+                        }} sx={{color: "rgb(25, 118, 210)", visibility: item.removed ? "hidden" : "initial"}}/>
+                      </TableCell>
+                      
                       {columnsVisible.includes(0) && (
                         <TableCell
                           component="th"
