@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, createRef, RefObject } from 'react';
+import { useEffect, useMemo, useState, createRef, RefObject, useRef } from 'react';
 
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
@@ -48,6 +48,21 @@ import AddAPhotoSharpIcon from '@mui/icons-material/AddAPhotoSharp';
 import dayjs from 'dayjs';
 import Typography from '@mui/material/Typography';
 
+
+//@ts-ignore
+const useKeypress = (key, action) => {
+  useEffect(() => {
+    //@ts-ignore
+    const onKeyup = (e) => {
+      if (e.key === key){
+        action()
+      } 
+    }
+    window.addEventListener('keyup', onKeyup);
+    return () => window.removeEventListener('keyup', onKeyup);
+  }, []);
+}
+
 const MagazynKomis = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -61,7 +76,7 @@ const MagazynKomis = () => {
   const [itemsAll, setItemsAll] = useState<ItemType[]>([]);
 
   const [user] = useState(auth.currentUser);
-
+  
   const itemsCollectionRef = collection(db, 'items');
   const spendingsCollectionRef = collection(db, 'spendings');
   const valveCollectionRef = collection(db, 'valve');
@@ -290,7 +305,6 @@ const MagazynKomis = () => {
       target: { value }
     } = event;
     setPersonName(
-      // On autofill we get a stringified value.
       typeof value === 'string' ? value.split(',') : value
     );
   };
@@ -347,6 +361,18 @@ const MagazynKomis = () => {
       setScreenshotDisabled(false);
     }
   };
+
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useKeypress("Escape", () => {
+    if(inputRef && inputRef.current){
+      if(inputRef.current.value.length){
+        inputRef.current.value = ""
+        setSearchTerm("")
+      }
+      
+    }
+  })
 
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%', position: 'relative' }}>
@@ -433,13 +459,15 @@ const MagazynKomis = () => {
         )}
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', ml: 'auto' }}>
-          <TextField
-            sx={{ mt: '20px', mr: '16px' }}
-            type="text"
-            label="wyszukaj po nazwie"
-            variant="outlined"
-            onChange={(e) => debouncedResults(e.target.value)}
-          />
+          <Box sx={{display: "flex", alignItems: "center"}}>
+            <input
+              style={{height: "56px", marginRight: "16px", borderRadius: "4px", padding: "4px 8px", boxSizing: "border-box", fontSize: "18px"}}
+              ref={inputRef}
+              type="text"
+              placeholder='wyszukaj po nazwie'
+              onChange={(e) => debouncedResults(e.target.value)}
+            />
+          </Box>
 
           {!editBlocked && (
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', mr: '16px', height: '55px' }}>
