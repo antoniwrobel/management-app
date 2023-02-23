@@ -356,7 +356,7 @@ const MagazynKomis = () => {
         } 
       }
       window.addEventListener('keyup', onKeyup);
-      
+
       return () => window.removeEventListener('keyup', onKeyup);
     }, [editModalOpen, modalOpen, valveModalOpen]);
   }
@@ -470,7 +470,7 @@ const MagazynKomis = () => {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', ml: 'auto' }}>
           <Box sx={{display: "flex", alignItems: "center"}}>
             <input
-              style={{height: "56px", marginRight: "16px", borderRadius: "4px", padding: "4px 8px", boxSizing: "border-box", fontSize: "18px"}}
+              style={{position:"relative", top: "7px", height: "54px", marginRight: "16px", borderRadius: "4px", padding: "4px 8px", boxSizing: "border-box", fontSize: "18px"}}
               ref={inputRef}
               type="text"
               placeholder='wyszukaj po nazwie'
