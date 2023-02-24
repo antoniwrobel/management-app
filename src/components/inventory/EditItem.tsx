@@ -41,9 +41,22 @@ export const EditItem = (props: EditItemProps) => {
 
   const { currentSelected, editModalOpen, getItems, setEditModalOpen } = props;
   const [historySectionOpen, setHistorySectionOpen] = useState(false);
-  const [historyData, setHistoryData] = useState<any>([]);
+  const [historyData, setHistoryData] = useState<
+    {
+      createdAt?: string;
+      id: string;
+      productName?: string;
+      reference: string;
+      details?: string;
+      provision?: number;
+      purchaseAmount?: number;
+      saleAmount?: number;
+      sendCost?: number;
+      url?: string;
+      condition?: string;
+    }[]
+  >([]);
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
-
   const matches = useMediaQuery('(max-width:500px)');
   const valveCollectionRef = collection(db, 'valve');
   const changesCollectionRef = collection(db, 'changes');
@@ -66,13 +79,21 @@ export const EditItem = (props: EditItemProps) => {
     }
   }, [editModalOpen]);
 
+  // useEffect(() => {
+  //   if (!editModalOpen) {
+  //     return;
+  //   }
+
+  //   getChangesHistory();
+  // }, [editModalOpen]);
+
   useEffect(() => {
-    if (!editModalOpen) {
+    if (!historySectionOpen) {
       return;
     }
 
     getChangesHistory();
-  }, [editModalOpen]);
+  }, [historySectionOpen]);
 
   const handleDeleteItem = async () => {
     const itemId = currentSelected?.id;
@@ -119,16 +140,13 @@ export const EditItem = (props: EditItemProps) => {
       return;
     }
 
-    if (historyData.length) {
-      return;
-    }
-
     const c = await getDocs(changesCollectionRef);
     const items = c.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
     //@ts-ignore
     const historyVersions = items.filter((item) => item.reference === currentSelected.id);
 
     setHistoryData(
+      //@ts-ignore
       historyVersions
         //@ts-ignore
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -200,24 +218,8 @@ export const EditItem = (props: EditItemProps) => {
     return <></>;
   }
 
-  //@ts-ignore
-  const sortedHistoryData = historyData.map((obj) => {
-    const sortedObj = {};
-
-    fieldsOrder.forEach((field) => {
-      if (obj.hasOwnProperty(field)) {
-        //@ts-ignore
-        sortedObj[field] = obj[field];
-      }
-    });
-
-    return sortedObj;
-  });
-
-  //@ts-ignore
   const testData = historyData.map((obj) => {
     const test = {};
-
     fieldsOrder.forEach((field) => {
       if (field === 'createdAt') {
         return;
@@ -231,12 +233,15 @@ export const EditItem = (props: EditItemProps) => {
     return test;
   });
 
-  //@ts-ignore
-  const combinedHistoryDataObject = sortedHistoryData.reduce((acc, curr) => {
-    Object.entries(curr).forEach(([key, value]) => {
+  const combinedTest = testData.reduce((acc, curr) => {
+    Object.entries(curr).forEach(([key, valueArr]) => {
+      //@ts-ignore
+      const value = `${valueArr[0]}###${dayjs(valueArr[1]).format('DD-MM-YY HH:mm:ss')}`;
       if (acc.hasOwnProperty(key)) {
+        //@ts-ignore
         acc[key].push(value);
       } else {
+        //@ts-ignore
         acc[key] = [value];
       }
     });
@@ -255,89 +260,138 @@ export const EditItem = (props: EditItemProps) => {
 
         <EditModal open={historySectionOpen} noPadding customWidth="750px">
           <Box>
-            <Box
-              sx={{
-                maxHeight: '60vh',
-                display: 'flex',
-                flexDirection: 'column',
-                padding: '0 20px 20px'
-              }}
-            >
-              <Typography
-                sx={{
-                  ml: '4px',
-                  mr: '4px',
-                  mb: '32px',
-                  fontWeight: 'bold',
-                  fontSize: '24px',
-                  lineHeight: 'inherit'
-                }}
-              >
-                Historia zmian
-              </Typography>
-
-              {Object.keys(combinedHistoryDataObject).map((key) => {
-                //@ts-ignore
-                const elementArray = [currentSelected[key], ...combinedHistoryDataObject[key]];
-
-                if (key === 'createdAt') {
-                  return;
-                }
-
-                return (
-                  <Box
-                    key={key}
-                    sx={{ mb: '20px', padding: '4px 8px', border: '1px solid #dedede', borderRadius: '4px' }}
+            {Object.keys(combinedTest).length === 0 ? (
+              <Box>
+                {' '}
+                <Typography
+                  sx={{
+                    mb: '20px',
+                    fontWeight: 'bold',
+                    fontSize: '24px',
+                    textAlign: 'center'
+                  }}
+                >
+                  Brak danych
+                </Typography>
+                <Box display="flex" justifyContent="flex-end" p="16px" borderTop="1px solid #dedede" mt="16px">
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => {
+                      setHistorySectionOpen(false);
+                    }}
+                    size="small"
                   >
-                    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', height: '74px', alignItems: 'center' }}>
-                      <Typography
-                        sx={{
-                          ml: '4px',
-                          mr: '4px',
-                          fontWeight: 'bold',
-                          lineHeight: 'inherit'
-                        }}
+                    Zamknij
+                  </Button>
+                </Box>
+              </Box>
+            ) : (
+              <>
+                <Box
+                  sx={{
+                    maxHeight: '60vh',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    padding: '0 20px 20px'
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      ml: '4px',
+                      mr: '4px',
+                      mb: '32px',
+                      fontWeight: 'bold',
+                      fontSize: '24px',
+                      lineHeight: 'inherit'
+                    }}
+                  >
+                    Historia zmian
+                  </Typography>
+
+                  {Object.keys(combinedTest).map((key) => {
+                    //@ts-ignore
+                    const elemArray = combinedTest[key];
+
+                    //@ts-ignore
+                    const fixedElemArray = elemArray.map((v) => {
+                      const [value, time] = v.split('###');
+                      return { value, time };
+                    });
+
+                    //@ts-ignore
+                    const elementArray = [currentSelected[key], ...fixedElemArray];
+                    if (key === 'createdAt') {
+                      return;
+                    }
+
+                    return (
+                      <Box
+                        key={key}
+                        sx={{ mb: '20px', padding: '4px 8px', border: '1px solid #dedede', borderRadius: '4px' }}
                       >
-                        {handleMapKey(key)}
-                      </Typography>
+                        <Box
+                          sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', height: '74px', alignItems: 'center' }}
+                        >
+                          <Typography
+                            sx={{
+                              ml: '4px',
+                              mr: '4px',
+                              fontWeight: 'bold',
+                              lineHeight: 'inherit'
+                            }}
+                          >
+                            {handleMapKey(key)}
+                          </Typography>
 
-                      <Select name={key} value={elementArray[0]}>
-                        {/* @ts-ignore */}
-                        {elementArray.map((value, id) => {
-                          return (
-                            <MenuItem
-                              key={`${key}_${id}`}
-                              value={value}
-                              sx={{
-                                fontSize: '18px',
-                                height: '40px',
-                                backgroundColor: id === 0 ? 'inherit' : '#fff !important'
-                              }}
-                            >
-                              {value}
-                            </MenuItem>
-                          );
-                        })}
-                      </Select>
-                    </Box>
-                  </Box>
-                );
-              })}
-            </Box>
+                          <Select name={key} value={elementArray[0]} sx={{ width: '450px' }}>
+                            {elementArray.map((data, id) => {
+                              const v = typeof data === 'object' ? data.value : data;
+                              const d = typeof data === 'object' ? data.time : '';
+                              return (
+                                <MenuItem
+                                  key={`${key}_${id}`}
+                                  value={v}
+                                  sx={{
+                                    fontSize: '18px',
+                                    height: '40px',
+                                    backgroundColor: id === 0 ? 'inherit' : '#fff !important'
+                                  }}
+                                >
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      width: '100%',
+                                      justifyContent: 'space-between'
+                                    }}
+                                  >
+                                    <Typography>{v}</Typography>
+                                    <Typography>{d}</Typography>
+                                  </Box>
+                                </MenuItem>
+                              );
+                            })}
+                          </Select>
+                        </Box>
+                      </Box>
+                    );
+                  })}
+                </Box>
 
-            <Box display="flex" justifyContent="flex-end" p="16px" borderTop="1px solid #dedede" mt="16px">
-              <Button
-                variant="outlined"
-                color="error"
-                onClick={() => {
-                  setHistorySectionOpen(false);
-                  navigate(`?id=${currentSelected.id}`);
-                }}
-                size="small"
-              >
-                Zamknij
-              </Button>
-            </Box>
+                <Box display="flex" justifyContent="flex-end" p="16px" borderTop="1px solid #dedede" mt="16px">
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => {
+                      setHistorySectionOpen(false);
+                    }}
+                    size="small"
+                  >
+                    Zamknij
+                  </Button>
+                </Box>
+              </>
+            )}
           </Box>
         </EditModal>
 
@@ -624,19 +678,17 @@ export const EditItem = (props: EditItemProps) => {
                       </Box>
                     ) : null}
 
-                    {historyData.length > 0 && (
-                      <Box sx={{ gridColumn: 'span 4' }}>
-                        <Button
-                          variant="contained"
-                          sx={{ mr: '10px' }}
-                          onClick={() => {
-                            setHistorySectionOpen(true);
-                          }}
-                        >
-                          Historia
-                        </Button>
-                      </Box>
-                    )}
+                    <Box sx={{ gridColumn: 'span 4' }}>
+                      <Button
+                        variant="contained"
+                        sx={{ mr: '10px' }}
+                        onClick={() => {
+                          setHistorySectionOpen(true);
+                        }}
+                      >
+                        Historia
+                      </Button>
+                    </Box>
                   </Box>
 
                   <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: '20px' }}>
