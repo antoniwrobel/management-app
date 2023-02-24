@@ -110,13 +110,19 @@ const MagazynKomis = () => {
   const editBlocked = !isAdminUser(user);
 
   const getItems = async () => {
-    const data = await getDocs(itemsCollectionRef);
-    const items = data.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as ItemType[];
+    try {
+      const data = await getDocs(itemsCollectionRef);
+      const items = data.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as ItemType[];
 
-    const deafultSortedItems = handleItemsOrder(items);
+      const deafultSortedItems = handleItemsOrder(items);
 
-    setItems(deafultSortedItems);
-    setItemsAll(deafultSortedItems);
+      setItems(deafultSortedItems);
+      setItemsAll(deafultSortedItems);
+    } catch (error) {
+      //@ts-ignore
+      toast.error(error.message);
+      console.error(error);
+    }
   };
 
   useEffect(() => {

@@ -40,11 +40,17 @@ const RozliczeniaKomis = () => {
   const [hideSettled, setHideSettled] = useState(false);
 
   const getItems = async () => {
-    const data = await getDocs(settlementsCollectionRef);
-    const items = data.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as SettlementItemType[];
+    try {
+      const data = await getDocs(settlementsCollectionRef);
+      const items = data.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as SettlementItemType[];
 
-    setItems(items);
-    setCurrentSelected([]);
+      setItems(items);
+      setCurrentSelected([]);
+    } catch (error) {
+      //@ts-ignore
+      toast.error(error.message);
+      console.error(error);
+    }
   };
 
   useEffect(() => {
@@ -242,8 +248,8 @@ const RozliczeniaKomis = () => {
                         return;
                       }
 
-                      if(showDeleted && !item.removed){
-                        return 
+                      if (showDeleted && !item.removed) {
+                        return;
                       }
 
                       if (hideSettled) {

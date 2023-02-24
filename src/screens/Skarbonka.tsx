@@ -35,10 +35,16 @@ const Skarbonka = () => {
   const valveCollectionRef = collection(db, 'valve');
 
   const getData = async () => {
-    const d = await getDocs(valveCollectionRef);
-    const items = d.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as ValveType[];
+    try {
+      const d = await getDocs(valveCollectionRef);
+      const items = d.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as ValveType[];
 
-    setData(items);
+      setData(items);
+    } catch (error) {
+      //@ts-ignore
+      toast.error(error.message);
+      console.error(error);
+    }
   };
 
   useEffect(() => {
@@ -228,8 +234,8 @@ const Skarbonka = () => {
                         return;
                       }
 
-                      if(showDeleted && !d.removed){
-                        return 
+                      if (showDeleted && !d.removed) {
+                        return;
                       }
                       if (!d.removed && !d.hasBeenUsed) {
                         total += d.amount;

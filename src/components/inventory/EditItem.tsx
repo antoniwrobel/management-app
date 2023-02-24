@@ -53,6 +53,8 @@ export const EditItem = (props: EditItemProps) => {
       setHistoryData([]);
       setHistorySectionOpen(false);
     } else {
+      getChangesHistory();
+
       const searchParams = new URLSearchParams(window.location.search);
       const historyOpen = searchParams.get('history');
 
@@ -81,6 +83,7 @@ export const EditItem = (props: EditItemProps) => {
     const items = d.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as ValveType[];
     const elements = items.filter((item) => item.elementId === itemId);
 
+    console.log('api call -> valveCollectionRef');
     if (elements.length) {
       const promises = elements.map((e) => {
         const finded = doc(db, 'valve', e.id);
@@ -89,15 +92,17 @@ export const EditItem = (props: EditItemProps) => {
           removed: true
         });
       });
-
+      console.log('api call -> valveCollectionRef2');
       await Promise.all(promises);
     }
 
-    updateDoc(item, {
+    await updateDoc(item, {
       removed: true,
       status: currentSelected.status === 'utworzono' ? 'usunięto' : currentSelected.status,
       deletedDate: dayjs().format()
     });
+
+    console.log('api call -> item');
 
     setDeleteConfirmationOpen(false);
     setEditModalOpen(false);
@@ -123,6 +128,7 @@ export const EditItem = (props: EditItemProps) => {
     const items = c.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
     //@ts-ignore
     const historyVersions = items.filter((item) => item.reference === currentSelected.id);
+    console.log('api call -> changesCollectionRef');
 
     if (!historyVersions.length) {
       return;
@@ -131,10 +137,6 @@ export const EditItem = (props: EditItemProps) => {
     //@ts-ignore
     setHistoryData(historyVersions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
   };
-
-  useEffect(() => {
-    getChangesHistory();
-  }, [currentSelected]);
 
   const hiddenKeys = ['reference', 'id'];
 
