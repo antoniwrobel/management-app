@@ -38,9 +38,7 @@ type EditItemProps = {
 export const EditItem = (props: EditItemProps) => {
   const { currentSelected, editModalOpen, getItems, setEditModalOpen } = props;
   const navigate = useNavigate();
-  const searchParams = new URLSearchParams(window.location.search);
-  const historyOpen = searchParams.get('history');
-  const [historySectionOpen, setHistorySectionOpen] = useState(Boolean(historyOpen));
+  const [historySectionOpen, setHistorySectionOpen] = useState(false);
   const [historyData, setHistoryData] = useState<any>([]);
 
   useEffect(() => {
@@ -53,16 +51,9 @@ export const EditItem = (props: EditItemProps) => {
       setHistoryData([]);
       setHistorySectionOpen(false);
     } else {
-      const searchParams = new URLSearchParams(window.location.search);
-      const historyOpen = searchParams.get('history');
-
-      if (historyOpen) {
-        navigate(`?id=${currentSelected.id}&history=1`);
-      } else {
-        navigate(`?id=${currentSelected.id}`);
-      }
+      navigate(`?id=${currentSelected.id}`);
     }
-  }, [editModalOpen, historySectionOpen]);
+  }, [editModalOpen]);
 
   useEffect(() => {
     if (!editModalOpen) {
@@ -523,7 +514,6 @@ export const EditItem = (props: EditItemProps) => {
                           sx={{ mr: '10px' }}
                           onClick={() => {
                             setHistorySectionOpen(true);
-                            navigate(`?id=${currentSelected.id}&history=1`);
                           }}
                         >
                           Historia
