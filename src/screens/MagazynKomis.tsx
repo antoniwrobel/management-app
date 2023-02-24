@@ -116,6 +116,18 @@ const MagazynKomis = () => {
 
       const deafultSortedItems = handleItemsOrder(items);
 
+      if (inputRef && inputRef.current && inputRef.current.value !== '') {
+        console.log(inputRef!.current!.value, deafultSortedItems);
+
+        const filteredSortedItems = deafultSortedItems.filter((item) =>
+          item.productName.toLowerCase().includes(inputRef!.current!.value.toLowerCase())
+        );
+
+        setItems(filteredSortedItems);
+        setItemsAll(deafultSortedItems);
+
+        return;
+      }
       setItems(deafultSortedItems);
       setItemsAll(deafultSortedItems);
     } catch (error) {
