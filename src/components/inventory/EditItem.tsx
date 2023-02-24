@@ -145,21 +145,23 @@ export const EditItem = (props: EditItemProps) => {
   const handleMapKey = (key: string) => {
     switch (key) {
       case 'productName':
-        return 'NAZWY PRODUKTU';
+        return 'NAZWA PRODUKTU';
       case 'condition':
-        return 'STANU';
+        return 'STAN';
       case 'saleAmount':
-        return 'KWOTY SPRZEDAŻY';
+        return 'KWOTA SPRZEDAŻY';
       case 'purchaseAmount':
-        return 'KWOTY ZAKUPU';
+        return 'KWOTA ZAKUPU';
       case 'details':
-        return 'UWAG';
+        return 'UWAGI';
       case 'sendCost':
-        return 'KOSZTÓW WYSYŁKI';
+        return 'KOSZTY WYSYŁKI';
       case 'provision':
-        return 'PROWIZJI';
+        return 'PROWIZJA';
       case 'url':
-        return "URL'a";
+        return 'URL';
+      case 'createdAt':
+        return 'DATA STWORZENIA';
       default:
         return key.toUpperCase();
     }
@@ -208,11 +210,17 @@ export const EditItem = (props: EditItemProps) => {
     return sortedObj;
   });
 
-  // const combinedHistoryData = sortedHistoryData.map(obj => {
-
-  // })
-
-  // console.log(sortedHistoryData);
+  //@ts-ignore
+  const combinedHistoryDataObject = sortedHistoryData.reduce((acc, curr) => {
+    Object.entries(curr).forEach(([key, value]) => {
+      if (acc.hasOwnProperty(key)) {
+        acc[key].push(value);
+      } else {
+        acc[key] = [value];
+      }
+    });
+    return acc;
+  }, {});
 
   return (
     <EditModal open={editModalOpen}>
@@ -227,101 +235,74 @@ export const EditItem = (props: EditItemProps) => {
         <EditModal open={historySectionOpen} noPadding customWidth="750px">
           <Box>
             <Box
-              sx={{ maxHeight: '60vh', display: 'flex', flexDirection: 'column', overflowY: 'scroll', padding: '20px' }}
+              sx={{
+                maxHeight: '60vh',
+                display: 'flex',
+                flexDirection: 'column',
+                padding: '0 20px 20px'
+              }}
             >
-              {sortedHistoryData
+              <Typography
+                sx={{
+                  ml: '4px',
+                  mr: '4px',
+                  mb: '32px',
+                  fontWeight: 'bold',
+                  fontSize: '24px',
+                  lineHeight: 'inherit'
+                }}
+              >
+                Historia zmian
+              </Typography>
+              {Object.keys(combinedHistoryDataObject).map((key) => {
                 //@ts-ignore
-                .sort((a, b) => (a === 'createdAt' ? -1 : 0))
+                const elementArray = [currentSelected[key], ...combinedHistoryDataObject[key]];
+
+                if (key === 'createdAt') {
+                  return;
+                }
                 //@ts-ignore
-                .map((elementObj, id) => {
-                  return (
-                    <Box
-                      key={id}
-                      sx={{ mb: '20px', padding: '4px 8px', border: '1px solid #dedede', borderRadius: '4px' }}
-                    >
-                      {Object.keys(elementObj).map((key) => {
-                        if (hiddenKeys.includes(key)) {
-                          return;
-                        }
 
-                        if (key === 'createdAt') {
+                return (
+                  <Box
+                    key={key}
+                    sx={{ mb: '20px', padding: '4px 8px', border: '1px solid #dedede', borderRadius: '4px' }}
+                  >
+                    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', height: '74px', alignItems: 'center' }}>
+                      <Typography
+                        sx={{
+                          ml: '4px',
+                          mr: '4px',
+                          fontWeight: 'bold',
+                          lineHeight: 'inherit'
+                        }}
+                      >
+                        {handleMapKey(key)}
+                      </Typography>
+
+                      {/* @ts-ignore */}
+                      <Select name={key} value={elementArray[0]}>
+                        {/* @ts-ignore */}
+                        {elementArray.map((value, id) => {
                           return (
-                            <Box key={key} sx={{ mb: '16px' }}>
-                              {dayjs(elementObj[key]).format('DD-MM-YYYY HH:MM:s')}
-                            </Box>
-                          );
-                        }
-
-                        if (key === 'details') {
-                          return (
-                            <Box key={key} display="grid" gridTemplateColumns="2fr 2fr 1fr 2fr">
-                              <Typography>poprzednia wartość</Typography>
-                              <Typography
-                                sx={{
-                                  ml: '4px',
-                                  mr: '4px',
-                                  fontWeight: 'bold',
-                                  lineHeight: 'inherit'
-                                }}
-                              >
-                                {handleMapKey(key)}
-                              </Typography>
-                              <Typography>to:</Typography>
-                              <BootstrapTooltip title={elementObj[key]} placement="bottom-start" arrow>
-                                <Typography
-                                  sx={{
-                                    ml: '4px',
-                                    mr: '4px',
-                                    maxWidth: '200px',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap',
-                                    textAlign: 'left',
-                                    fontWeight: 'bold',
-                                    lineHeight: 'inherit'
-                                  }}
-                                >
-                                  {elementObj[key]}
-                                </Typography>
-                              </BootstrapTooltip>
-                            </Box>
-                          );
-                        }
-
-                        return (
-                          <Box key={key} display="grid" gridTemplateColumns="2fr 2fr 1fr 2fr">
-                            <Typography>poprzednia wartość</Typography>
-                            <Typography
+                            <MenuItem
+                              key={`${key}_${id}`}
+                              value={value}
                               sx={{
-                                ml: '4px',
-                                mr: '4px',
-                                fontWeight: 'bold',
-                                lineHeight: 'inherit'
+                                fontSize: '18px',
+                                height: '40px',
+                                backgroundColor: id === 0 ? 'inherit' : '#fff !important'
                               }}
                             >
-                              {handleMapKey(key)}
-                            </Typography>
-                            <Typography>to:</Typography>
-                            <Typography
-                              sx={{
-                                ml: '4px',
-                                mr: '4px',
-                                fontWeight: 'bold',
-                                lineHeight: 'inherit'
-                              }}
-                            >
-                              {typeof elementObj[key] === 'number'
-                                ? elementObj[key]
-                                : elementObj[key]
-                                ? elementObj[key]
-                                : 'brak wartości'}
-                            </Typography>
-                          </Box>
-                        );
-                      })}
+                              {value}
+                            </MenuItem>
+                          );
+                        })}
+                      </Select>
                     </Box>
-                  );
-                })}
+                  </Box>
+                );
+              })}
             </Box>
 
             <Box display="flex" justifyContent="flex-end" p="16px" borderTop="1px solid #dedede" mt="16px">
