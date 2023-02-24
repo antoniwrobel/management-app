@@ -11,11 +11,7 @@ import {
   MenuItem,
   Select,
   Stack,
-  styled,
   TextField,
-  Tooltip,
-  tooltipClasses,
-  TooltipProps,
   Typography,
   useMediaQuery
 } from '@mui/material';
@@ -46,6 +42,15 @@ export const EditItem = (props: EditItemProps) => {
   const { currentSelected, editModalOpen, getItems, setEditModalOpen } = props;
   const [historySectionOpen, setHistorySectionOpen] = useState(false);
   const [historyData, setHistoryData] = useState<any>([]);
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+
+  const matches = useMediaQuery('(max-width:500px)');
+  const valveCollectionRef = collection(db, 'valve');
+  const changesCollectionRef = collection(db, 'changes');
+  const settlementsCollectionRef = collection(db, 'settlements');
+
+  const buttonDisabled = currentSelected?.status === 'sprzedano';
+  const magazynInputs = handleInputs();
 
   useEffect(() => {
     if (!currentSelected) {
@@ -68,11 +73,6 @@ export const EditItem = (props: EditItemProps) => {
 
     getChangesHistory();
   }, [editModalOpen]);
-
-  const matches = useMediaQuery('(max-width:500px)');
-  const valveCollectionRef = collection(db, 'valve');
-  const changesCollectionRef = collection(db, 'changes');
-  const settlementsCollectionRef = collection(db, 'settlements');
 
   const handleDeleteItem = async () => {
     const itemId = currentSelected?.id;
@@ -109,10 +109,6 @@ export const EditItem = (props: EditItemProps) => {
     navigate('/');
   };
 
-  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
-  const buttonDisabled = currentSelected?.status === 'sprzedano';
-  const magazynInputs = handleInputs();
-
   const copyToClipboard = () => {
     navigator.clipboard.writeText(window.location.href);
     toast.success('Skopiowano do schowka!');
@@ -132,15 +128,12 @@ export const EditItem = (props: EditItemProps) => {
     //@ts-ignore
     const historyVersions = items.filter((item) => item.reference === currentSelected.id);
 
-    //@ts-ignore
     setHistoryData(
       historyVersions
         //@ts-ignore
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     );
   };
-
-  const hiddenKeys = ['reference', 'id'];
 
   const handleMapKey = (key: string) => {
     switch (key) {
@@ -179,19 +172,29 @@ export const EditItem = (props: EditItemProps) => {
     'details'
   ];
 
-  const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
-    <Tooltip {...props} arrow classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.arrow}`]: {
-      color: theme.palette.common.black
-    },
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: theme.palette.common.black,
-      fontSize: 16,
-      whiteSpace: 'nowrap',
-      maxWidth: '100%'
+  const useKeypress = (key: string, action: () => void) => {
+    useEffect(() => {
+      //@ts-ignore
+      const onKeyup = (e) => {
+        if (e.key === key) {
+          action();
+        }
+      };
+      window.addEventListener('keyup', onKeyup);
+
+      return () => window.removeEventListener('keyup', onKeyup);
+    }, [editModalOpen, historySectionOpen]);
+  };
+
+  useKeypress('Escape', () => {
+    if (editModalOpen) {
+      if (historySectionOpen) {
+        setHistorySectionOpen(false);
+      } else {
+        setEditModalOpen(false);
+      }
     }
-  }));
+  });
 
   if (!currentSelected) {
     return <></>;
@@ -207,7 +210,25 @@ export const EditItem = (props: EditItemProps) => {
         sortedObj[field] = obj[field];
       }
     });
+
     return sortedObj;
+  });
+
+  //@ts-ignore
+  const testData = historyData.map((obj) => {
+    const test = {};
+
+    fieldsOrder.forEach((field) => {
+      if (field === 'createdAt') {
+        return;
+      }
+
+      if (obj.hasOwnProperty(field)) {
+        //@ts-ignore
+        test[field] = [obj[field], obj.createdAt];
+      }
+    });
+    return test;
   });
 
   //@ts-ignore
@@ -254,6 +275,7 @@ export const EditItem = (props: EditItemProps) => {
               >
                 Historia zmian
               </Typography>
+
               {Object.keys(combinedHistoryDataObject).map((key) => {
                 //@ts-ignore
                 const elementArray = [currentSelected[key], ...combinedHistoryDataObject[key]];
@@ -261,7 +283,6 @@ export const EditItem = (props: EditItemProps) => {
                 if (key === 'createdAt') {
                   return;
                 }
-                //@ts-ignore
 
                 return (
                   <Box
@@ -280,7 +301,6 @@ export const EditItem = (props: EditItemProps) => {
                         {handleMapKey(key)}
                       </Typography>
 
-                      {/* @ts-ignore */}
                       <Select name={key} value={elementArray[0]}>
                         {/* @ts-ignore */}
                         {elementArray.map((value, id) => {
@@ -311,7 +331,7 @@ export const EditItem = (props: EditItemProps) => {
                 color="error"
                 onClick={() => {
                   setHistorySectionOpen(false);
-                  navigate(`?id=${currentSelected.id}`, { replace: true });
+                  navigate(`?id=${currentSelected.id}`);
                 }}
                 size="small"
               >
@@ -384,8 +404,7 @@ export const EditItem = (props: EditItemProps) => {
               'sendCost',
               'soldDate',
               'status',
-              'url',
-              'valueTransferedToValve'
+              'url'
             ];
 
             const changesObj = {};
@@ -473,7 +492,8 @@ export const EditItem = (props: EditItemProps) => {
 
             getItems();
             setSubmitting(false);
-            setEditModalOpen(false);
+            // setEditModalOpen(false);
+            toast.success('Zapisano zmiany.');
           }}
         >
           {({ setFieldValue, values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => {
