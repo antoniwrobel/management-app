@@ -53,8 +53,6 @@ export const EditItem = (props: EditItemProps) => {
       setHistoryData([]);
       setHistorySectionOpen(false);
     } else {
-      getChangesHistory();
-
       const searchParams = new URLSearchParams(window.location.search);
       const historyOpen = searchParams.get('history');
 
@@ -64,7 +62,15 @@ export const EditItem = (props: EditItemProps) => {
         navigate(`?id=${currentSelected.id}`);
       }
     }
-  }, [editModalOpen, window.location.search, historySectionOpen]);
+  }, [editModalOpen, historySectionOpen]);
+
+  useEffect(() => {
+    if (!editModalOpen) {
+      return;
+    }
+
+    getChangesHistory();
+  }, [editModalOpen]);
 
   const matches = useMediaQuery('(max-width:500px)');
   const valveCollectionRef = collection(db, 'valve');
@@ -83,7 +89,6 @@ export const EditItem = (props: EditItemProps) => {
     const items = d.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as ValveType[];
     const elements = items.filter((item) => item.elementId === itemId);
 
-    console.log('api call -> valveCollectionRef');
     if (elements.length) {
       const promises = elements.map((e) => {
         const finded = doc(db, 'valve', e.id);
@@ -92,7 +97,6 @@ export const EditItem = (props: EditItemProps) => {
           removed: true
         });
       });
-      console.log('api call -> valveCollectionRef2');
       await Promise.all(promises);
     }
 
@@ -101,8 +105,6 @@ export const EditItem = (props: EditItemProps) => {
       status: currentSelected.status === 'utworzono' ? 'usunięto' : currentSelected.status,
       deletedDate: dayjs().format()
     });
-
-    console.log('api call -> item');
 
     setDeleteConfirmationOpen(false);
     setEditModalOpen(false);
@@ -128,11 +130,6 @@ export const EditItem = (props: EditItemProps) => {
     const items = c.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
     //@ts-ignore
     const historyVersions = items.filter((item) => item.reference === currentSelected.id);
-    console.log('api call -> changesCollectionRef');
-
-    if (!historyVersions.length) {
-      return;
-    }
 
     //@ts-ignore
     setHistoryData(historyVersions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
@@ -143,21 +140,21 @@ export const EditItem = (props: EditItemProps) => {
   const handleMapKey = (key: string) => {
     switch (key) {
       case 'productName':
-        return 'nazwy produktu';
+        return 'NAZWY PRODUKTU';
       case 'condition':
-        return 'stanu';
+        return 'STANU';
       case 'saleAmount':
-        return 'kwoty sprzedaży';
+        return 'KWOTY SPRZEDAŻY';
       case 'purchaseAmount':
-        return 'kwoty zakupu';
+        return 'KWOTY ZAKUPU';
       case 'details':
-        return 'uwag';
+        return 'UWAG';
       case 'sendCost':
-        return 'kosztów wysyłki';
+        return 'KOSZTÓW WYSYŁKI';
       case 'provision':
-        return 'prowizji';
+        return 'PROWIZJI';
       default:
-        return key;
+        return key.toUpperCase();
     }
   };
 
@@ -175,9 +172,11 @@ export const EditItem = (props: EditItemProps) => {
           handleReject={() => setDeleteConfirmationOpen(false)}
         />
 
-        <EditModal open={historySectionOpen}>
-          <Box sx={{ maxHeight: '80vh', overflowX: 'auto' }}>
-            <Box>
+        <EditModal open={historySectionOpen} noPadding>
+          <Box>
+            <Box
+              sx={{ maxHeight: '60vh', display: 'flex', flexDirection: 'column', overflowY: 'scroll', padding: '20px' }}
+            >
               {/* @ts-ignore */}
               {historyData.map((elementObj, id) => {
                 return (
@@ -194,15 +193,25 @@ export const EditItem = (props: EditItemProps) => {
 
                         if (key === 'createdAt') {
                           return (
-                            <Box key={key} sx={{ mb: '8px' }}>
-                              {dayjs(elementObj[key]).format('DD-MM-YYYY')}
+                            <Box key={key} sx={{ mb: '16px' }}>
+                              {dayjs(elementObj[key]).format('DD-MM-YYYY HH:MM:s')}
                             </Box>
                           );
                         } else {
                           return (
-                            <Box key={key} display="flex">
-                              zmiana
-                              <Typography sx={{ fontWeight: 'bold', ml: '4px' }}>{handleMapKey(key)} na:</Typography>
+                            <Box key={key} display="flex" alignItems="baseline">
+                              <Typography>zmiana</Typography>
+                              <Typography
+                                sx={{
+                                  fontWeight: 'bold',
+                                  ml: '4px',
+                                  mr: '4px',
+                                  lineHeight: 'inherit'
+                                }}
+                              >
+                                {handleMapKey(key)}
+                              </Typography>
+                              <Typography>na:</Typography>
                               <Box sx={{ ml: 'auto' }}>{elementObj[key] ? elementObj[key] : 'brak wartości'}</Box>
                             </Box>
                           );
@@ -212,7 +221,7 @@ export const EditItem = (props: EditItemProps) => {
                 );
               })}
             </Box>
-            <Box display="flex" justifyContent="flex-end">
+            <Box display="flex" justifyContent="flex-end" p="16px" borderTop="1px solid #dedede" mt="16px">
               <Button
                 variant="outlined"
                 color="error"
