@@ -383,7 +383,6 @@ const MagazynKomis = () => {
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const itemId = searchParams.get('id');
-    const historyOpen = searchParams.get('history');
     const selectedItem = items.find((item) => item.id === itemId);
 
     if (!selectedItem) {
@@ -392,7 +391,7 @@ const MagazynKomis = () => {
 
     setCurrentSelected(selectedItem);
     setEditModalOpen(true);
-  }, [items, window.location.search]);
+  }, [items]);
 
   let totalPurchase = 0;
   let totalSold = 0;
