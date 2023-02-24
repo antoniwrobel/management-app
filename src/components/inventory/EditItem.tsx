@@ -11,7 +11,11 @@ import {
   MenuItem,
   Select,
   Stack,
+  styled,
   TextField,
+  Tooltip,
+  tooltipClasses,
+  TooltipProps,
   Typography,
   useMediaQuery
 } from '@mui/material';
@@ -22,10 +26,11 @@ import { db } from '../../config/firebase';
 import { handleInputs } from '../../screens/helpers';
 import { useEffect, useState } from 'react';
 import { ConfirmationModal } from '../modal/ConfirmationModal';
-import LinkSharpIcon from '@mui/icons-material/LinkSharp';
-import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+
+import LinkSharpIcon from '@mui/icons-material/LinkSharp';
+import dayjs from 'dayjs';
 import 'react-toastify/dist/ReactToastify.css';
 
 type EditItemProps = {
@@ -36,8 +41,9 @@ type EditItemProps = {
 };
 
 export const EditItem = (props: EditItemProps) => {
-  const { currentSelected, editModalOpen, getItems, setEditModalOpen } = props;
   const navigate = useNavigate();
+
+  const { currentSelected, editModalOpen, getItems, setEditModalOpen } = props;
   const [historySectionOpen, setHistorySectionOpen] = useState(false);
   const [historyData, setHistoryData] = useState<any>([]);
 
@@ -103,8 +109,8 @@ export const EditItem = (props: EditItemProps) => {
     navigate('/');
   };
 
-  const buttonDisabled = currentSelected?.status === 'sprzedano';
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const buttonDisabled = currentSelected?.status === 'sprzedano';
   const magazynInputs = handleInputs();
 
   const copyToClipboard = () => {
@@ -117,13 +123,21 @@ export const EditItem = (props: EditItemProps) => {
       return;
     }
 
+    if (historyData.length) {
+      return;
+    }
+
     const c = await getDocs(changesCollectionRef);
     const items = c.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
     //@ts-ignore
     const historyVersions = items.filter((item) => item.reference === currentSelected.id);
 
     //@ts-ignore
-    setHistoryData(historyVersions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+    setHistoryData(
+      historyVersions
+        //@ts-ignore
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    );
   };
 
   const hiddenKeys = ['reference', 'id'];
@@ -144,14 +158,61 @@ export const EditItem = (props: EditItemProps) => {
         return 'KOSZTÓW WYSYŁKI';
       case 'provision':
         return 'PROWIZJI';
+      case 'url':
+        return "URL'a";
       default:
         return key.toUpperCase();
     }
   };
 
+  const fieldsOrder = [
+    'createdAt',
+    'productName',
+    'status',
+    'purchaseAmount',
+    'saleAmount',
+    'sendConst',
+    'provision',
+    'url',
+    'details'
+  ];
+
+  const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
+    <Tooltip {...props} arrow classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.arrow}`]: {
+      color: theme.palette.common.black
+    },
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: theme.palette.common.black,
+      fontSize: 16,
+      whiteSpace: 'nowrap',
+      maxWidth: '100%'
+    }
+  }));
+
   if (!currentSelected) {
     return <></>;
   }
+
+  //@ts-ignore
+  const sortedHistoryData = historyData.map((obj) => {
+    const sortedObj = {};
+
+    fieldsOrder.forEach((field) => {
+      if (obj.hasOwnProperty(field)) {
+        //@ts-ignore
+        sortedObj[field] = obj[field];
+      }
+    });
+    return sortedObj;
+  });
+
+  // const combinedHistoryData = sortedHistoryData.map(obj => {
+
+  // })
+
+  // console.log(sortedHistoryData);
 
   return (
     <EditModal open={editModalOpen}>
@@ -163,21 +224,22 @@ export const EditItem = (props: EditItemProps) => {
           handleReject={() => setDeleteConfirmationOpen(false)}
         />
 
-        <EditModal open={historySectionOpen} noPadding>
+        <EditModal open={historySectionOpen} noPadding customWidth="750px">
           <Box>
             <Box
               sx={{ maxHeight: '60vh', display: 'flex', flexDirection: 'column', overflowY: 'scroll', padding: '20px' }}
             >
-              {/* @ts-ignore */}
-              {historyData.map((elementObj, id) => {
-                return (
-                  <Box
-                    key={id}
-                    sx={{ mb: '20px', padding: '4px 8px', border: '1px solid #dedede', borderRadius: '4px' }}
-                  >
-                    {Object.keys(elementObj)
-                      .sort((a, b) => (a === 'createdAt' ? -1 : 0))
-                      .map((key) => {
+              {sortedHistoryData
+                //@ts-ignore
+                .sort((a, b) => (a === 'createdAt' ? -1 : 0))
+                //@ts-ignore
+                .map((elementObj, id) => {
+                  return (
+                    <Box
+                      key={id}
+                      sx={{ mb: '20px', padding: '4px 8px', border: '1px solid #dedede', borderRadius: '4px' }}
+                    >
+                      {Object.keys(elementObj).map((key) => {
                         if (hiddenKeys.includes(key)) {
                           return;
                         }
@@ -188,30 +250,80 @@ export const EditItem = (props: EditItemProps) => {
                               {dayjs(elementObj[key]).format('DD-MM-YYYY HH:MM:s')}
                             </Box>
                           );
-                        } else {
+                        }
+
+                        if (key === 'details') {
                           return (
-                            <Box key={key} display="flex" alignItems="baseline">
-                              <Typography>zmiana</Typography>
+                            <Box key={key} display="grid" gridTemplateColumns="2fr 2fr 1fr 2fr">
+                              <Typography>poprzednia wartość</Typography>
                               <Typography
                                 sx={{
-                                  fontWeight: 'bold',
                                   ml: '4px',
                                   mr: '4px',
+                                  fontWeight: 'bold',
                                   lineHeight: 'inherit'
                                 }}
                               >
                                 {handleMapKey(key)}
                               </Typography>
-                              <Typography>na:</Typography>
-                              <Box sx={{ ml: 'auto' }}>{elementObj[key] ? elementObj[key] : 'brak wartości'}</Box>
+                              <Typography>to:</Typography>
+                              <BootstrapTooltip title={elementObj[key]} placement="bottom-start" arrow>
+                                <Typography
+                                  sx={{
+                                    ml: '4px',
+                                    mr: '4px',
+                                    maxWidth: '200px',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                    textAlign: 'left',
+                                    fontWeight: 'bold',
+                                    lineHeight: 'inherit'
+                                  }}
+                                >
+                                  {elementObj[key]}
+                                </Typography>
+                              </BootstrapTooltip>
                             </Box>
                           );
                         }
+
+                        return (
+                          <Box key={key} display="grid" gridTemplateColumns="2fr 2fr 1fr 2fr">
+                            <Typography>poprzednia wartość</Typography>
+                            <Typography
+                              sx={{
+                                ml: '4px',
+                                mr: '4px',
+                                fontWeight: 'bold',
+                                lineHeight: 'inherit'
+                              }}
+                            >
+                              {handleMapKey(key)}
+                            </Typography>
+                            <Typography>to:</Typography>
+                            <Typography
+                              sx={{
+                                ml: '4px',
+                                mr: '4px',
+                                fontWeight: 'bold',
+                                lineHeight: 'inherit'
+                              }}
+                            >
+                              {typeof elementObj[key] === 'number'
+                                ? elementObj[key]
+                                : elementObj[key]
+                                ? elementObj[key]
+                                : 'brak wartości'}
+                            </Typography>
+                          </Box>
+                        );
                       })}
-                  </Box>
-                );
-              })}
+                    </Box>
+                  );
+                })}
             </Box>
+
             <Box display="flex" justifyContent="flex-end" p="16px" borderTop="1px solid #dedede" mt="16px">
               <Button
                 variant="outlined"
@@ -280,6 +392,7 @@ export const EditItem = (props: EditItemProps) => {
           }}
           onSubmit={async (values, { setSubmitting }) => {
             if (!currentSelected) return;
+
             const valuesToCompare = [
               'condition',
               'details',
@@ -293,7 +406,9 @@ export const EditItem = (props: EditItemProps) => {
               'url',
               'valueTransferedToValve'
             ];
+
             const changesObj = {};
+
             valuesToCompare.forEach((value) => {
               //@ts-ignore
               if (currentSelected[value] !== values[value]) {
@@ -303,6 +418,7 @@ export const EditItem = (props: EditItemProps) => {
             });
 
             const hasDataBeenChanged = Object.keys(changesObj).some((value) => valuesToCompare.includes(value));
+
             if (hasDataBeenChanged) {
               //@ts-ignore
               const combinedData = {};

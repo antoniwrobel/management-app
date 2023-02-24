@@ -7,10 +7,11 @@ type ModalProps = {
   open: boolean;
   children: React.ReactElement;
   noPadding?: boolean;
+  customWidth?: string;
 };
 
 const EditModal = (props: ModalProps) => {
-  const { open, children, noPadding } = props;
+  const { open, children, noPadding, customWidth } = props;
   const matches = useMediaQuery('(max-width:500px)');
   const style = {
     position: 'absolute',
@@ -26,7 +27,7 @@ const EditModal = (props: ModalProps) => {
 
   return (
     <ModalMUI open={open}>
-      <Box sx={{ ...style, minWidth: matches ? 'calc(100% - 40px)' : '500px' }}>
+      <Box sx={{ ...style, minWidth: customWidth ? customWidth : matches ? 'calc(100% - 40px)' : '500px' }}>
         <Box sx={{ mt: '20px' }}>{children}</Box>
       </Box>
     </ModalMUI>
