@@ -18,8 +18,8 @@ import {
 import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { ItemType, ValveType } from '../../screens/types';
-import { db } from '../../config/firebase';
-import { handleInputs } from '../../screens/helpers';
+import { auth, db } from '../../config/firebase';
+import { handleInputs, isAdminUser } from '../../screens/helpers';
 import { useEffect, useState } from 'react';
 import { ConfirmationModal } from '../modal/ConfirmationModal';
 import { useNavigate } from 'react-router-dom';
@@ -64,6 +64,9 @@ export const EditItem = (props: EditItemProps) => {
 
   const buttonDisabled = currentSelected?.status === 'sprzedano';
   const magazynInputs = handleInputs();
+
+  const [user] = useState(auth.currentUser);
+  const editBlocked = !isAdminUser(user);
 
   useEffect(() => {
     if (!currentSelected) {
@@ -247,6 +250,7 @@ export const EditItem = (props: EditItemProps) => {
     });
     return acc;
   }, {});
+
 
   return (
     <EditModal open={editModalOpen}>
@@ -448,6 +452,10 @@ export const EditItem = (props: EditItemProps) => {
           onSubmit={async (values, { setSubmitting }) => {
             if (!currentSelected) return;
 
+            if(editBlocked){
+              return
+            }
+
             const valuesToCompare = [
               'condition',
               'details',
@@ -561,7 +569,7 @@ export const EditItem = (props: EditItemProps) => {
                       const editEnabledOptions = currentSelected.status === 'zwrot' ? ['status'] : [''];
                       const statusBlock = ['sprzedano', 'zwrot'];
                       const editDisabled =
-                        statusBlock.includes(currentSelected.status) && !editEnabledOptions.includes(input.name);
+                        statusBlock.includes(currentSelected.status) && !editEnabledOptions.includes(input.name) || editBlocked;
 
                       if (input.addOnly) {
                         return;
@@ -696,7 +704,7 @@ export const EditItem = (props: EditItemProps) => {
                       variant="contained"
                       size="small"
                       color="error"
-                      disabled={isSubmitting || buttonDisabled}
+                      disabled={isSubmitting || buttonDisabled || editBlocked}
                       onClick={() => {
                         setDeleteConfirmationOpen(true);
                       }}
@@ -719,7 +727,7 @@ export const EditItem = (props: EditItemProps) => {
                     >
                       Zamknij
                     </Button>
-                    <Button variant="outlined" size="small" type="submit" disabled={isSubmitting || buttonDisabled}>
+                    <Button variant="outlined" size="small" type="submit" disabled={isSubmitting || buttonDisabled || editBlocked}>
                       Zapisz
                     </Button>
                   </Box>
