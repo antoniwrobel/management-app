@@ -687,7 +687,7 @@ export const EditItem = (props: EditItemProps) => {
                       </Box>
                     ) : null}
 
-                    <Box sx={{ gridColumn: 'span 4' }}>
+                    <Box sx={{ gridColumn: 'span 4', justifyContent: 'space-between', display: 'flex' }}>
                       <Button
                         variant="contained"
                         sx={{ mr: '10px' }}
@@ -697,8 +697,7 @@ export const EditItem = (props: EditItemProps) => {
                       >
                         Historia
                       </Button>
-                    </Box>
-                    <Box sx={{ gridColumn: 'span 4' }}>
+
                       <Button
                         variant="contained"
                         sx={{ mr: '10px' }}
