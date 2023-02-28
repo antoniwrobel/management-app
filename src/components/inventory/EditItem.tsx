@@ -34,12 +34,13 @@ type EditItemProps = {
   currentSelected: ItemType | undefined;
   getItems: () => void;
   setEditModalOpen: (value: boolean) => void;
+  handleValve: (value: string) => void;
 };
 
 export const EditItem = (props: EditItemProps) => {
   const navigate = useNavigate();
 
-  const { currentSelected, editModalOpen, getItems, setEditModalOpen } = props;
+  const { currentSelected, editModalOpen, getItems, setEditModalOpen, handleValve } = props;
   const [historySectionOpen, setHistorySectionOpen] = useState(false);
   const [historyData, setHistoryData] = useState<
     {
@@ -251,7 +252,6 @@ export const EditItem = (props: EditItemProps) => {
     return acc;
   }, {});
 
-
   return (
     <EditModal open={editModalOpen}>
       <>
@@ -452,8 +452,8 @@ export const EditItem = (props: EditItemProps) => {
           onSubmit={async (values, { setSubmitting }) => {
             if (!currentSelected) return;
 
-            if(editBlocked){
-              return
+            if (editBlocked) {
+              return;
             }
 
             const valuesToCompare = [
@@ -569,7 +569,8 @@ export const EditItem = (props: EditItemProps) => {
                       const editEnabledOptions = currentSelected.status === 'zwrot' ? ['status'] : [''];
                       const statusBlock = ['sprzedano', 'zwrot'];
                       const editDisabled =
-                        statusBlock.includes(currentSelected.status) && !editEnabledOptions.includes(input.name) || editBlocked;
+                        (statusBlock.includes(currentSelected.status) && !editEnabledOptions.includes(input.name)) ||
+                        editBlocked;
 
                       if (input.addOnly) {
                         return;
@@ -697,6 +698,18 @@ export const EditItem = (props: EditItemProps) => {
                         Historia
                       </Button>
                     </Box>
+                    <Box sx={{ gridColumn: 'span 4' }}>
+                      <Button
+                        variant="contained"
+                        sx={{ mr: '10px' }}
+                        disabled={currentSelected.status !== 'sprzedano'}
+                        onClick={() => {
+                          handleValve(currentSelected.id);
+                        }}
+                      >
+                        Skarbonka
+                      </Button>
+                    </Box>
                   </Box>
 
                   <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: '20px' }}>
@@ -727,7 +740,12 @@ export const EditItem = (props: EditItemProps) => {
                     >
                       Zamknij
                     </Button>
-                    <Button variant="outlined" size="small" type="submit" disabled={isSubmitting || buttonDisabled || editBlocked}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      type="submit"
+                      disabled={isSubmitting || buttonDisabled || editBlocked}
+                    >
                       Zapisz
                     </Button>
                   </Box>

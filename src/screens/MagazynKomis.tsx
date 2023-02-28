@@ -549,6 +549,7 @@ const MagazynKomis = () => {
         setEditModalOpen={setEditModalOpen}
         editModalOpen={editModalOpen}
         getItems={getItems}
+        handleValve={handleValve}
       />
 
       <AddToValveModal
