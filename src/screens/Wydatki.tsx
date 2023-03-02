@@ -48,10 +48,16 @@ const Spendings = ({}: Props) => {
   const [showPayoutModal, setShowPayoutModal] = useState(false);
 
   const getData = async () => {
-    const d = await getDocs(spendingsCollectionRef);
-    const items = d.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as SpendingType[];
+    try {
+      const d = await getDocs(spendingsCollectionRef);
+      const items = d.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as SpendingType[];
 
-    setData(items);
+      setData(items);
+    } catch (error) {
+      //@ts-ignore
+      toast.error(error.message);
+      console.error(error);
+    }
   };
 
   const editRow = (itemId: string) => {
@@ -269,8 +275,8 @@ const Spendings = ({}: Props) => {
                         return;
                       }
 
-                      if(showDeleted && !d.removed){
-                        return 
+                      if (showDeleted && !d.removed) {
+                        return;
                       }
 
                       const itemSelectedFound = multiCurrentSelected.find((e) => e.id === d.id);
