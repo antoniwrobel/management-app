@@ -46,6 +46,7 @@ import AddAPhotoSharpIcon from '@mui/icons-material/AddAPhotoSharp';
 
 import dayjs from 'dayjs';
 import Typography from '@mui/material/Typography';
+import { Link } from 'react-router-dom';
 
 const MagazynKomis = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -403,6 +404,7 @@ const MagazynKomis = () => {
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%', position: 'relative' }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+        <Link to="https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=b7dba95b03834cb0860ea2e5b7792c19&redirect_uri=https://antoniwrobel.github.io/management-app/allegro-redirection-path&prompt=confirm" >ALLEGRO</Link>
         <Box display="flex">
           <FormControl sx={{ m: 1, width: 500, mt: '20px', mr: '16px' }}>
             <InputLabel id="demo-multiple-checkbox-label">Pokaż kolumny</InputLabel>

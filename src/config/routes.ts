@@ -4,6 +4,8 @@ import RozliczeniaWrapper from '../screens/RozliczeniaWrapper';
 import Spendings from '../screens/Wydatki';
 import Skarbonka from '../screens/Skarbonka';
 import Screenshots from '../screens/Screenshots';
+import { Allegro } from '../screens/Allegro';
+
 interface RouteType {
   path: string;
   component: any;
@@ -16,6 +18,12 @@ const routes: RouteType[] = [
     path: '/login',
     component: Login,
     name: 'Login Screen',
+    isProtected: false
+  },
+  {
+    path: "/allegro-redirection-path",
+    component: Allegro,
+    name: "Allegro",
     isProtected: false
   },
   {
