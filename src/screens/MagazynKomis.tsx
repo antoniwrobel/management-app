@@ -169,7 +169,6 @@ const MagazynKomis = () => {
   useEffect(() => {
     const deafultSortedItems = handleItemsOrder(items);
     setItems(deafultSortedItems);
-    console.log(1);
   }, [direction, sortedBy]);
 
   useEffect(() => {
