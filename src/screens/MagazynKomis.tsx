@@ -202,7 +202,7 @@ const MagazynKomis = () => {
   };
 
   const handleReturn = async (item: ItemType) => {
-    const { id, productName, provision } = item;
+    const { id, productName, provision, sendCost } = item;
 
     const itemDoc = doc(db, 'items', id);
 
@@ -238,11 +238,11 @@ const MagazynKomis = () => {
         settled: false,
         settlementStatus: 'nierozliczono',
         removed: !item.settled && true,
-        ...(item.provision &&
-          item.provision > 0 && {
+        ...(sendCost &&
+          sendCost > 0 && {
             details: item.details
-              ? item.details + ` - zwrot - poniesione koszta ${item.provision!.toFixed(2)}zł`
-              : `zwrot - poniesione koszta: ${item.provision!.toFixed(2)}zł`
+              ? item.details + ` - zwrot - poniesione koszta wysyłki ${item.sendCost.toFixed(2)}zł`
+              : `zwrot - poniesione koszta wysyłki: ${item.sendCost!.toFixed(2)}zł`
           })
       });
     }
@@ -253,23 +253,14 @@ const MagazynKomis = () => {
       valueTransferedToValve: 0
     });
 
-    if (provision && provision > 0) {
-      if (!item.provisionPayed) {
-        await addDoc(spendingsCollectionRef, {
-          elementId: id,
-          elementName: productName,
-          amount: provision,
-          addedBy: 'Stan',
-          createdAt: dayjs().format()
-        });
-      } else {
-        if (spending) {
-          const spendingDoc = doc(db, 'spendings', spending.id);
-          await updateDoc(spendingDoc, {
-            addedBy: 'Stan'
-          });
-        }
-      }
+    if (sendCost && sendCost > 0) {
+      await addDoc(spendingsCollectionRef, {
+        elementId: id,
+        elementName: '[Automat] Koszt wysyłki za: ' + productName,
+        amount: sendCost,
+        addedBy: 'Stan',
+        createdAt: dayjs().format()
+      });
     }
 
     getItems();
