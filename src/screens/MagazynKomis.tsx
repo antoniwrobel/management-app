@@ -169,6 +169,7 @@ const MagazynKomis = () => {
   useEffect(() => {
     const deafultSortedItems = handleItemsOrder(items);
     setItems(deafultSortedItems);
+    console.log(1);
   }, [direction, sortedBy]);
 
   useEffect(() => {
@@ -225,10 +226,6 @@ const MagazynKomis = () => {
     const s = await getDocs(settlementsCollectionRef);
     const settlements = s.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as SettlementItemType[];
     const settlement = settlements.find((item) => item.elementId === id);
-
-    const spend = await getDocs(spendingsCollectionRef);
-    const spendings = spend.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as SpendingType[];
-    const spending = spendings.find((item) => item.elementId === id);
 
     if (settlement) {
       const settlementsDoc = doc(db, 'settlements', settlement.id);
