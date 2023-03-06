@@ -259,7 +259,7 @@ const MagazynKomis = () => {
         elementId: id,
         elementName: '[Automat] Koszt wysyłki za: ' + productName,
         amount: sendCost,
-        addedBy: 'Stan',
+        addedBy: 'Stan / 2',
         createdAt: dayjs().format()
       });
     }
@@ -407,7 +407,9 @@ const MagazynKomis = () => {
   return (
     <Container sx={{ px: '0px !important', maxWidth: '100% !important', width: '100%', position: 'relative' }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
-        <Link to="https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=b7dba95b03834cb0860ea2e5b7792c19&redirect_uri=https://antoniwrobel.github.io/management-app/allegro-redirection-path&prompt=confirm" >ALLEGRO</Link>
+        <Link to="https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=b7dba95b03834cb0860ea2e5b7792c19&redirect_uri=https://antoniwrobel.github.io/management-app/allegro-redirection-path&prompt=confirm">
+          ALLEGRO
+        </Link>
         <Box display="flex">
           <FormControl sx={{ m: 1, width: 500, mt: '20px', mr: '16px' }}>
             <InputLabel id="demo-multiple-checkbox-label">Pokaż kolumny</InputLabel>
@@ -822,8 +824,7 @@ const MagazynKomis = () => {
                           align="right"
                           sx={{
                             color: item.status === 'zwrot' ? 'red' : 'inherit',
-                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
-                            ...removedCellStyles
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
                           }}
                         >
                           {item.sendCost ? `${item.sendCost}zł` : '-'}{' '}
@@ -835,7 +836,8 @@ const MagazynKomis = () => {
                           align="right"
                           sx={{
                             color: item.status === 'zwrot' ? 'red' : 'inherit',
-                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit'
+                            fontWeight: item.status === 'zwrot' ? 'bold' : 'inherit',
+                            ...removedCellStyles
                           }}
                         >
                           <Box sx={{ display: 'flex', justifyContent: 'right' }}>
