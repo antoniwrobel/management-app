@@ -6,31 +6,22 @@ on:
       - main
 
 jobs:
-  deploy:
+  front-build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v1
 
-    - name: Install Node.js
-      uses: actions/setup-node@v2-beta
-      with:
-        node-version: '14'
+      - name: Store variables
+        run: |
+          touch .env
+          echo "REACT_APP_CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
+          echo "REACT_APP_CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
 
-    - name: Install dependencies
-      run: yarn install
-
-    - name: Print versions
-      run: |
-        node --version
-        yarn --version
-
-    - name: Print environment variables
-      run: |
-        echo "CLIENT_ID: $CLIENT_ID"
-        echo "CLIENT_SECRET: $CLIENT_SECRET"
-
+      - name: Build
+        run: |
+          npm install
+          npm run-script build
 
     - name: Deploy to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@releases/v3
