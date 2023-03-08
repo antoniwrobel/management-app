@@ -296,8 +296,8 @@ const RozliczeniaKomis = () => {
                       const removedCellStyles =
                         returned && !item.settled
                           ? {
-                            textDecoration: 'line-through'
-                          }
+                              textDecoration: 'line-through'
+                            }
                           : {};
 
                       return (
