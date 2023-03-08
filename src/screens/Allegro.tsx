@@ -17,7 +17,7 @@ export const Allegro = () => {
 
   const handleUserAuth = async (code: string) => {
     try {
-      const url = `https://allegro.pl/auth/oauth/token?grant_type=authorization_code&code=${code}&redirect_uri=${redirect_uri}`;
+      const url = `https://cors-anywhere.herokuapp.com/https://allegro.pl/auth/oauth/token?grant_type=authorization_code&code=${code}&redirect_uri=${redirect_uri}`;
       const client_id = process.env.REACT_APP_CLIENT_ID;
       const client_secret = process.env.REACT_APP_CLIENT_SECRET;
       const encodedString = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
@@ -29,10 +29,11 @@ export const Allegro = () => {
         }
       });
 
+      console.log({ response });
+
       if (response.status === 200) {
         setAccessToken(response.data.access_token);
         setRefreshToken(response.data.refresh_token);
-        setSuccess(true);
       }
     } catch (error) {
       console.error(error);
@@ -64,7 +65,7 @@ export const Allegro = () => {
     >
       <Container sx={{ p: '0px !important', m: '24px', maxWidth: '100% !important', width: 'auto' }}>
         Allegro redirection page
-        {success ? 'Poprawnie zapisano tokeny' : 'Brak tokenów'}
+        {success ? ' Poprawnie zapisano tokeny' : ' Brak tokenów'}
       </Container>
     </Box>
   );
