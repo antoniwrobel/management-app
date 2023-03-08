@@ -24,7 +24,9 @@ export const Allegro = () => {
       const response = await axios.post(url, {
         Headers: {
           Authorization: `Basic ${encodedString}`,
-          ['Content-Type']: 'application/x-www-form-urlencoded'
+          ['Content-Type']: 'application/x-www-form-urlencoded',
+          'X-Requested-With': 'XMLHttpRequest',
+          Accept: '*/*'
         }
       });
 
