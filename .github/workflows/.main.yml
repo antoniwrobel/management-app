@@ -22,7 +22,7 @@ jobs:
       run: yarn install
 
     - name: Build
-       run: REACT_APP_CLIENT_ID=${{ secrets.CLIENT_ID }} REACT_APP_CLIENT_SECRET=${{ secrets.CLIENT_SECRET }} yarn build
+      run: REACT_APP_CLIENT_ID=${{ secrets.CLIENT_ID }} REACT_APP_CLIENT_SECRET=${{ secrets.CLIENT_SECRET }} yarn build
       env:
         REACT_APP_CLIENT_ID: ${{ secrets.CLIENT_ID }}
         REACT_APP_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
