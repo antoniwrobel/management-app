@@ -215,8 +215,15 @@ const RozliczeniaKomis = () => {
                     borderLeft: '1px solid rgba(224, 224, 224, 1)'
                   }
                 }}
+                stickyHeader
               >
-                <TableHead>
+                <TableHead
+                  sx={{
+                    transform: 'translateY(70px)',
+                    zIndex: '1',
+                    position: 'relative'
+                  }}
+                >
                   <TableRow>
                     <TableCell sx={{ fontWeight: 'bold' }}>Nazwa produktu</TableCell>
                     <TableCell align="center" sx={{ fontWeight: 'bold' }}>
@@ -240,6 +247,9 @@ const RozliczeniaKomis = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
+                  <TableRow sx={{ height: '70px' }}>
+                    <TableCell />
+                  </TableRow>
                   {items
                     // @ts-ignore
                     .sort((a, b) => new Date(b.createDate) - new Date(a.createDate))
@@ -286,8 +296,8 @@ const RozliczeniaKomis = () => {
                       const removedCellStyles =
                         returned && !item.settled
                           ? {
-                              textDecoration: 'line-through'
-                            }
+                            textDecoration: 'line-through'
+                          }
                           : {};
 
                       return (

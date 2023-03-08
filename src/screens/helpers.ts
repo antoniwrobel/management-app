@@ -115,7 +115,7 @@ export const handleSpendingInputs = (addOnly = false) => {
       fullWidth: true
     },
     {
-      type: 'text',
+      type: 'number',
       name: 'amount',
       label: 'kwota wydatku'
     },

@@ -26,9 +26,9 @@ import { Typography } from '@mui/material';
 import AddAPhotoSharpIcon from '@mui/icons-material/AddAPhotoSharp';
 import { PayoutModal } from '../components/spendings/PayoutModal';
 
-interface Props {}
+interface Props { }
 
-const Spendings = ({}: Props) => {
+const Spendings = ({ }: Props) => {
   const [data, setData] = useState<SpendingType[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -241,8 +241,14 @@ const Spendings = ({}: Props) => {
                     borderLeft: '1px solid rgba(224, 224, 224, 1)'
                   }
                 }}
+
+                stickyHeader
               >
-                <TableHead>
+                <TableHead sx={{
+                  transform: 'translateY(70px)',
+                  zIndex: '1',
+                  position: 'relative'
+                }}>
                   <TableRow>
                     <TableCell sx={{ fontWeight: 'bold' }}>Nazwa wydatku</TableCell>
                     <TableCell align="center" sx={{ fontWeight: 'bold' }}>
@@ -268,6 +274,9 @@ const Spendings = ({}: Props) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
+                  <TableRow sx={{ height: '70px' }}>
+                    <TableCell />
+                  </TableRow>
                   {data // @ts-ignore
                     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                     .map((d) => {
@@ -284,10 +293,10 @@ const Spendings = ({}: Props) => {
 
                       const removedCellStyles = d.removed
                         ? {
-                            textDecoration: 'line-through',
-                            fontWeight: 'bold',
-                            color: 'red'
-                          }
+                          textDecoration: 'line-through',
+                          fontWeight: 'bold',
+                          color: 'red'
+                        }
                         : {};
 
                       const amount = Number(d.amount);
@@ -379,8 +388,8 @@ const Spendings = ({}: Props) => {
                       ? 'do odebrania od Wojtka:'
                       : 'do oddania Wojtkowi:'
                     : totalWojtek - totalStan > 0
-                    ? 'do odebrania od Staszka:'
-                    : 'do oddania Staszkowi:'}
+                      ? 'do odebrania od Staszka:'
+                      : 'do oddania Staszkowi:'}
                   <Box sx={{ fontWeight: 'bold', marginLeft: '10px', minWidth: '150px', textAlign: 'end' }}>
                     {isStan
                       ? Math.abs(totalStan - totalWojtek).toFixed(2)
