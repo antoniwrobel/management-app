@@ -11,7 +11,7 @@ const AllegroProtected = () => {
     const [hasError, setHasError] = useState(false)
     const [loading, setLoading] = useState(false)
     const [fetched, setFetched] = useState(false)
-
+    console.log(process.env.CLIENT_ID)
     const handleAuthorizeAllegro = () => {
         const client_id = process.env.CLIENT_ID
         const url = `https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}`

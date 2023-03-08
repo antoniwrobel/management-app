@@ -1,7 +1,6 @@
 import { Box, Container } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from "../components/auth/auth-service";
 import { redirect_uri } from "./AllegroProtected";
 import { useLocalStorage } from "./helpers";
