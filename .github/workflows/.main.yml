@@ -1,4 +1,4 @@
-name: CI
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -6,25 +6,32 @@ on:
       - main
 
 jobs:
-  build:
-
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-    
-    - name: Checkout
-      uses: actions/checkout@v1
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install Node.js
+      uses: actions/setup-node@v2-beta
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: yarn install
 
     - name: Build
-      run: |
-        npm install
-        npm run-script build
+      run: yarn build
       env:
-          CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        REACT_APP_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        REACT_APP_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
-    - name: Deploy
+    - name: Deploy to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
-        BRANCH: gh-pages
-        FOLDER: build
+        branch: gh-pages
+        folder: build
+        clean: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
