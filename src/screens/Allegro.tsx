@@ -2,9 +2,7 @@ import { Box, Container } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '../components/auth/auth-service';
-import { redirect_uri } from './AllegroProtected';
 import { useLocalStorage } from './helpers';
-import { Buffer } from 'buffer';
 
 export const Allegro = () => {
   const [code, setCode] = useState<null | string>();
@@ -16,17 +14,8 @@ export const Allegro = () => {
 
   const handleUserAuth = async (code: string) => {
     try {
-      const url = `https://allegro.pl/auth/oauth/token`;
-      const client_id = process.env.REACT_APP_CLIENT_ID;
-      const client_secret = process.env.REACT_APP_CLIENT_SECRET;
-      const encodedString = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
-
-      const data = { grant_type: 'authorization_code', code, redirect_uri };
-
-      const response = await axios.post(url, new URLSearchParams(data), {
-        headers: {
-          Authorization: `Basic ${encodedString}`
-        }
+      const response = await axios.post(`https://kx2qtpebwqlqmx4s7wrmk3oxle0ajlvw.lambda-url.us-east-2.on.aws/`, {
+        code
       });
 
       console.log({ response });
