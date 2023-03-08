@@ -13,7 +13,6 @@ export const Allegro = () => {
   const [, setAccessToken] = useLocalStorage(ACCESS_TOKEN_KEY, null);
   const [, setRefreshToken] = useLocalStorage(REFRESH_TOKEN_KEY, null);
   const [success, setSuccess] = useState(false);
-  console.log({ code });
 
   const handleUserAuth = async (code: string) => {
     try {
@@ -46,7 +45,7 @@ export const Allegro = () => {
     if (code) {
       setCode(code);
     }
-  }, []);
+  }, [code]);
 
   useEffect(() => {
     if (code) {
