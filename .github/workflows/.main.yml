@@ -24,7 +24,7 @@ jobs:
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
     - name: Deploy
-      uses: JamesIves/github-pages-deploy-action@releases/v3
+      uses: antoniwrobel/github-pages-deploy-action@releases/v3
           with:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN_KEY }}
             BRANCH: gh-pages
