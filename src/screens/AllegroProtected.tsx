@@ -12,10 +12,11 @@ const AllegroProtected = () => {
     const [loading, setLoading] = useState(false)
     const [fetched, setFetched] = useState(false)
 
-    console.log(process.env.REACT_APP_CLIENT_ID)
+    const client_id = process.env.REACT_APP_CLIENT_ID
+    const url = `https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}`
+    console.log({ url })
 
     const handleAuthorizeAllegro = () => {
-        const client_id = process.env.REACT_APP_CLIENT_ID
         const url = `https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}`
         return window.location.href = url
     }
