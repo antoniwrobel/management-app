@@ -70,10 +70,6 @@ export const AddItem = (props: AddItemProps) => {
     .filter((item) => (item.provision || 0) > 0 && item.status === 'sprzedano' && !item.provisionPayed)
     .map((item) => ({ name: item.productName, value: item.id, amount: item.provision }));
 
-  const optionsValve = itemsV
-    .filter((item) => !item.removed)
-    .map((item) => ({ name: item.elementName, value: item.id, amount: item.amount }));
-
   const valveSummary = itemsV
     .filter((item) => !item.removed)
     .reduce((acc, curr) => curr.amount + acc, 0).toFixed(2)

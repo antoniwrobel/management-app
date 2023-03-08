@@ -204,8 +204,13 @@ const Skarbonka = () => {
                     borderLeft: '1px solid rgba(224, 224, 224, 1)'
                   }
                 }}
+                stickyHeader
               >
-                <TableHead>
+                <TableHead sx={{
+                  transform: 'translateY(70px)',
+                  zIndex: '1',
+                  position: 'relative'
+                }}>
                   <TableRow>
                     <TableCell sx={{ fontWeight: 'bold' }}>Nazwa potrącenia</TableCell>
 
@@ -227,6 +232,9 @@ const Skarbonka = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
+                  <TableRow sx={{ height: '70px' }}>
+                    <TableCell />
+                  </TableRow>
                   {data // @ts-ignore
                     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                     .map((d) => {
@@ -243,8 +251,8 @@ const Skarbonka = () => {
 
                       const removedCellStyles = d.removed
                         ? {
-                            textDecoration: 'line-through'
-                          }
+                          textDecoration: 'line-through'
+                        }
                         : {};
 
                       const itemSelectedFound = currentSelected.find((e) => e.id === d.id);
