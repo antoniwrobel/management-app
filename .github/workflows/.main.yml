@@ -14,6 +14,7 @@ jobs:
 
       - name: Store variables
         run: |
+          print gh-token ${{ secrets.GITHUB_TOKEN }}
           touch .env
           echo "REACT_APP_CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
           echo "REACT_APP_CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
