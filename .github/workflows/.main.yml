@@ -31,10 +31,10 @@ jobs:
           git config --global user.email antoni@stantart.pl
         
         - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@releases/v3
-        with:
-          branch: gh-pages
-          folder: build
-          clean: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          uses: JamesIves/github-pages-deploy-action@releases/v3
+          with:
+            branch: gh-pages
+            folder: build
+            clean: true
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
