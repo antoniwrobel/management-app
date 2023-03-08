@@ -17,14 +17,14 @@ export const Allegro = () => {
 
     const handleUserAuth = async () => {
         try {
-            const url = `https://allegro.pl/auth/oauth/token?grant_type=authorization_code&code=${code}&redirect_uri=${redirect_uri}`
+            const url = `https://cors-anywhere.herokuapp.com/https://allegro.pl/auth/oauth/token?grant_type=authorization_code&code=${code}&redirect_uri=${redirect_uri}`
             const client_id = process.env.REACT_APP_CLIENT_ID
             const client_secret = process.env.REACT_APP_CLIENT_SECRET
             const encodedString = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
 
             const response = await axios.post(url, {
                 Headers: {
-                    Authorization: `Basic ${encodedString}`
+                    Authorization: `Basic ${encodedString}`,
 
                 }
             })
