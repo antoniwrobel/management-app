@@ -19,6 +19,8 @@ jobs:
           echo "REACT_APP_CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
 
       - name: Build
+        env: 
+          CI: false
         run: |
           yarn install
           yarn run build
