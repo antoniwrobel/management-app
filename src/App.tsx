@@ -37,8 +37,6 @@ function App() {
     );
   }
 
-  console.log('test');
-
   if (hasError) {
     return <Center height="100vh">no access</Center>;
   }
