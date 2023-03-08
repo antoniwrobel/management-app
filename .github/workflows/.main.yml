@@ -9,9 +9,6 @@ jobs:
   front-build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v1
-
       - name: Store variables
         run: |
           touch .env
@@ -24,17 +21,21 @@ jobs:
         run: |
           yarn install
           yarn run build
+
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        permissions:
+          contents: write
         with:
           token: ${{ secrets.PAT }}
 
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@releases/v3
+        uses: JamesIves/github-pages-deploy-action@releases/v4
+        permissions:
+          contents: write
         with:
           branch: gh-pages
-          folder: ../build
-          clean: true
+          folder: build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           token: ${{ secrets.PAT }}

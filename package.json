@@ -6,6 +6,7 @@
   "dependencies": {
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
+    "@jamesives/github-pages-deploy-action": "4.4.1",
     "@mui/icons-material": "^5.2.5",
     "@mui/material": "^5.2.6",
     "@mui/x-date-pickers": "^5.0.11",
@@ -40,7 +41,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "CI=false react-scripts build  --no-warnings --no-error-on-warnings",
+    "build": "CI=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "serve": "serve -s build",
