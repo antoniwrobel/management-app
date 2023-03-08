@@ -9,12 +9,6 @@ jobs:
   front-build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Store variables
-        run: |
-          touch .env
-          echo "REACT_APP_CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
-          echo "REACT_APP_CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
-
       - name: Checkout code
         uses: actions/checkout@v3
         with:
@@ -23,6 +17,8 @@ jobs:
       - name: Build
         env: 
           CI: false
+          REACT_APP_CLIENT_ID: {{ secrets.CLIENT_ID }}
+          REACT_APP_CLIENT_SECRET: {{ secrets.CLIENT_SECRET }}
         run: |
           yarn install
           yarn run build
@@ -33,5 +29,7 @@ jobs:
           branch: gh-pages
           folder: build
         env:
+          REACT_APP_CLIENT_ID: {{ secrets.CLIENT_ID }}
+          REACT_APP_CLIENT_SECRET: {{ secrets.CLIENT_SECRET }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           token: ${{ secrets.PAT }}
