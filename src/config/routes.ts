@@ -5,6 +5,7 @@ import Spendings from '../screens/Wydatki';
 import Skarbonka from '../screens/Skarbonka';
 import Screenshots from '../screens/Screenshots';
 import { Allegro } from '../screens/Allegro';
+import AllegroProtected from '../screens/AllegroProtected';
 
 interface RouteType {
   path: string;
@@ -54,6 +55,12 @@ const routes: RouteType[] = [
     path: '/screenshots',
     component: () => Screenshots,
     name: 'Screenshots',
+    isProtected: true
+  },
+  {
+    path: '/allegro',
+    component: () => AllegroProtected,
+    name: 'Allegro',
     isProtected: true
   }
 ];

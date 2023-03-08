@@ -151,6 +151,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     if (typeof window === 'undefined') {
       return initialValue;
     }
+
     try {
       // Get from local storage by key
       const item = window.localStorage.getItem(key);
