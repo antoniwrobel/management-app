@@ -13,7 +13,7 @@ const AllegroProtected = () => {
   const [fetched, setFetched] = useState(false);
 
   const client_id = process.env.REACT_APP_CLIENT_ID;
-  const url = `https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}`;
+  const url = `https://cors-anywhere.herokuapp.com/https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}`;
 
   const handleAuthorizeAllegro = () => {
     return (window.location.href = url);
