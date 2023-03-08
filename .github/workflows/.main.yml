@@ -1,37 +1,9 @@
-name: Deploy to GitHub Pages
+- name: Print versions
+  run: |
+    node --version
+    yarn --version
 
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Install Node.js
-      uses: actions/setup-node@v2-beta
-      with:
-        node-version: '14'
-
-    - name: Install dependencies
-      run: yarn install
-
-    - name: Build
-      run: REACT_APP_CLIENT_ID=${{ secrets.CLIENT_ID }} REACT_APP_CLIENT_SECRET=${{ secrets.CLIENT_SECRET }} yarn build
-      env:
-        REACT_APP_CLIENT_ID: ${{ secrets.CLIENT_ID }}
-        REACT_APP_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-
-    - name: Deploy to GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@releases/v3
-      with:
-        branch: gh-pages
-        folder: build
-        clean: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+- name: Print environment variables
+  run: |
+    echo "CLIENT_ID: $CLIENT_ID"
+    echo "CLIENT_SECRET: $CLIENT_SECRET"
