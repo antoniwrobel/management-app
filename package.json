@@ -66,6 +66,7 @@
     ]
   },
   "devDependencies": {
+    "buffer": "^6.0.3",
     "gh-pages": "^3.2.3"
   }
 }
