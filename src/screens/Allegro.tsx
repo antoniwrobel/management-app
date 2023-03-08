@@ -16,17 +16,16 @@ export const Allegro = () => {
 
   const handleUserAuth = async (code: string) => {
     try {
-      const url = `https://allegro.pl/auth/oauth/token?grant_type=authorization_code&code=${code}&redirect_uri=${redirect_uri}`;
+      const url = `https://allegro.pl/auth/oauth/token`;
       const client_id = process.env.REACT_APP_CLIENT_ID;
       const client_secret = process.env.REACT_APP_CLIENT_SECRET;
       const encodedString = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
 
-      const response = await axios.post(url, {
-        Headers: {
-          Authorization: `Basic ${encodedString}`,
-          ['Content-Type']: 'application/x-www-form-urlencoded',
-          'X-Requested-With': 'XMLHttpRequest',
-          Accept: '*/*'
+      const data = { grant_type: 'authorization_code', code, redirect_uri };
+
+      const response = await axios.post(url, new URLSearchParams(data), {
+        headers: {
+          Authorization: `Basic ${encodedString}`
         }
       });
 
