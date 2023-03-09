@@ -14,9 +14,18 @@ export const Allegro = () => {
 
   const handleUserAuth = async (code: string) => {
     try {
-      const response = await axios.post(`https://kx2qtpebwqlqmx4s7wrmk3oxle0ajlvw.lambda-url.us-east-2.on.aws/`, {
-        code
-      });
+      const response = await axios.post(
+        `https://kx2qtpebwqlqmx4s7wrmk3oxle0ajlvw.lambda-url.us-east-2.on.aws/`,
+        {
+          code
+        },
+        {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true
+          }
+        }
+      );
 
       console.log({ response });
 
