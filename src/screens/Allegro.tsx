@@ -36,7 +36,10 @@ export const Allegro = () => {
 
   useEffect(() => {
     if (code) {
-      handleUserAuth(code);
+      const access_token = window.localStorage.getItem('access_token');
+      if (!access_token) {
+        handleUserAuth(code);
+      }
     }
   }, [code]);
 
