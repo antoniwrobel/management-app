@@ -15,7 +15,7 @@ export const Allegro = () => {
   const handleUserAuth = async (code: string) => {
     try {
       const response = await axios.post(
-        `https://kx2qtpebwqlqmx4s7wrmk3oxle0ajlvw.lambda-url.us-east-2.on.aws/`,
+        `https://ixpsrit4w4zx42viaflesugd2a0brfyc.lambda-url.us-east-2.on.aws/`,
         {
           code
         },
