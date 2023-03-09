@@ -29,6 +29,7 @@ export const Allegro = () => {
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const code = searchParams.get('code');
+
     if (code) {
       setCode(code);
     }
@@ -36,10 +37,7 @@ export const Allegro = () => {
 
   useEffect(() => {
     if (code) {
-      const access_token = window.localStorage.getItem('access_token');
-      if (!access_token) {
-        handleUserAuth(code);
-      }
+      handleUserAuth(code);
     }
   }, [code]);
 
