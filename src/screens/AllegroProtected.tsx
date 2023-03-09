@@ -14,7 +14,7 @@ const AllegroProtected = () => {
 
   const client_id = process.env.REACT_APP_CLIENT_ID;
   const url = `https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}`;
-  console.log({ url });
+
   const handleAuthorizeAllegro = () => {
     return (window.location.href = url);
   };

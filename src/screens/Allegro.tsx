@@ -1,4 +1,4 @@
-import { Box, Container } from '@mui/material';
+import { Box, Button, Container } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '../components/auth/auth-service';
@@ -20,11 +20,14 @@ export const Allegro = () => {
         `https://2ta3wp37hnekkkfoyffzylutxi0gmuvn.lambda-url.us-east-1.on.aws/?code=${code}`
       );
 
-      console.log({ response });
-
       if (response.status === 200) {
         setAccessToken(response.data.access_token);
         setRefreshToken(response.data.refresh_token);
+        setSuccess(true);
+
+        setTimeout(() => {
+          window.location.href = `https://antoniwrobel.github.io/management-app/`;
+        }, 2000);
       }
     } catch (error) {
       console.error(error);
