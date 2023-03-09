@@ -13,7 +13,7 @@ export const Allegro = () => {
   const handleUserAuth = async (code: string) => {
     try {
       const response = await axios.post(
-        `https://2ta3wp37hnekkkfoyffzylutxi0gmuvn.lambda-url.us-east-1.on.aws/?code=${code}`
+        `https://4czt77qfqr6fxpvaemk4vu5e4m0hkeyq.lambda-url.us-east-1.on.aws/?code=${code}`
       );
 
       if (response.status === 200) {
