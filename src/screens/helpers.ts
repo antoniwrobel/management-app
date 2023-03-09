@@ -158,8 +158,6 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
       // Parse stored json or if none return initialValue
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
-      // If error also return initialValue
-      console.log(error);
       return initialValue;
     }
   });
@@ -178,7 +176,6 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
       }
     } catch (error) {
       // A more advanced implementation would handle the error case
-      console.log(error);
     }
   };
   return [storedValue, setValue] as const;
