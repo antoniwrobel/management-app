@@ -173,7 +173,8 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
       setStoredValue(valueToStore);
       // Save to local storage
       if (typeof window !== 'undefined') {
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+        //@ts-ignore
+        window.localStorage.setItem(key, valueToStore);
       }
     } catch (error) {
       // A more advanced implementation would handle the error case

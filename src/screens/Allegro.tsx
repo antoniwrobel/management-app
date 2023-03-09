@@ -10,8 +10,8 @@ export const Allegro = () => {
   const [code, setCode] = useState<null | string>();
   const isMobile = window.innerWidth < 900;
 
-  const [, setAccessToken] = useLocalStorage(ACCESS_TOKEN_KEY, null);
-  const [, setRefreshToken] = useLocalStorage(REFRESH_TOKEN_KEY, null);
+  const [t, setAccessToken] = useLocalStorage(ACCESS_TOKEN_KEY, '');
+  const [r, setRefreshToken] = useLocalStorage(REFRESH_TOKEN_KEY, '');
   const [success, setSuccess] = useState(false);
 
   const handleUserAuth = async (code: string) => {
