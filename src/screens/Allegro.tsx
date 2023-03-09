@@ -16,17 +16,8 @@ export const Allegro = () => {
 
   const handleUserAuth = async (code: string) => {
     try {
-      const params = new URLSearchParams();
-      params.append('code', code);
-      console.log(432, code);
       const response = await axios.post(
-        `https://2ta3wp37hnekkkfoyffzylutxi0gmuvn.lambda-url.us-east-1.on.aws/`,
-        params,
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }
-        }
+        `https://2ta3wp37hnekkkfoyffzylutxi0gmuvn.lambda-url.us-east-1.on.aws/?code=${code}`
       );
 
       console.log({ response });
