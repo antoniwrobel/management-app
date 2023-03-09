@@ -2,7 +2,9 @@ import { Box, Container } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '../components/auth/auth-service';
+import { redirect_uri } from './AllegroProtected';
 import { useLocalStorage } from './helpers';
+import { Buffer } from 'buffer';
 
 export const Allegro = () => {
   const [code, setCode] = useState<null | string>();
@@ -15,15 +17,8 @@ export const Allegro = () => {
   const handleUserAuth = async (code: string) => {
     try {
       const response = await axios.post(
-        `https://ixpsrit4w4zx42viaflesugd2a0brfyc.lambda-url.us-east-2.on.aws/`,
-        {
-          code
-        },
-        {
-          headers: {
-            'Access-Control-Allow-Origin': '*'
-          }
-        }
+        `https://2ta3wp37hnekkkfoyffzylutxi0gmuvn.lambda-url.us-east-1.on.aws/`,
+        new URLSearchParams({ code })
       );
 
       console.log({ response });
