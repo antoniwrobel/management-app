@@ -1,18 +1,13 @@
-import { Box, Button, Container } from '@mui/material';
+import { Box, Container } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '../components/auth/auth-service';
-import { redirect_uri } from './AllegroProtected';
 import { useLocalStorage } from './helpers';
-import { Buffer } from 'buffer';
 import AllegroDetails from './AllegroDetails';
 
 export const Allegro = () => {
   const [code, setCode] = useState<null | string>();
   const isMobile = window.innerWidth < 900;
-
-  const [t, setAccessToken] = useLocalStorage(ACCESS_TOKEN_KEY, '');
-  const [r, setRefreshToken] = useLocalStorage(REFRESH_TOKEN_KEY, '');
   const [success, setSuccess] = useState(false);
 
   const handleUserAuth = async (code: string) => {
@@ -22,13 +17,9 @@ export const Allegro = () => {
       );
 
       if (response.status === 200) {
-        setAccessToken(response.data.access_token);
-        setRefreshToken(response.data.refresh_token);
+        window.localStorage.setItem('access_token', response.data.access_token);
+        window.localStorage.setItem('refresh_token', response.data.refresh_token);
         setSuccess(true);
-
-        setTimeout(() => {
-          window.location.href = `https://antoniwrobel.github.io/management-app/`;
-        }, 2000);
       }
     } catch (error) {
       console.error(error);

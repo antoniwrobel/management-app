@@ -2,7 +2,7 @@ import { Box, Button, Container } from '@mui/material';
 import { useEffect, useState } from 'react';
 import withLayout from '../components/layout/withLayout';
 import { auth } from '../config/firebase';
-import { allowedUserEmails, isAdminUser } from './helpers';
+import { isAdminUser } from './helpers';
 
 export const redirect_uri = 'https://antoniwrobel.github.io/management-app/allegro-redirection-path';
 
