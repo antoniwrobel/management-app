@@ -5,6 +5,7 @@ import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '../components/auth/auth-ser
 import { redirect_uri } from './AllegroProtected';
 import { useLocalStorage } from './helpers';
 import { Buffer } from 'buffer';
+import AllegroDetails from './AllegroDetails';
 
 export const Allegro = () => {
   const [code, setCode] = useState<null | string>();
@@ -49,18 +50,23 @@ export const Allegro = () => {
   }, [code]);
 
   return (
-    <Box
-      display={'flex'}
-      alignItems={'center'}
-      flexDirection={'column'}
-      boxShadow={2}
-      margin={3}
-      overflow={isMobile ? 'scroll' : 'initial'}
-    >
-      <Container sx={{ p: '0px !important', m: '24px', maxWidth: '100% !important', width: 'auto' }}>
-        Allegro redirection page
-        {success ? ' Poprawnie zapisano tokeny' : ' Brak tokenów'}
-      </Container>
-    </Box>
+    <>
+      {success ? (
+        <div>{AllegroDetails}</div>
+      ) : (
+        <Box
+          display={'flex'}
+          alignItems={'center'}
+          flexDirection={'column'}
+          boxShadow={2}
+          margin={3}
+          overflow={isMobile ? 'scroll' : 'initial'}
+        >
+          <Container sx={{ p: '0px !important', m: '24px', maxWidth: '100% !important', width: 'auto' }}>
+            loading...
+          </Container>
+        </Box>
+      )}
+    </>
   );
 };
