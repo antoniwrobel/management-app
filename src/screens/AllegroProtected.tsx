@@ -1,4 +1,5 @@
 import { Box, Button, Container } from '@mui/material';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import withLayout from '../components/layout/withLayout';
 import { auth } from '../config/firebase';
@@ -12,11 +13,17 @@ const AllegroProtected = () => {
   const [loading, setLoading] = useState(false);
   const [fetched, setFetched] = useState(false);
 
-  const client_id = process.env.REACT_APP_CLIENT_ID;
-  const url = `https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}`;
+  // const client_id = process.env.REACT_APP_CLIENT_ID;
+  // const url = `https://allegro.pl/auth/oauth/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}`;
 
-  const handleAuthorizeAllegro = () => {
-    return (window.location.href = url);
+  const handleAuthorizeAllegro = async () => {
+    // return (window.location.href = url);
+    try {
+      const success = await axios.get('/test');
+      console.log({ success });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   useEffect(() => {

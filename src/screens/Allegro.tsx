@@ -1,8 +1,5 @@
 import { Box, Container } from '@mui/material';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '../components/auth/auth-service';
-import { useLocalStorage } from './helpers';
 import AllegroDetails from './AllegroDetails';
 
 export const Allegro = () => {
@@ -12,15 +9,6 @@ export const Allegro = () => {
 
   const handleUserAuth = async (code: string) => {
     try {
-      const response = await axios.post(
-        `https://4czt77qfqr6fxpvaemk4vu5e4m0hkeyq.lambda-url.us-east-1.on.aws/?code=${code}`
-      );
-
-      if (response.status === 200) {
-        window.localStorage.setItem('access_token', response.data.access_token);
-        window.localStorage.setItem('refresh_token', response.data.refresh_token);
-        setSuccess(true);
-      }
     } catch (error) {
       console.error(error);
     }
